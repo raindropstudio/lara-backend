@@ -2,6 +2,8 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import axiosRetry from 'axios-retry';
 
+type SkillGrade = '0' | '1' | '1.5' | '2' | '2.5' | '3' | '4' | '5' | '6' | 'hyperpassive' | 'hyperactive';
+
 @Injectable()
 export class NxapiService implements OnModuleInit {
   constructor(private readonly httpService: HttpService) {}
@@ -35,9 +37,7 @@ export class NxapiService implements OnModuleInit {
 
   async getCharacterBasic(ocid: string, date?: string): Promise<object> {
     const res = await this.nxapi('/character/basic', { ocid, date });
-    this.logger.log(
-      `getCharacterBasic: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,
-    );
+    this.logger.log(`getCharacterBasic: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`);
     return res;
   }
 
@@ -51,9 +51,7 @@ export class NxapiService implements OnModuleInit {
 
   async getCharacterStat(ocid: string, date?: string): Promise<object> {
     const res = await this.nxapi('/character/stat', { ocid, date });
-    this.logger.log(
-      `getCharacterStat: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,
-    );
+    this.logger.log(`getCharacterStat: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`);
     return res;
   }
 
@@ -75,16 +73,11 @@ export class NxapiService implements OnModuleInit {
 
   async getCharacterAbility(ocid: string, date?: string): Promise<object> {
     const res = await this.nxapi('/character/ability', { ocid, date });
-    this.logger.log(
-      `getCharacterAbility: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,
-    );
+    this.logger.log(`getCharacterAbility: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`);
     return res;
   }
 
-  async getCharacterItemEquipment(
-    ocid: string,
-    date?: string,
-  ): Promise<object> {
+  async getCharacterItemEquipment(ocid: string, date?: string): Promise<object> {
     const res = await this.nxapi('/character/item-equipment', { ocid, date });
     this.logger.log(
       `getCharacterItemEquipment: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,
@@ -92,10 +85,7 @@ export class NxapiService implements OnModuleInit {
     return res;
   }
 
-  async getCharacterCashitemEquipment(
-    ocid: string,
-    date?: string,
-  ): Promise<object> {
+  async getCharacterCashitemEquipment(ocid: string, date?: string): Promise<object> {
     const res = await this.nxapi('/character/cashitem-equipment', {
       ocid,
       date,
@@ -106,10 +96,7 @@ export class NxapiService implements OnModuleInit {
     return res;
   }
 
-  async getCharacterSymbolEquipment(
-    ocid: string,
-    date?: string,
-  ): Promise<object> {
+  async getCharacterSymbolEquipment(ocid: string, date?: string): Promise<object> {
     const res = await this.nxapi('/character/symbol-equipment', { ocid, date });
     this.logger.log(
       `getCharacterSymbolEquipment: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,
@@ -125,10 +112,7 @@ export class NxapiService implements OnModuleInit {
     return res;
   }
 
-  async getCharacterBeautyEquipment(
-    ocid: string,
-    date?: string,
-  ): Promise<object> {
+  async getCharacterBeautyEquipment(ocid: string, date?: string): Promise<object> {
     const res = await this.nxapi('/character/beauty-equipment', { ocid, date });
     this.logger.log(
       `getCharacterBeautyEquipment: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,
@@ -136,10 +120,7 @@ export class NxapiService implements OnModuleInit {
     return res;
   }
 
-  async getCharacterAndroidEquipment(
-    ocid: string,
-    date?: string,
-  ): Promise<object> {
+  async getCharacterAndroidEquipment(ocid: string, date?: string): Promise<object> {
     const res = await this.nxapi('/character/android-equipment', {
       ocid,
       date,
@@ -158,11 +139,13 @@ export class NxapiService implements OnModuleInit {
     return res;
   }
 
-  async getCharacterSkill(ocid: string, date?: string): Promise<object> {
-    const res = await this.nxapi('/character/skill', { ocid, date });
-    this.logger.log(
-      `getCharacterSkill: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,
-    );
+  async getCharacterSkill(ocid: string, skillGrade: SkillGrade, date?: string): Promise<object> {
+    const res = await this.nxapi('/character/skill', {
+      ocid,
+      date,
+      character_skill_grade: skillGrade,
+    });
+    this.logger.log(`getCharacterSkill: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`);
     return res;
   }
 
@@ -176,9 +159,7 @@ export class NxapiService implements OnModuleInit {
 
   async getCharacterVmatrix(ocid: string, date?: string): Promise<object> {
     const res = await this.nxapi('/character/vmatrix', { ocid, date });
-    this.logger.log(
-      `getCharacterVmatrix: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,
-    );
+    this.logger.log(`getCharacterVmatrix: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`);
     return res;
   }
 
@@ -190,10 +171,7 @@ export class NxapiService implements OnModuleInit {
     return res;
   }
 
-  async getCharacterHexamatrixStat(
-    ocid: string,
-    date?: string,
-  ): Promise<object> {
+  async getCharacterHexamatrixStat(ocid: string, date?: string): Promise<object> {
     const res = await this.nxapi('/character/hexamatrix-stat', { ocid, date });
     this.logger.log(
       `getCharacterHexamatrixStat: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,
@@ -203,9 +181,7 @@ export class NxapiService implements OnModuleInit {
 
   async getCharacterDojang(ocid: string, date?: string): Promise<object> {
     const res = await this.nxapi('/character/dojang', { ocid, date });
-    this.logger.log(
-      `getCharacterDojang: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,
-    );
+    this.logger.log(`getCharacterDojang: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`);
     return res;
   }
 }

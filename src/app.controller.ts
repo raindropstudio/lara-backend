@@ -33,6 +33,7 @@ export class AppController {
       this.nxapiService.getCharacterBeautyEquipment(ocid),
       this.nxapiService.getCharacterAndroidEquipment(ocid),
       this.nxapiService.getCharacterPetEquipment(ocid),
+      this.nxapiService.getCharacterSkill(ocid, '5'),
     ];
 
     const results = await Promise.all(promises);
