@@ -2,6 +2,8 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import axiosRetry from 'axios-retry';
 
+type SkillGrade = '0' | '1' | '1.5' | '2' | '2.5' | '3' | '4' | '5' | '6' | 'hyperpassive' | 'hyperactive';
+
 @Injectable()
 export class NxapiService implements OnModuleInit {
   constructor(private readonly httpService: HttpService) {}
@@ -158,8 +160,8 @@ export class NxapiService implements OnModuleInit {
     return res;
   }
 
-  async getCharacterSkill(ocid: string, date?: string): Promise<object> {
-    const res = await this.nxapi('/character/skill', { ocid, date });
+  async getCharacterSkill(ocid: string, skillGrade: SkillGrade, date?: string): Promise<object> {
+    const res = await this.nxapi('/character/skill', { ocid, date, character_skill_grade: skillGrade});
     this.logger.log(
       `getCharacterSkill: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,
     );
