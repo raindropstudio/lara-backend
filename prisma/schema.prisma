@@ -1,0 +1,268 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DB_URL")
+}
+
+model Character {
+  id                   Int                @id @default(autoincrement())
+  ocid                 String
+  nickname             String             @unique
+  worldName            String
+  gender               String
+  class                String
+  classLevel           Int
+  level                Int
+  exp                  BigInt
+  expRate              Float
+  guildName            String
+  imageUrl             String             @db.VarChar(2048)
+  dateCreate           DateTime
+  accessFlag           Boolean
+  liberationQuestClear Boolean
+  popularity           Int
+  updatedAt            DateTime
+  stats                Stat[]
+  hyperStats           HyperStat[]
+  propensities         Propensity?
+  abilities            Ability[]
+  equipment            Equipment[]
+  cashEquipment        CashEquipment[]
+  symbols              Symbol[]
+  setEffects           SetEffect[]
+  beauty               BeautyEquipment?
+  androids             AndroidEquipment[]
+  pets                 PetEquipment[]
+  skills               Skill[]
+  linkSkills           LinkSkill[]
+  vMatrix              VMatrix[]
+  hexaMatrix           HexaMatrix[]
+  dojang               Dojang?
+}
+
+model Stat {
+  id          Int       @id @default(autoincrement())
+  characterId Int
+  character   Character @relation(fields: [characterId], references: [id])
+  statName    String
+  statValue   String
+}
+
+model HyperStat {
+  id           Int       @id @default(autoincrement())
+  characterId  Int
+  character    Character @relation(fields: [characterId], references: [id])
+  statType     String
+  statLevel    Int
+  statPoint    Int?
+  statIncrease Int?
+}
+
+model Propensity {
+  id               Int       @id @default(autoincrement())
+  characterId      Int       @unique
+  character        Character @relation(fields: [characterId], references: [id])
+  charismaLevel    Int
+  sensibilityLevel Int
+  insightLevel     Int
+  willingnessLevel Int
+  handicraftLevel  Int
+  charmLevel       Int
+}
+
+model Ability {
+  id           Int       @id @default(autoincrement())
+  characterId  Int
+  character    Character @relation(fields: [characterId], references: [id])
+  abilityGrade String
+  abilityNo    Int
+  abilityValue String
+  remainFame   Int
+  presetNo     Int
+}
+
+model Equipment {
+  id                        Int       @id @default(autoincrement())
+  characterId               Int
+  character                 Character @relation(fields: [characterId], references: [id])
+  equipmentPart             String
+  equipmentSlot             String
+  itemName                  String
+  itemIcon                  String
+  itemDescription           String?
+  itemShapeName             String
+  itemShapeIcon             String
+  itemGender                String?
+  totalOptions              Json
+  baseOptions               Json
+  potentialOptionGrade      String
+  additionalPotentialOption String
+  exceptionalOptions        Json
+  addOptions                Json
+  growthExp                 Int
+  growthLevel               Int
+  scrollUpgrade             Int
+  cuttableCount             Int
+  goldenHammerFlag          String
+  scrollResilienceCount     Int
+  scrollUpgradeableCount    Int
+  soulName                  String?
+  soulOption                Json?
+  starforce                 Int
+  starforceScrollFlag       String
+}
+
+model CashEquipment {
+  id                    Int       @id @default(autoincrement())
+  characterId           Int
+  character             Character @relation(fields: [characterId], references: [id])
+  cashItemEquipmentPart String
+  cashItemEquipmentSlot String
+  cashItemName          String
+  cashItemIcon          String
+  cashItemDescription   String?
+  cashItemOption        Json
+  dateExpire            DateTime?
+}
+
+model Symbol {
+  id                  Int       @id @default(autoincrement())
+  characterId         Int
+  character           Character @relation(fields: [characterId], references: [id])
+  symbolName          String
+  symbolIcon          String
+  symbolDescription   String
+  symbolForce         Int
+  symbolLevel         Int
+  symbolStr           Int
+  symbolDex           Int
+  symbolInt           Int
+  symbolLuk           Int
+  symbolHp            Int
+  symbolGrowthCount   Int
+  symbolRequireGrowth Int
+}
+
+model SetEffect {
+  id            Int       @id @default(autoincrement())
+  characterId   Int
+  character     Character @relation(fields: [characterId], references: [id])
+  setName       String
+  totalSetCount Int
+  setOption     Json
+}
+
+model BeautyEquipment {
+  id            Int       @id @default(autoincrement())
+  characterId   Int       @unique
+  character     Character @relation(fields: [characterId], references: [id])
+  hairName      String
+  baseColor     String
+  mixColor      String
+  mixRate       Int
+  faceName      String
+  faceBaseColor String
+  faceMixColor  String
+  faceMixRate   Int
+  skinName      String
+}
+
+model AndroidEquipment {
+  id                       Int       @id @default(autoincrement())
+  characterId              Int
+  character                Character @relation(fields: [characterId], references: [id])
+  androidName              String
+  androidNickname          String
+  androidIcon              String
+  androidDescription       String
+  androidHair              Json?
+  androidFace              Json?
+  androidSkinName          String?
+  androidCashItemEquipment Json
+  androidEarSensorClipFlag String
+  androidGender            String
+  androidGrade             Int
+  androidNonHumanoidFlag   String
+  androidShopUsableFlag    String
+}
+
+model PetEquipment {
+  id                Int       @id @default(autoincrement())
+  characterId       Int
+  character         Character @relation(fields: [characterId], references: [id])
+  petName           String
+  petNickname       String
+  petIcon           String
+  petDescription    String
+  petEquipment      Json
+  petAutoSkill      Json
+  petType           String?
+  petSkill          Json
+  petDateExpire     DateTime
+  petAppearance     String
+  petAppearanceIcon String
+}
+
+model Skill {
+  id               Int       @id @default(autoincrement())
+  characterId      Int
+  character        Character @relation(fields: [characterId], references: [id])
+  skillName        String
+  skillDescription String
+  skillLevel       Int
+  skillEffect      String?
+  skillIcon        String
+}
+
+model LinkSkill {
+  id               Int       @id @default(autoincrement())
+  characterId      Int
+  character        Character @relation(fields: [characterId], references: [id])
+  skillName        String
+  skillDescription String
+  skillLevel       Int
+  skillEffect      String
+  skillIcon        String
+}
+
+model VMatrix {
+  id          Int       @id @default(autoincrement())
+  characterId Int
+  character   Character @relation(fields: [characterId], references: [id])
+  slotId      Int
+  slotLevel   Int
+  vCoreName   String
+  vCoreType   String
+  vCoreLevel  Int
+  vCoreSkill1 String
+  vCoreSkill2 String
+  vCoreSkill3 String
+}
+
+model HexaMatrix {
+  id            Int       @id @default(autoincrement())
+  characterId   Int
+  character     Character @relation(fields: [characterId], references: [id])
+  hexaCoreName  String
+  hexaCoreLevel Int
+  hexaCoreType  String
+  linkedSkill   Json
+}
+
+model Dojang {
+  id               Int       @id @default(autoincrement())
+  characterId      Int       @unique
+  character        Character @relation(fields: [characterId], references: [id])
+  bestFloor        Int
+  dateDojangRecord DateTime
+  bestTime         Int
+}

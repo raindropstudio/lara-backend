@@ -14,6 +14,6 @@ import { NxapiService } from './nxapi.service';
     }),
   ],
   providers: [NxapiService],
-  exports: [NxapiService, HttpModule],
+  exports: [NxapiService],
 })
 export class NxapiModule {}

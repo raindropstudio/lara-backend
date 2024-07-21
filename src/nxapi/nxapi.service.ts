@@ -29,159 +29,165 @@ export class NxapiService implements OnModuleInit {
     }
   }
 
-  async getCharacterOcid(characterName: string): Promise<string> {
+  async fetchCharacterOcid(characterName: string): Promise<string> {
     const res = await this.nxapi('/id', { character_name: characterName });
-    this.logger.log(`getCharacterOcid: ${characterName} => ${res.ocid}`);
+    this.logger.log(`fetchCharacterOcid: ${characterName} => ${res.ocid}`);
     return res.ocid;
   }
 
-  async getCharacterBasic(ocid: string, date?: string): Promise<object> {
+  async fetchCharacterBasic(ocid: string, date?: string): Promise<object> {
     const res = await this.nxapi('/character/basic', { ocid, date });
-    this.logger.log(`getCharacterBasic: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`);
+    this.logger.log(`fetchCharacterBasic: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`);
     return res;
   }
 
-  async getCharacterPopularity(ocid: string, date?: string): Promise<object> {
+  async fetchCharacterPopularity(ocid: string, date?: string): Promise<object> {
     const res = await this.nxapi('/character/popularity', { ocid, date });
     this.logger.log(
-      `getCharacterPopularity: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,
+      `fetchCharacterPopularity: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,
     );
     return res;
   }
 
-  async getCharacterStat(ocid: string, date?: string): Promise<object> {
+  async fetchCharacterStat(ocid: string, date?: string): Promise<object> {
     const res = await this.nxapi('/character/stat', { ocid, date });
-    this.logger.log(`getCharacterStat: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`);
+    this.logger.log(`fetchCharacterStat: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`);
     return res;
   }
 
-  async getCharacterHyperStat(ocid: string, date?: string): Promise<object> {
+  async fetchCharacterHyperStat(ocid: string, date?: string): Promise<object> {
     const res = await this.nxapi('/character/hyper-stat', { ocid, date });
     this.logger.log(
-      `getCharacterHyperStat: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,
+      `fetchCharacterHyperStat: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,
     );
     return res;
   }
 
-  async getCharacterPropensity(ocid: string, date?: string): Promise<object> {
+  async fetchCharacterPropensity(ocid: string, date?: string): Promise<object> {
     const res = await this.nxapi('/character/propensity', { ocid, date });
     this.logger.log(
-      `getCharacterPropensity: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,
+      `fetchCharacterPropensity: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,
     );
     return res;
   }
 
-  async getCharacterAbility(ocid: string, date?: string): Promise<object> {
+  async fetchCharacterAbility(ocid: string, date?: string): Promise<object> {
     const res = await this.nxapi('/character/ability', { ocid, date });
-    this.logger.log(`getCharacterAbility: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`);
+    this.logger.log(
+      `fetchCharacterAbility: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,
+    );
     return res;
   }
 
-  async getCharacterItemEquipment(ocid: string, date?: string): Promise<object> {
+  async fetchCharacterItemEquipment(ocid: string, date?: string): Promise<object> {
     const res = await this.nxapi('/character/item-equipment', { ocid, date });
     this.logger.log(
-      `getCharacterItemEquipment: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,
+      `fetchCharacterItemEquipment: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,
     );
     return res;
   }
 
-  async getCharacterCashitemEquipment(ocid: string, date?: string): Promise<object> {
+  async fetchCharacterCashitemEquipment(ocid: string, date?: string): Promise<object> {
     const res = await this.nxapi('/character/cashitem-equipment', {
       ocid,
       date,
     });
     this.logger.log(
-      `getCharacterCashitemEquipment: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,
+      `fetchCharacterCashitemEquipment: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,
     );
     return res;
   }
 
-  async getCharacterSymbolEquipment(ocid: string, date?: string): Promise<object> {
+  async fetchCharacterSymbolEquipment(ocid: string, date?: string): Promise<object> {
     const res = await this.nxapi('/character/symbol-equipment', { ocid, date });
     this.logger.log(
-      `getCharacterSymbolEquipment: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,
+      `fetchCharacterSymbolEquipment: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,
     );
     return res;
   }
 
-  async getCharacterSetEffect(ocid: string, date?: string): Promise<object> {
+  async fetchCharacterSetEffect(ocid: string, date?: string): Promise<object> {
     const res = await this.nxapi('/character/set-effect', { ocid, date });
     this.logger.log(
-      `getCharacterSetEffect: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,
+      `fetchCharacterSetEffect: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,
     );
     return res;
   }
 
-  async getCharacterBeautyEquipment(ocid: string, date?: string): Promise<object> {
+  async fetchCharacterBeautyEquipment(ocid: string, date?: string): Promise<object> {
     const res = await this.nxapi('/character/beauty-equipment', { ocid, date });
     this.logger.log(
-      `getCharacterBeautyEquipment: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,
+      `fetchCharacterBeautyEquipment: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,
     );
     return res;
   }
 
-  async getCharacterAndroidEquipment(ocid: string, date?: string): Promise<object> {
+  async fetchCharacterAndroidEquipment(ocid: string, date?: string): Promise<object> {
     const res = await this.nxapi('/character/android-equipment', {
       ocid,
       date,
     });
     this.logger.log(
-      `getCharacterAndroidEquipment: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,
+      `fetchCharacterAndroidEquipment: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,
     );
     return res;
   }
 
-  async getCharacterPetEquipment(ocid: string, date?: string): Promise<object> {
+  async fetchCharacterPetEquipment(ocid: string, date?: string): Promise<object> {
     const res = await this.nxapi('/character/pet-equipment', { ocid, date });
     this.logger.log(
-      `getCharacterPetEquipment: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,
+      `fetchCharacterPetEquipment: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,
     );
     return res;
   }
 
-  async getCharacterSkill(ocid: string, skillGrade: SkillGrade, date?: string): Promise<object> {
+  async fetchCharacterSkill(ocid: string, skillGrade: SkillGrade, date?: string): Promise<object> {
     const res = await this.nxapi('/character/skill', {
       ocid,
       date,
       character_skill_grade: skillGrade,
     });
-    this.logger.log(`getCharacterSkill: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`);
+    this.logger.log(`fetchCharacterSkill: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`);
     return res;
   }
 
-  async getCharacterLinkSkill(ocid: string, date?: string): Promise<object> {
+  async fetchCharacterLinkSkill(ocid: string, date?: string): Promise<object> {
     const res = await this.nxapi('/character/link-skill', { ocid, date });
     this.logger.log(
-      `getCharacterLinkSkill: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,
+      `fetchCharacterLinkSkill: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,
     );
     return res;
   }
 
-  async getCharacterVmatrix(ocid: string, date?: string): Promise<object> {
+  async fetchCharacterVmatrix(ocid: string, date?: string): Promise<object> {
     const res = await this.nxapi('/character/vmatrix', { ocid, date });
-    this.logger.log(`getCharacterVmatrix: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`);
+    this.logger.log(
+      `fetchCharacterVmatrix: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,
+    );
     return res;
   }
 
-  async getCharacterHexamatrix(ocid: string, date?: string): Promise<object> {
+  async fetchCharacterHexamatrix(ocid: string, date?: string): Promise<object> {
     const res = await this.nxapi('/character/hexamatrix', { ocid, date });
     this.logger.log(
-      `getCharacterHexamatrix: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,
+      `fetchCharacterHexamatrix: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,
     );
     return res;
   }
 
-  async getCharacterHexamatrixStat(ocid: string, date?: string): Promise<object> {
+  async fetchCharacterHexamatrixStat(ocid: string, date?: string): Promise<object> {
     const res = await this.nxapi('/character/hexamatrix-stat', { ocid, date });
     this.logger.log(
-      `getCharacterHexamatrixStat: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,
+      `fetchCharacterHexamatrixStat: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,
     );
     return res;
   }
 
-  async getCharacterDojang(ocid: string, date?: string): Promise<object> {
+  async fetchCharacterDojang(ocid: string, date?: string): Promise<object> {
     const res = await this.nxapi('/character/dojang', { ocid, date });
-    this.logger.log(`getCharacterDojang: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`);
+    this.logger.log(
+      `fetchCharacterDojang: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,
+    );
     return res;
   }
 }

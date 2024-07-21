@@ -1,3 +1,5 @@
+# lara.moe
+
 ## Installation
 
 ```bash
@@ -15,6 +17,13 @@ $ doppler setup
 ```
 
 ## Running the app
+
+필요 환경변수
+
+```text
+NXAPI_KEY : 넥슨 OPEN API KEY
+DB_URL : MySQL URL
+```
 
 ```bash
 # development
