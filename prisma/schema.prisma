@@ -20,7 +20,7 @@ model Character {
   worldName            String
   gender               String
   class                String
-  classLevel           Int
+  classLevel           String
   level                Int
   exp                  BigInt
   expRate              Float
@@ -31,19 +31,19 @@ model Character {
   liberationQuestClear Boolean
   popularity           Int
   updatedAt            DateTime
-  stats                Stat[]
-  hyperStats           HyperStat[]
-  propensities         Propensity?
-  abilities            Ability[]
+  stat                 Stat[]
+  hyperStat            HyperStat[]
+  propensity           Propensity?
+  ability              Ability[]
   equipment            Equipment[]
   cashEquipment        CashEquipment[]
-  symbols              Symbol[]
-  setEffects           SetEffect[]
+  symbol               Symbol[]
+  setEffect            SetEffect[]
   beauty               BeautyEquipment?
-  androids             AndroidEquipment[]
-  pets                 PetEquipment[]
-  skills               Skill[]
-  linkSkills           LinkSkill[]
+  android              AndroidEquipment[]
+  pet                  PetEquipment[]
+  skill                Skill[]
+  linkSkill            LinkSkill[]
   vMatrix              VMatrix[]
   hexaMatrix           HexaMatrix[]
   dojang               Dojang?
@@ -54,7 +54,7 @@ model Stat {
   characterId Int
   character   Character @relation(fields: [characterId], references: [id])
   statName    String
-  statValue   String
+  statValue   Float
 }
 
 model HyperStat {

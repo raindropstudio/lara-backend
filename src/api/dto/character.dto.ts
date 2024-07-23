@@ -1,14 +1,11 @@
-import { Expose, Transform } from 'class-transformer';
-import { IsBoolean, IsDate, IsInt, IsNumber, IsString, IsUrl } from 'class-validator';
+import { Expose, Transform, Type } from 'class-transformer';
+import { IsBoolean, IsDate, IsInt, IsNumber, IsString, IsUrl, ValidateNested } from 'class-validator';
+import { CharacterStatDTO } from './character-stat.dto';
 
 export class CharacterDTO {
   constructor(partial: Partial<CharacterDTO>) {
     Object.assign(this, partial);
   }
-
-  @Expose()
-  @IsString()
-  ocid: string;
 
   @Expose()
   @IsString()
@@ -27,8 +24,8 @@ export class CharacterDTO {
   class: string;
 
   @Expose()
-  @IsInt()
-  classLevel: number;
+  @IsString()
+  classLevel: string;
 
   @Expose()
   @IsInt()
@@ -70,4 +67,9 @@ export class CharacterDTO {
   @Expose()
   @IsDate()
   updatedAt: Date;
+
+  @Expose()
+  @ValidateNested({ each: true })
+  @Type(() => CharacterStatDTO)
+  stat: CharacterStatDTO[];
 }

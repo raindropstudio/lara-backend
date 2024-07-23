@@ -1,8 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { NxapiService } from 'src/nxapi/nxapi.service';
 import { characterBasicMapper } from './mapper/character-basic.mapper';
+import { characterStatMapper } from './mapper/character-stat.mapper';
 import { CharacterRepository } from './repository/character.repository';
 import { CharacterBasic } from './type/character-basic.type';
+import { CharacterStat } from './type/character-stat.type';
 import { Character } from './type/character.type';
 
 @Injectable()
@@ -11,6 +13,7 @@ export class CharacterService {
     private readonly nxapiService: NxapiService,
     private readonly characterRepository: CharacterRepository,
   ) {}
+  private readonly logger = new Logger(CharacterService.name);
 
   private async getCharacterOcid(characterName: string): Promise<string> {
     return this.nxapiService.fetchCharacterOcid(characterName);
@@ -22,11 +25,14 @@ export class CharacterService {
 
     if (update || !character) {
       const ocid = await this.getCharacterOcid(nickname);
-      const basic = await this.fetchCharacterBasic(ocid, date);
+
+      const promises = [this.fetchCharacterBasic(ocid, date), this.fetchCharacterStat(ocid, date)];
+      const [basic, stat] = (await Promise.all(promises)) as [CharacterBasic, CharacterStat[]];
 
       const updatedCharacter = {
         ...character,
         ...basic,
+        stat,
       };
 
       // DB보다 과거 데이터를 요청한 경우, DB에 저장하지 않음
@@ -48,5 +54,11 @@ export class CharacterService {
     const [basicData, popularityData] = await Promise.all([baiscPromise, popularityPromise]);
 
     return characterBasicMapper(ocid, basicData, popularityData);
+  }
+
+  async fetchCharacterStat(ocid: string, date?: string): Promise<CharacterStat[]> {
+    const stat = await this.nxapiService.fetchCharacterStat(ocid, date);
+
+    return characterStatMapper(stat);
   }
 }

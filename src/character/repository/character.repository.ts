@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { Character } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
+import { Character } from '../type/character.type';
 
 @Injectable()
 export class CharacterRepository {
@@ -11,6 +11,9 @@ export class CharacterRepository {
       where: {
         nickname,
       },
+      include: {
+        stat: true,
+      },
     });
   }
 
@@ -19,8 +22,19 @@ export class CharacterRepository {
       where: {
         nickname: characterData.nickname,
       },
-      update: characterData,
-      create: characterData,
+      update: {
+        ...characterData,
+        stat: {
+          deleteMany: {},
+          create: characterData.stat,
+        },
+      },
+      create: {
+        ...characterData,
+        stat: {
+          create: characterData.stat,
+        },
+      },
     });
   }
 }

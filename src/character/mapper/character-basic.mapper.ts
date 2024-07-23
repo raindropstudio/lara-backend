@@ -26,7 +26,7 @@ export const characterBasicMapper = (ocid: string, basicData: object, popularity
     worldName: basicData['world_name'],
     gender: basicData['character_gender'],
     class: basicData['character_class'],
-    classLevel: parseInt(basicData['character_class_level']),
+    classLevel: basicData['character_class_level'],
     level: basicData['character_level'],
     exp: BigInt(basicData['character_exp']),
     expRate: parseFloat(basicData['character_exp_rate']),

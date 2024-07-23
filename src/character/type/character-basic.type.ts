@@ -1,10 +1,11 @@
 export interface CharacterBasic {
+  // id?: number;
   ocid: string;
   nickname: string;
   worldName: string;
   gender: string;
   class: string;
-  classLevel: number;
+  classLevel: string;
   level: number;
   exp: bigint;
   expRate: number;
