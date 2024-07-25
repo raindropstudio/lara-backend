@@ -1,3 +1,5 @@
+import { CharacterHyperStat } from '../type/character-hyper-stat.type';
+
 /*
 {
   "date": null,
@@ -31,10 +33,6 @@
 }
 */
 
-// character-hyper-stat.mapper.ts 파일
-
-import { CharacterHyperStat } from '../type/character-hyper-stat.type';
-
 export const characterHyperStatMapper = (hyperStatData: object): CharacterHyperStat[] => {
   const hyperStatList: CharacterHyperStat[] = [];
 
@@ -47,7 +45,7 @@ export const characterHyperStatMapper = (hyperStatData: object): CharacterHyperS
       (stat: object) => stat['stat_point'] !== null && stat['stat_level'] !== null && stat['stat_increase'] !== null,
     );
 
-    const presetStatList = filteredStatList.map((stat: object): CharacterHyperStat => {
+    const presetStatList: CharacterHyperStat[] = filteredStatList.map((stat: object): CharacterHyperStat => {
       return {
         active: hyperStatData['use_preset_no'] === `${i}`,
         statType: stat['stat_type'],

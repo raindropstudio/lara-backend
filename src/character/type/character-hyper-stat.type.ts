@@ -3,8 +3,8 @@ export interface CharacterHyperStat {
   characterId?: number;
   statType: string;
   statPoint: number;
-  statLevel: number;
-  statIncrease: string;
-  preset: number;
-  active: boolean;
+  statLevel?: number;
+  statIncrease?: string;
+  preset?: number;
+  active?: boolean;
 }

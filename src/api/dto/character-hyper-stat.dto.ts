@@ -7,24 +7,26 @@ export class CharacterHyperStatDTO {
   statType: string;
 
   @Expose()
-  @IsOptional()
   @IsNumber()
   statPoint: number;
 
   @Expose()
+  @IsOptional()
   @IsNumber()
-  statLevel: number;
+  statLevel?: number;
 
   @Expose()
   @IsOptional()
   @IsString()
-  statIncrease: string;
+  statIncrease?: string;
 
   @Expose()
+  @IsOptional()
   @IsNumber()
-  preset: number;
+  preset?: number;
 
   @Expose()
+  @IsOptional()
   @IsNumber()
-  active: boolean;
+  active?: boolean;
 }
