@@ -8,6 +8,8 @@ import { CharacterStat } from './type/character-stat.type';
 import { Character } from './type/character.type';
 import { CharacterHyperStat } from './type/character-hyper-stat.type';
 import { characterHyperStatMapper } from './mapper/character-hyper-stat.mapper';
+import { characterPropensityMapper } from './mapper/character-propensity.mapper';
+import { CharacterPropensity } from './type/character-propensity.type';
 
 @Injectable()
 export class CharacterService {
@@ -32,11 +34,13 @@ export class CharacterService {
         this.fetchCharacterBasic(ocid, date),
         this.fetchCharacterStat(ocid, date),
         this.fetchCharacterHyperStat(ocid, date),
+        this.fetchCharacterPropensity(ocid, date),
       ];
-      const [basic, stat, hyperStat] = (await Promise.all(promises)) as [
+      const [basic, stat, hyperStat, propensity] = (await Promise.all(promises)) as [
         CharacterBasic,
         CharacterStat[],
         CharacterHyperStat[],
+        CharacterPropensity,
       ];
 
       const updatedCharacter = {
@@ -44,6 +48,7 @@ export class CharacterService {
         ...basic,
         stat,
         hyperStat,
+        propensity,
       };
 
       // DB보다 과거 데이터를 요청한 경우, DB에 저장하지 않음
@@ -76,5 +81,11 @@ export class CharacterService {
     const hyperStat = await this.nxapiService.fetchCharacterHyperStat(ocid, date);
 
     return characterHyperStatMapper(hyperStat);
+  }
+
+  async fetchCharacterPropensity(ocid: string, date?: string) {
+    const propensity = await this.nxapiService.fetchCharacterPropensity(ocid, date);
+
+    return characterPropensityMapper(propensity);
   }
 }
