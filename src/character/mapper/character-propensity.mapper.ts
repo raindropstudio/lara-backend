@@ -1,3 +1,5 @@
+import { CharacterPropensity } from '../type/character-propensity.type';
+
 /*
 {
   "date": null,
@@ -9,8 +11,6 @@
   "charm_level": 100
 }
 */
-
-import { CharacterPropensity } from '../type/character-propensity.type';
 
 export const characterPropensityMapper = (propensityData: object): CharacterPropensity => {
   const characterPropensity: CharacterPropensity = {
