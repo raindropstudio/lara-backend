@@ -6,6 +6,8 @@ import { CharacterRepository } from './repository/character.repository';
 import { CharacterBasic } from './type/character-basic.type';
 import { CharacterStat } from './type/character-stat.type';
 import { Character } from './type/character.type';
+import { CharacterHyperStat } from './type/character-hyper-stat.type';
+import { characterHyperStatMapper } from './mapper/character-hyper-stat.mapper';
 
 @Injectable()
 export class CharacterService {
@@ -26,13 +28,22 @@ export class CharacterService {
     if (update || !character) {
       const ocid = await this.getCharacterOcid(nickname);
 
-      const promises = [this.fetchCharacterBasic(ocid, date), this.fetchCharacterStat(ocid, date)];
-      const [basic, stat] = (await Promise.all(promises)) as [CharacterBasic, CharacterStat[]];
+      const promises = [
+        this.fetchCharacterBasic(ocid, date),
+        this.fetchCharacterStat(ocid, date),
+        this.fetchCharacterHyperStat(ocid, date),
+      ];
+      const [basic, stat, hyperStat] = (await Promise.all(promises)) as [
+        CharacterBasic,
+        CharacterStat[],
+        CharacterHyperStat[],
+      ];
 
       const updatedCharacter = {
         ...character,
         ...basic,
         stat,
+        hyperStat,
       };
 
       // DB보다 과거 데이터를 요청한 경우, DB에 저장하지 않음
@@ -43,7 +54,6 @@ export class CharacterService {
       await this.characterRepository.upsertCharacterOverall(updatedCharacter);
       return updatedCharacter;
     }
-
     return character;
   }
 
@@ -60,5 +70,11 @@ export class CharacterService {
     const stat = await this.nxapiService.fetchCharacterStat(ocid, date);
 
     return characterStatMapper(stat);
+  }
+
+  async fetchCharacterHyperStat(ocid: string, date?: string): Promise<CharacterHyperStat[]> {
+    const hyperStat = await this.nxapiService.fetchCharacterHyperStat(ocid, date);
+
+    return characterHyperStatMapper(hyperStat);
   }
 }

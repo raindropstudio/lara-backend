@@ -1,6 +1,7 @@
 import { Expose, Transform, Type } from 'class-transformer';
 import { IsBoolean, IsDate, IsInt, IsNumber, IsString, IsUrl, ValidateNested } from 'class-validator';
 import { CharacterStatDTO } from './character-stat.dto';
+import { CharacterHyperStatDTO } from './character-hyper-stat.dto';
 
 export class CharacterDTO {
   constructor(partial: Partial<CharacterDTO>) {
@@ -72,4 +73,9 @@ export class CharacterDTO {
   @ValidateNested({ each: true })
   @Type(() => CharacterStatDTO)
   stat: CharacterStatDTO[];
+
+  @Expose()
+  @ValidateNested({ each: true })
+  @Type(() => CharacterHyperStatDTO)
+  hyperStat: CharacterHyperStatDTO[];
 }
