@@ -14,6 +14,7 @@ export class CharacterRepository {
       include: {
         stat: true,
         hyperStat: true,
+        propensity: true,
       },
     });
   }
@@ -33,6 +34,9 @@ export class CharacterRepository {
           deleteMany: {},
           create: characterData.hyperStat,
         },
+        propensity: {
+          update: characterData.propensity,
+        },
       },
       create: {
         ...characterData,
@@ -41,6 +45,9 @@ export class CharacterRepository {
         },
         hyperStat: {
           create: characterData.hyperStat,
+        },
+        propensity: {
+          create: characterData.propensity,
         },
       },
     });
