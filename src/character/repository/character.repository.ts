@@ -13,6 +13,7 @@ export class CharacterRepository {
       },
       include: {
         stat: true,
+        hyperStat: true,
       },
     });
   }
@@ -28,11 +29,18 @@ export class CharacterRepository {
           deleteMany: {},
           create: characterData.stat,
         },
+        hyperStat: {
+          deleteMany: {},
+          create: characterData.hyperStat,
+        },
       },
       create: {
         ...characterData,
         stat: {
           create: characterData.stat,
+        },
+        hyperStat: {
+          create: characterData.hyperStat,
         },
       },
     });
