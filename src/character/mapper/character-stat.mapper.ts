@@ -27,7 +27,7 @@ export const characterStatMapper = (statData: object): CharacterStat[] => {
   const statList: CharacterStat[] = statData['final_stat'].map((stat: object): CharacterStat => {
     return {
       statName: stat['stat_name'],
-      statValue: parseFloat(stat['stat_value']),
+      statValue: stat['stat_value'] !== null ? parseFloat(stat['stat_value']) : null,
     };
   });
   statList.push({

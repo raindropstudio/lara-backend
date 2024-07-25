@@ -3,12 +3,11 @@ import { PrismaClient } from '@prisma/client';
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
-  // Prisma Optimize 사용할 경우
-
-  // constructor() {
-  //   super();
-  //   this.$extends(withOptimize());
-  // }
+  constructor() {
+    super({
+      log: process.env.NODE_ENV !== 'production' ? ['query', 'info', 'warn', 'error'] : ['warn', 'error'],
+    });
+  }
 
   async onModuleInit() {
     await this.$connect();

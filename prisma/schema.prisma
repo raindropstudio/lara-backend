@@ -54,19 +54,19 @@ model Stat {
   characterId Int
   character   Character @relation(fields: [characterId], references: [id])
   statName    String
-  statValue   Float
+  statValue   Float?
 }
 
 model HyperStat {
-  id                    Int       @id @default(autoincrement())
-  characterId           Int
-  character             Character @relation(fields: [characterId], references: [id])
-  statType              String
-  statLevel             Int?
-  statPoint             Int
-  statIncrease          String?
-  preset                Int?
-  active                Boolean?
+  id           Int       @id @default(autoincrement())
+  characterId  Int
+  character    Character @relation(fields: [characterId], references: [id])
+  statType     String
+  statLevel    Int?
+  statPoint    Int
+  statIncrease String?
+  preset       Int?
+  active       Boolean?
 }
 
 model Propensity {

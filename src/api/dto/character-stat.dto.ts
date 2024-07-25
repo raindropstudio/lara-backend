@@ -8,5 +8,5 @@ export class CharacterStatDTO {
 
   @Expose()
   @IsNumber()
-  statValue: number;
+  statValue: number | null;
 }
