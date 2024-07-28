@@ -1,3 +1,4 @@
+import { Optional } from '@nestjs/common';
 import { Expose } from 'class-transformer';
 import { IsBoolean, IsNumber, IsString } from 'class-validator';
 
@@ -8,6 +9,7 @@ export class CharacterAbilityDTO {
 
   @Expose()
   @IsNumber()
+  @Optional()
   abilityNo: number;
 
   @Expose()
@@ -16,13 +18,10 @@ export class CharacterAbilityDTO {
 
   @Expose()
   @IsNumber()
-  remainFame: number;
-
-  @Expose()
-  @IsNumber()
   presetNo: number;
 
   @Expose()
   @IsBoolean()
+  @Optional()
   active: boolean;
 }

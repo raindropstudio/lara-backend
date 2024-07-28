@@ -85,10 +85,9 @@ model Ability {
   id           Int       @id @default(autoincrement())
   characterId  Int
   character    Character @relation(fields: [characterId], references: [id])
-  abilityGrade String?
+  abilityGrade String
   abilityNo    Int?
   abilityValue String?
-  remainFame   Int?
   presetNo     Int?
   active       Boolean?
 }

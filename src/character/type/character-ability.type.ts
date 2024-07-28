@@ -4,7 +4,7 @@ export interface CharacterAbility {
   abilityGrade: string;
   abilityNo: number;
   abilityValue: string;
-  remainFame: number;
+  remainFame?: number;
   presetNo: number;
   active: boolean;
 }

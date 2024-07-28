@@ -80,8 +80,8 @@ export const characterAbilityMapper = (abilityData: AbilityData): CharacterAbili
     })
     .flat();
   presetAbilities.push({
-    abilityValue: '남은 명성치',
-    remainFame: abilityData.remain_fame,
+    abilityGrade: '남은 명성치',
+    presetNo: abilityData.remain_fame,
   });
 
   // 프리셋 중 현재 적용중인 어빌리티와 동일한 프리셋을 찾아서 active 속성을 true로 변경
