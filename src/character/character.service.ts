@@ -3,13 +3,15 @@ import { NxapiService } from 'src/nxapi/nxapi.service';
 import { characterBasicMapper } from './mapper/character-basic.mapper';
 import { characterStatMapper } from './mapper/character-stat.mapper';
 import { CharacterRepository } from './repository/character.repository';
+import { Character } from './type/character.type';
 import { CharacterBasic } from './type/character-basic.type';
 import { CharacterStat } from './type/character-stat.type';
-import { Character } from './type/character.type';
 import { CharacterHyperStat } from './type/character-hyper-stat.type';
 import { characterHyperStatMapper } from './mapper/character-hyper-stat.mapper';
-import { characterPropensityMapper } from './mapper/character-propensity.mapper';
 import { CharacterPropensity } from './type/character-propensity.type';
+import { characterPropensityMapper } from './mapper/character-propensity.mapper';
+import { CharacterAbility, AbilityData } from './type/character-ability.type';
+import { characterAbilityMapper } from './mapper/character-ability.mapper';
 
 @Injectable()
 export class CharacterService {
@@ -35,12 +37,14 @@ export class CharacterService {
         this.fetchCharacterStat(ocid, date),
         this.fetchCharacterHyperStat(ocid, date),
         this.fetchCharacterPropensity(ocid, date),
+        this.fetchCharacterAbility(ocid, date),
       ];
-      const [basic, stat, hyperStat, propensity] = (await Promise.all(promises)) as [
+      const [basic, stat, hyperStat, propensity, ability] = (await Promise.all(promises)) as [
         CharacterBasic,
         CharacterStat[],
         CharacterHyperStat[],
         CharacterPropensity,
+        CharacterAbility[],
       ];
 
       const updatedCharacter = {
@@ -49,6 +53,7 @@ export class CharacterService {
         stat,
         hyperStat,
         propensity,
+        ability,
       };
 
       // DB보다 과거 데이터를 요청한 경우, DB에 저장하지 않음
@@ -87,5 +92,11 @@ export class CharacterService {
     const propensity = await this.nxapiService.fetchCharacterPropensity(ocid, date);
 
     return characterPropensityMapper(propensity);
+  }
+
+  async fetchCharacterAbility(ocid: string, date?: string): Promise<CharacterAbility[]> {
+    const ability = await this.nxapiService.fetchCharacterAbility(ocid, date);
+
+    return characterAbilityMapper(ability as AbilityData);
   }
 }

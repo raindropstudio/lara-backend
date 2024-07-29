@@ -86,10 +86,10 @@ model Ability {
   characterId  Int
   character    Character @relation(fields: [characterId], references: [id])
   abilityGrade String
-  abilityNo    Int
-  abilityValue String
-  remainFame   Int
-  presetNo     Int
+  abilityNo    Int?
+  abilityValue String?
+  presetNo     Int?
+  active       Boolean?
 }
 
 model Equipment {

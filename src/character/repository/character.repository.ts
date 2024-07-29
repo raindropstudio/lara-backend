@@ -15,11 +15,13 @@ export class CharacterRepository {
         stat: true,
         hyperStat: true,
         propensity: true,
+        ability: true,
       },
     });
   }
 
   async upsertCharacterOverall(characterData: Character) {
+    console.log(`Upserting character: ${characterData.nickname}`);
     return this.prismaService.character.upsert({
       where: {
         nickname: characterData.nickname,
@@ -37,6 +39,10 @@ export class CharacterRepository {
         propensity: {
           update: characterData.propensity,
         },
+        ability: {
+          deleteMany: {},
+          create: characterData.ability,
+        },
       },
       create: {
         ...characterData,
@@ -48,6 +54,9 @@ export class CharacterRepository {
         },
         propensity: {
           create: characterData.propensity,
+        },
+        ability: {
+          create: characterData.ability,
         },
       },
     });

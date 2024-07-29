@@ -3,6 +3,7 @@ import { IsBoolean, IsDate, IsInt, IsNumber, IsString, IsUrl, ValidateNested } f
 import { CharacterStatDTO } from './character-stat.dto';
 import { CharacterHyperStatDTO } from './character-hyper-stat.dto';
 import { CharacterPropensityDTO } from './character-propensity.dto';
+import { CharacterAbilityDTO } from './character-ability.dto';
 
 export class CharacterDTO {
   constructor(partial: Partial<CharacterDTO>) {
@@ -84,4 +85,9 @@ export class CharacterDTO {
   @ValidateNested({ each: true })
   @Type(() => CharacterPropensityDTO)
   propensity: CharacterPropensityDTO;
+
+  @Expose()
+  @ValidateNested({ each: true })
+  @Type(() => CharacterAbilityDTO)
+  ability: CharacterAbilityDTO[];
 }
