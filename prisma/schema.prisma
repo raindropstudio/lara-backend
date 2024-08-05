@@ -35,7 +35,7 @@ model Character {
   hyperStat            HyperStat[]
   propensity           Propensity?
   ability              Ability[]
-  equipment            Equipment[]
+  itemEquipment        ItemEquipment[]
   cashEquipment        CashEquipment[]
   symbol               Symbol[]
   setEffect            SetEffect[]
@@ -92,35 +92,84 @@ model Ability {
   active       Boolean?
 }
 
-model Equipment {
-  id                        Int       @id @default(autoincrement())
+model ItemEquipment {
+  id                        Int        @id @default(autoincrement())
   characterId               Int
-  character                 Character @relation(fields: [characterId], references: [id])
-  equipmentPart             String
-  equipmentSlot             String
-  itemName                  String
-  itemIcon                  String
-  itemDescription           String?
-  itemShapeName             String
-  itemShapeIcon             String
-  itemGender                String?
-  totalOptions              Json
-  baseOptions               Json
+  character                 Character   @relation(fields: [characterId], references: [id])
+  part                      String
+  slot                      String
+  name                      String
+  icon                      String
+  description               String?
+  shapeName                 String
+  shapeIcon                 String
+  gender                    String?
+  totalOptionId             Int       @unique
+  baseOptionId              Int    @unique
   potentialOptionGrade      String
   additionalPotentialOption String
-  exceptionalOptions        Json
-  addOptions                Json
+  potentialOption1          String
+  potentialOption2          String
+  potentialOption3          String
+  additionalPotentialOption1 String
+  additionalPotentialOption2 String
+  additionalPotentialOption3 String
+  equipmentLevelIncrease    Int
+  exceptionalOptionId       Int     @unique
+  addOptionId               Int      @unique
   growthExp                 Int
   growthLevel               Int
-  scrollUpgrade             Int
-  cuttableCount             Int
+  scrollUpgrade             String
+  cuttableCount             String
   goldenHammerFlag          String
-  scrollResilienceCount     Int
-  scrollUpgradeableCount    Int
+  scrollResilienceCount     String
+  scrollUpgradeableCount    String
   soulName                  String?
   soulOption                Json?
-  starforce                 Int
+  etcOptionId               Int     @unique
+  starforce                 String
   starforceScrollFlag       String
+  starforceOptionId         Int    @unique
+  specialRingLevel          Int
+  dateExpire                DateTime?
+  active                    Boolean
+
+  // Option 관계 설정
+  totalOption               ItemOption @relation("TotalOption", fields: [totalOptionId], references: [id])
+  baseOption                ItemOption @relation("BaseOption", fields: [baseOptionId], references: [id])
+  exceptionalOption         ItemOption @relation("ExceptionalOption", fields: [exceptionalOptionId], references: [id])
+  addOption                 ItemOption @relation("AddOption", fields: [addOptionId], references: [id])
+  etcOption                 ItemOption @relation("EtcOption", fields: [etcOptionId], references: [id])
+  starforceOption           ItemOption @relation("StarforceOption", fields: [starforceOptionId], references: [id])
+}
+
+model ItemOption {
+  id                     Int       @id @default(autoincrement())
+  str                    Int
+  dex                    Int
+  int                    Int
+  luk                    Int
+  maxHp                  Int
+  maxMp                  Int
+  attackPower            Int
+  magicPower             Int
+  armor                  Int
+  speed                  Int
+  jump                   Int
+  bossDamage             Int
+  ignoreMonsterArmor     Int
+  allStat                Int
+  damage                 Int
+  equipmentLevelDecrease Int
+  maxHpRate              Int
+  maxMpRate              Int
+  baseEquipmentLevel     Int
+  itemEquipmentsTotal    ItemEquipment[] @relation("TotalOption")
+  itemEquipmentsBase     ItemEquipment[] @relation("BaseOption")
+  itemEquipmentsExceptional ItemEquipment[] @relation("ExceptionalOption")
+  itemEquipmentsAdd      ItemEquipment[] @relation("AddOption")
+  itemEquipmentsEtc      ItemEquipment[] @relation("EtcOption")
+  itemEquipmentsStarforce ItemEquipment[] @relation("StarforceOption")
 }
 
 model CashEquipment {

@@ -16,12 +16,21 @@ export class CharacterRepository {
         hyperStat: true,
         propensity: true,
         ability: true,
+        itemEquipment: {
+          include: {
+            totalOption: true,
+            baseOption: true,
+            exceptionalOption: true,
+            addOption: true,
+            etcOption: true,
+            starforceOption: true,
+          },
+        },
       },
     });
   }
 
   async upsertCharacterOverall(characterData: Character) {
-    console.log(`Upserting character: ${characterData.nickname}`);
     return this.prismaService.character.upsert({
       where: {
         nickname: characterData.nickname,
@@ -37,11 +46,56 @@ export class CharacterRepository {
           create: characterData.hyperStat,
         },
         propensity: {
-          update: characterData.propensity,
+          upsert: {
+            update: characterData.propensity,
+            create: characterData.propensity,
+          },
         },
         ability: {
           deleteMany: {},
           create: characterData.ability,
+        },
+        itemEquipment: {
+          deleteMany: {},
+          create: characterData.itemEquipment.map((item) => ({
+            ...item,
+            totalOption: {
+              connectOrCreate: {
+                where: { id: item.totalOption.id }, // id 필드를 number 타입으로 지정
+                create: item.totalOption,
+              },
+            },
+            baseOption: {
+              connectOrCreate: {
+                where: { id: item.baseOption.id }, // id 필드를 number 타입으로 지정
+                create: item.baseOption,
+              },
+            },
+            exceptionalOption: {
+              connectOrCreate: {
+                where: { id: item.exceptionalOption.id }, // id 필드를 number 타입으로 지정
+                create: item.exceptionalOption,
+              },
+            },
+            addOption: {
+              connectOrCreate: {
+                where: { id: item.addOption.id }, // id 필드를 number 타입으로 지정
+                create: item.addOption,
+              },
+            },
+            etcOption: {
+              connectOrCreate: {
+                where: { id: item.etcOption.id }, // id 필드를 number 타입으로 지정
+                create: item.etcOption,
+              },
+            },
+            starforceOption: {
+              connectOrCreate: {
+                where: { id: item.starforceOption.id }, // id 필드를 number 타입으로 지정
+                create: item.starforceOption,
+              },
+            },
+          })),
         },
       },
       create: {
@@ -57,6 +111,47 @@ export class CharacterRepository {
         },
         ability: {
           create: characterData.ability,
+        },
+        itemEquipment: {
+          create: characterData.itemEquipment.map((item) => ({
+            ...item,
+            totalOption: {
+              connectOrCreate: {
+                where: { id: item.totalOption.id }, // id 필드를 number 타입으로 지정
+                create: item.totalOption,
+              },
+            },
+            baseOption: {
+              connectOrCreate: {
+                where: { id: item.baseOption.id }, // id 필드를 number 타입으로 지정
+                create: item.baseOption,
+              },
+            },
+            exceptionalOption: {
+              connectOrCreate: {
+                where: { id: item.exceptionalOption.id }, // id 필드를 number 타입으로 지정
+                create: item.exceptionalOption,
+              },
+            },
+            addOption: {
+              connectOrCreate: {
+                where: { id: item.addOption.id }, // id 필드를 number 타입으로 지정
+                create: item.addOption,
+              },
+            },
+            etcOption: {
+              connectOrCreate: {
+                where: { id: item.etcOption.id }, // id 필드를 number 타입으로 지정
+                create: item.etcOption,
+              },
+            },
+            starforceOption: {
+              connectOrCreate: {
+                where: { id: item.starforceOption.id }, // id 필드를 number 타입으로 지정
+                create: item.starforceOption,
+              },
+            },
+          })),
         },
       },
     });

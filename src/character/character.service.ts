@@ -12,6 +12,9 @@ import { CharacterPropensity } from './type/character-propensity.type';
 import { characterPropensityMapper } from './mapper/character-propensity.mapper';
 import { CharacterAbility, AbilityData } from './type/character-ability.type';
 import { characterAbilityMapper } from './mapper/character-ability.mapper';
+import { CharacterItemEquipment } from './type/character-item-equipment.type';
+import { characterItemEquipmentMapper } from './mapper/character-item-equipment.mapper';
+import { NxapiItemEquipment } from 'src/nxapi/type/nxapi-item-equipment.type';
 
 @Injectable()
 export class CharacterService {
@@ -38,22 +41,25 @@ export class CharacterService {
         this.fetchCharacterHyperStat(ocid, date),
         this.fetchCharacterPropensity(ocid, date),
         this.fetchCharacterAbility(ocid, date),
+        this.fetchCharacterItemEquipment(ocid, date),
       ];
-      const [basic, stat, hyperStat, propensity, ability] = (await Promise.all(promises)) as [
+      const [basic, stat, hyperStat, propensity, ability, itemEquipment] = (await Promise.all(promises)) as [
         CharacterBasic,
         CharacterStat[],
         CharacterHyperStat[],
         CharacterPropensity,
         CharacterAbility[],
+        CharacterItemEquipment[],
       ];
 
-      const updatedCharacter = {
+      const updatedCharacter: Character = {
         ...character,
         ...basic,
         stat,
         hyperStat,
         propensity,
         ability,
+        itemEquipment,
       };
 
       // DB보다 과거 데이터를 요청한 경우, DB에 저장하지 않음
@@ -98,5 +104,11 @@ export class CharacterService {
     const ability = await this.nxapiService.fetchCharacterAbility(ocid, date);
 
     return characterAbilityMapper(ability as AbilityData);
+  }
+
+  async fetchCharacterItemEquipment(ocid: string, date?: string): Promise<CharacterItemEquipment[]> {
+    const itemEquipmentData = await this.nxapiService.fetchCharacterItemEquipment(ocid, date);
+
+    return characterItemEquipmentMapper(itemEquipmentData as NxapiItemEquipment);
   }
 }
