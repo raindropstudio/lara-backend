@@ -24,7 +24,7 @@ model Character {
   level                Int
   exp                  BigInt
   expRate              Float
-  guildName            String
+  guildName            String?
   imageUrl             String             @db.VarChar(2048)
   dateCreate           DateTime
   accessFlag           Boolean

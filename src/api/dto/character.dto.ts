@@ -1,9 +1,9 @@
 import { Expose, Transform, Type } from 'class-transformer';
-import { IsBoolean, IsDate, IsInt, IsNumber, IsString, IsUrl, ValidateNested } from 'class-validator';
-import { CharacterStatDTO } from './character-stat.dto';
+import { IsBoolean, IsDate, IsInt, IsNumber, IsOptional, IsString, IsUrl, ValidateNested } from 'class-validator';
+import { CharacterAbilityDTO } from './character-ability.dto';
 import { CharacterHyperStatDTO } from './character-hyper-stat.dto';
 import { CharacterPropensityDTO } from './character-propensity.dto';
-import { CharacterAbilityDTO } from './character-ability.dto';
+import { CharacterStatDTO } from './character-stat.dto';
 
 export class CharacterDTO {
   constructor(partial: Partial<CharacterDTO>) {
@@ -45,6 +45,7 @@ export class CharacterDTO {
 
   @Expose()
   @IsString()
+  @IsOptional()
   guildName: string;
 
   @Expose()

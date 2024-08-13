@@ -9,7 +9,7 @@ export interface CharacterBasic {
   level: number;
   exp: bigint;
   expRate: number;
-  guildName: string;
+  guildName?: string;
   imageUrl: string;
   dateCreate: Date;
   accessFlag: boolean;
