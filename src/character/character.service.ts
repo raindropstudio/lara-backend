@@ -1,17 +1,17 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { NxapiService } from 'src/nxapi/nxapi.service';
+import { characterAbilityMapper } from './mapper/character-ability.mapper';
 import { characterBasicMapper } from './mapper/character-basic.mapper';
+import { characterHyperStatMapper } from './mapper/character-hyper-stat.mapper';
+import { characterPropensityMapper } from './mapper/character-propensity.mapper';
 import { characterStatMapper } from './mapper/character-stat.mapper';
 import { CharacterRepository } from './repository/character.repository';
-import { Character } from './type/character.type';
+import { AbilityData, CharacterAbility } from './type/character-ability.type';
 import { CharacterBasic } from './type/character-basic.type';
-import { CharacterStat } from './type/character-stat.type';
 import { CharacterHyperStat } from './type/character-hyper-stat.type';
-import { characterHyperStatMapper } from './mapper/character-hyper-stat.mapper';
 import { CharacterPropensity } from './type/character-propensity.type';
-import { characterPropensityMapper } from './mapper/character-propensity.mapper';
-import { CharacterAbility, AbilityData } from './type/character-ability.type';
-import { characterAbilityMapper } from './mapper/character-ability.mapper';
+import { CharacterStat } from './type/character-stat.type';
+import { Character } from './type/character.type';
 
 @Injectable()
 export class CharacterService {
@@ -28,7 +28,6 @@ export class CharacterService {
   //? 현재 구현상 과거 데이터 요청시 DB에 저장하지 않음
   async getCharacterOverall(nickname: string, date?: string, update?: boolean): Promise<Character> {
     const character = await this.characterRepository.findCharacterOverallByNickname(nickname);
-
     if (update || !character) {
       const ocid = await this.getCharacterOcid(nickname);
 
