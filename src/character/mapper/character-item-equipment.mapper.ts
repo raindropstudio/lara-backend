@@ -1,5 +1,5 @@
 import { PotentialGrade } from '@prisma/client';
-import objectHash from 'object-hash';
+import * as objectHash from 'object-hash';
 import { NxapiItemEquipmentInfo } from 'src/nxapi/type/nxapi-item-equipment.type';
 import { CharacterItemEquipment, ItemEquipment, ItemOption } from '../type/character-item-equipment.type';
 
@@ -9,14 +9,26 @@ export const characterItemEquipmentMapper = (itemEquipmentData: any): CharacterI
     { presetNo: 1, equipment: itemEquipmentData.item_equipment_preset_1 },
     { presetNo: 2, equipment: itemEquipmentData.item_equipment_preset_2 },
     { presetNo: 3, equipment: itemEquipmentData.item_equipment_preset_3 },
-    { presetNo: 4, equipment: itemEquipmentData.title ? [itemEquipmentData.title] : [] },
-    {
-      presetNo: 5,
-      equipment: itemEquipmentData.dragon_equipment.length
-        ? itemEquipmentData.dragon_equipment
-        : itemEquipmentData.mechanic_equipment,
-    },
   ];
+  if (itemEquipmentData.title)
+    presets.push({
+      presetNo: 4,
+      equipment: [
+        {
+          item_equipment_part: '칭호',
+          item_equipment_slot: '칭호',
+          item_name: itemEquipmentData.title.title_name,
+          item_icon: itemEquipmentData.title.title_icon,
+          item_description: itemEquipmentData.title.title_description,
+          date_expire: itemEquipmentData.title.date_expire,
+          date_option_expire: itemEquipmentData.title.date_option_expire,
+        },
+      ],
+    });
+  if (itemEquipmentData.dragon_equipment.length)
+    presets.push({ presetNo: 5, equipment: itemEquipmentData.dragon_equipment });
+  if (itemEquipmentData.mechanic_equipment.length)
+    presets.push({ presetNo: 5, equipment: itemEquipmentData.mechanic_equipment });
 
   // item_equipment가 사용 중이고 preset이 null인 경우 프리셋 1번에 할당
   if (!itemEquipmentData.preset_no) {
@@ -48,7 +60,7 @@ export const characterItemEquipmentMapper = (itemEquipmentData: any): CharacterI
       baseEquipmentLevel: options.base_equipment_level ? parseInt(options.base_equipment_level) : null,
       exceptionalUpgrade: options.exceptional_upgrade ? parseInt(options.exceptional_upgrade) : null,
     };
-    res.hash = objectHash(res);
+    res.hash = objectHash.sha1(res);
 
     return res;
   };
@@ -68,16 +80,23 @@ export const characterItemEquipmentMapper = (itemEquipmentData: any): CharacterI
     }
   };
 
+  const extractItemImageCode = (imageUrl: string): string => {
+    const url = new URL(imageUrl);
+    const path = url.pathname;
+    const code = path.split('/').pop().split('.')[0];
+    return code;
+  };
+
   const mapItemEquipment = (item: NxapiItemEquipmentInfo): ItemEquipment => {
     const res = {
       hash: '',
       part: item.item_equipment_part,
       slot: item.item_equipment_slot,
       name: item.item_name,
-      icon: item.item_icon,
+      icon: item.item_icon ? extractItemImageCode(item.item_icon) : null,
       description: item.item_description || null,
-      shapeName: item.item_shape_name,
-      shapeIcon: item.item_shape_icon,
+      shapeName: item.item_shape_name || null,
+      shapeIcon: item.item_shape_icon ? extractItemImageCode(item.item_shape_icon) : null,
       gender: item.item_gender || null,
       potentialOptionGrade: item.potential_option_grade ? potentialGrade(item.potential_option_grade) : null,
       additionalPotentialOptionGrade: item.additional_potential_option_grade
@@ -108,22 +127,22 @@ export const characterItemEquipmentMapper = (itemEquipmentData: any): CharacterI
       specialRingLevel: item.special_ring_level || null,
       dateExpire: item.date_expire ? new Date(item.date_expire) : null,
       dateOptionExpire: item.date_option_expire ? new Date(item.date_option_expire) : null,
-      totalOption: mapItemOption(item.item_total_option),
-      baseOption: mapItemOption(item.item_base_option),
-      exceptionalOption: mapItemOption(item.item_exceptional_option),
-      addOption: mapItemOption(item.item_add_option),
-      etcOption: mapItemOption(item.item_etc_option),
-      starforceOption: mapItemOption(item.item_starforce_option),
+      totalOption: item.item_total_option ? mapItemOption(item.item_total_option) : null,
+      baseOption: item.item_base_option ? mapItemOption(item.item_base_option) : null,
+      exceptionalOption: item.item_exceptional_option ? mapItemOption(item.item_exceptional_option) : null,
+      addOption: item.item_add_option ? mapItemOption(item.item_add_option) : null,
+      etcOption: item.item_etc_option ? mapItemOption(item.item_etc_option) : null,
+      starforceOption: item.item_starforce_option ? mapItemOption(item.item_starforce_option) : null,
     };
 
-    res.hash = objectHash(res);
+    res.hash = objectHash.sha1(res);
 
     return res;
   };
 
-  return presets.flatMap(({ presetNo, equipment }) =>
-    equipment.map((item: any) => ({
-      equipment: [mapItemEquipment(item)],
+  return presets.flatMap(({ presetNo, equipment: itemEquipment }) =>
+    itemEquipment.map((item: any) => ({
+      itemEquipment: [mapItemEquipment(item)],
       presetNo: presetNo,
       active: itemEquipmentData.preset_no === presetNo || (presetNo === 1 && !itemEquipmentData.preset_no),
     })),

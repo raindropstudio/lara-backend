@@ -1,5 +1,5 @@
 export interface CharacterHyperStat {
-  id?: number;
+  // id?: number;
   hyperStat: HyperStat[];
   presetNo?: number;
   active?: boolean;

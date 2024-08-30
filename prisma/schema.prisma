@@ -121,7 +121,7 @@ model HyperStat {
   statIncrease String?
   character    CharacterHyperStat[]
 
-  @@unique([statType, statLevel])
+  @@unique([statType, statPoint])
 }
 
 model Propensity {
@@ -155,6 +155,7 @@ model Ability {
 }
 
 enum AbilityGrade {
+  RARE
   EPIC
   UNIQUE
   LEGENDARY
@@ -179,8 +180,8 @@ model ItemEquipment {
   name                           String
   icon                           String
   description                    String?
-  shapeName                      String
-  shapeIcon                      String
+  shapeName                      String?
+  shapeIcon                      String?
   gender                         String?
   potentialOptionGrade           PotentialGrade?
   additionalPotentialOptionGrade PotentialGrade?
@@ -237,7 +238,7 @@ model ItemEquipmentOption {
   optionId        Int
   optionType      OptionType
 
-  @@unique([itemEquipmentId, optionId])
+  @@unique([itemEquipmentId, optionType, optionId])
 }
 
 enum OptionType {

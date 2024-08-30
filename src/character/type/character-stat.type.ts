@@ -1,5 +1,5 @@
 export interface CharacterStat {
-  id?: number; // ID
+  // id?: number; // ID
   maxStatAttackPower?: number | null; // 최대 스탯공격력
   minStatAttackPower?: number | null; // 최소 스탯공격력
   damage?: number | null; // 데미지

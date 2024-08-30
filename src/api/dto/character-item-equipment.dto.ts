@@ -1,18 +1,106 @@
 import { Expose, Type } from 'class-transformer';
 import { IsArray, IsBoolean, IsDate, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
 
-export class CharacterItemEquipmentDTO {
+export class ItemOptionDTO {
   @Expose()
-  @ValidateNested({ each: true })
-  itemEquipment: ItemEquipmentDTO[];
-
-  @Expose()
+  @IsOptional()
   @IsNumber()
-  presetNo: number;
+  str?: number;
 
   @Expose()
-  @IsBoolean()
-  active: boolean;
+  @IsOptional()
+  @IsNumber()
+  dex?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  int?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  luk?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  maxHp?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  maxMp?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  attackPower?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  magicPower?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  armor?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  speed?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  jump?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  bossDamage?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  ignoreMonsterArmor?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  allStat?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  damage?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  equipmentLevelDecrease?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  maxHpRate?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  maxMpRate?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  baseEquipmentLevel?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  exceptionalUpgrade?: number;
 }
 
 export class ItemEquipmentDTO {
@@ -136,132 +224,51 @@ export class ItemEquipmentDTO {
   @Expose()
   @ValidateNested({ each: true })
   @Type(() => ItemOptionDTO)
-  totalOption: ItemOptionDTO;
+  @IsOptional()
+  totalOption?: ItemOptionDTO;
 
   @Expose()
   @ValidateNested({ each: true })
   @Type(() => ItemOptionDTO)
-  baseOption: ItemOptionDTO;
+  @IsOptional()
+  baseOption?: ItemOptionDTO;
 
   @Expose()
   @ValidateNested({ each: true })
   @Type(() => ItemOptionDTO)
-  exceptionalOption: ItemOptionDTO;
+  @IsOptional()
+  exceptionalOption?: ItemOptionDTO;
 
   @Expose()
   @ValidateNested({ each: true })
   @Type(() => ItemOptionDTO)
-  addOption: ItemOptionDTO;
+  @IsOptional()
+  addOption?: ItemOptionDTO;
 
   @Expose()
   @ValidateNested({ each: true })
   @Type(() => ItemOptionDTO)
-  etcOption: ItemOptionDTO;
+  @IsOptional()
+  etcOption?: ItemOptionDTO;
 
   @Expose()
   @ValidateNested({ each: true })
   @Type(() => ItemOptionDTO)
-  starforceOption: ItemOptionDTO;
+  @IsOptional()
+  starforceOption?: ItemOptionDTO;
 }
 
-export class ItemOptionDTO {
+export class CharacterItemEquipmentDTO {
   @Expose()
-  @IsOptional()
-  @IsNumber()
-  str?: number;
+  @ValidateNested({ each: true })
+  @Type(() => ItemEquipmentDTO)
+  itemEquipment: ItemEquipmentDTO[];
 
   @Expose()
-  @IsOptional()
   @IsNumber()
-  dex?: number;
+  presetNo: number;
 
   @Expose()
-  @IsOptional()
-  @IsNumber()
-  int?: number;
-
-  @Expose()
-  @IsOptional()
-  @IsNumber()
-  luk?: number;
-
-  @Expose()
-  @IsOptional()
-  @IsNumber()
-  maxHp?: number;
-
-  @Expose()
-  @IsOptional()
-  @IsNumber()
-  maxMp?: number;
-
-  @Expose()
-  @IsOptional()
-  @IsNumber()
-  attackPower?: number;
-
-  @Expose()
-  @IsOptional()
-  @IsNumber()
-  magicPower?: number;
-
-  @Expose()
-  @IsOptional()
-  @IsNumber()
-  armor?: number;
-
-  @Expose()
-  @IsOptional()
-  @IsNumber()
-  speed?: number;
-
-  @Expose()
-  @IsOptional()
-  @IsNumber()
-  jump?: number;
-
-  @Expose()
-  @IsOptional()
-  @IsNumber()
-  bossDamage?: number;
-
-  @Expose()
-  @IsOptional()
-  @IsNumber()
-  ignoreMonsterArmor?: number;
-
-  @Expose()
-  @IsOptional()
-  @IsNumber()
-  allStat?: number;
-
-  @Expose()
-  @IsOptional()
-  @IsNumber()
-  damage?: number;
-
-  @Expose()
-  @IsOptional()
-  @IsNumber()
-  equipmentLevelDecrease?: number;
-
-  @Expose()
-  @IsOptional()
-  @IsNumber()
-  maxHpRate?: number;
-
-  @Expose()
-  @IsOptional()
-  @IsNumber()
-  maxMpRate?: number;
-
-  @Expose()
-  @IsOptional()
-  @IsNumber()
-  baseEquipmentLevel?: number;
-
-  @Expose()
-  @IsOptional()
-  @IsNumber()
-  exceptionalUpgrade?: number;
+  @IsBoolean()
+  active: boolean;
 }

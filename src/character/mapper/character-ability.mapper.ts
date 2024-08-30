@@ -58,7 +58,7 @@ import { CharacterAbility } from '../type/character-ability.type';
 }
 */
 export const characterAbilityMapper = (abilityData: NxapiAbilityData): CharacterAbility[] => {
-  const mapAbilityGrade = (grade: string): 'LEGENDARY' | 'UNIQUE' | 'EPIC' => {
+  const mapAbilityGrade = (grade: string): 'LEGENDARY' | 'UNIQUE' | 'EPIC' | 'RARE' => {
     switch (grade) {
       case '레전드리':
         return 'LEGENDARY';
@@ -66,6 +66,8 @@ export const characterAbilityMapper = (abilityData: NxapiAbilityData): Character
         return 'UNIQUE';
       case '에픽':
         return 'EPIC';
+      case '레어':
+        return 'RARE';
       default:
         throw new Error(`Unknown ability grade: ${grade}`);
     }

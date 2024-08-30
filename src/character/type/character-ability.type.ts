@@ -1,5 +1,5 @@
 export interface CharacterAbility {
-  id?: number;
+  // id?: number;
   ability: Ability[];
   presetNo: number;
   active: boolean;
@@ -7,6 +7,6 @@ export interface CharacterAbility {
 
 export interface Ability {
   abilityNo: number;
-  abilityGrade: 'LEGENDARY' | 'UNIQUE' | 'EPIC';
+  abilityGrade: 'LEGENDARY' | 'UNIQUE' | 'EPIC' | 'RARE';
   abilityValue: string;
 }

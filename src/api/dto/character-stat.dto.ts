@@ -5,225 +5,225 @@ export class CharacterStatDTO {
   @Expose()
   @IsOptional()
   @IsInt()
-  maxStatAttackPower: number | null; // 최대 스탯공격력
+  maxStatAttackPower?: number; // 최대 스탯공격력
 
   @Expose()
   @IsOptional()
   @IsInt()
-  minStatAttackPower: number | null; // 최소 스탯공격력
+  minStatAttackPower?: number; // 최소 스탯공격력
 
   @Expose()
   @IsOptional()
   @IsNumber()
-  damage: number | null; // 데미지
+  damage?: number; // 데미지
 
   @Expose()
   @IsOptional()
   @IsNumber()
-  bossMonsterDamage: number | null; // 보스 몬스터 데미지
+  bossMonsterDamage?: number; // 보스 몬스터 데미지
 
   @Expose()
   @IsOptional()
   @IsNumber()
-  finalDamage: number | null; // 최종 데미지
+  finalDamage?: number; // 최종 데미지
 
   @Expose()
   @IsOptional()
   @IsNumber()
-  ignoreDefenseRate: number | null; // 방어율 무시
+  ignoreDefenseRate?: number; // 방어율 무시
 
   @Expose()
   @IsOptional()
   @IsInt()
-  criticalRate: number | null; // 크리티컬 확률
+  criticalRate?: number; // 크리티컬 확률
 
   @Expose()
   @IsOptional()
   @IsNumber()
-  criticalDamage: number | null; // 크리티컬 데미지
+  criticalDamage?: number; // 크리티컬 데미지
 
   @Expose()
   @IsOptional()
   @IsInt()
-  abnormalStatusResistance: number | null; // 상태이상 내성
+  abnormalStatusResistance?: number; // 상태이상 내성
 
   @Expose()
   @IsOptional()
   @IsInt()
-  stance: number | null; // 스탠스
+  stance?: number; // 스탠스
 
   @Expose()
   @IsOptional()
   @IsInt()
-  defense: number | null; // 방어력
+  defense?: number; // 방어력
 
   @Expose()
   @IsOptional()
   @IsInt()
-  moveSpeed: number | null; // 이동속도
+  moveSpeed?: number; // 이동속도
 
   @Expose()
   @IsOptional()
   @IsInt()
-  jumpPower: number | null; // 점프력
+  jumpPower?: number; // 점프력
 
   @Expose()
   @IsOptional()
   @IsInt()
-  starForce: number | null; // 스타포스
+  starForce?: number; // 스타포스
 
   @Expose()
   @IsOptional()
   @IsInt()
-  arcaneForce: number | null; // 아케인포스
+  arcaneForce?: number; // 아케인포스
 
   @Expose()
   @IsOptional()
   @IsInt()
-  authenticForce: number | null; // 어센틱포스
+  authenticForce?: number; // 어센틱포스
 
   @Expose()
   @IsOptional()
   @IsInt()
-  str: number | null; // STR
+  str?: number; // STR
 
   @Expose()
   @IsOptional()
   @IsInt()
-  dex: number | null; // DEX
+  dex?: number; // DEX
 
   @Expose()
   @IsOptional()
   @IsInt()
-  int: number | null; // INT
+  int?: number; // INT
 
   @Expose()
   @IsOptional()
   @IsInt()
-  luk: number | null; // LUK
+  luk?: number; // LUK
 
   @Expose()
   @IsOptional()
   @IsInt()
-  hp: number | null; // HP
+  hp?: number; // HP
 
   @Expose()
   @IsOptional()
   @IsInt()
-  mp: number | null; // MP
+  mp?: number; // MP
 
   @Expose()
   @IsOptional()
   @IsInt()
-  apStr: number | null; // AP 배분 STR
+  apStr?: number; // AP 배분 STR
 
   @Expose()
   @IsOptional()
   @IsInt()
-  apDex: number | null; // AP 배분 DEX
+  apDex?: number; // AP 배분 DEX
 
   @Expose()
   @IsOptional()
   @IsInt()
-  apInt: number | null; // AP 배분 INT
+  apInt?: number; // AP 배분 INT
 
   @Expose()
   @IsOptional()
   @IsInt()
-  apLuk: number | null; // AP 배분 LUK
+  apLuk?: number; // AP 배분 LUK
 
   @Expose()
   @IsOptional()
   @IsInt()
-  apHp: number | null; // AP 배분 HP
+  apHp?: number; // AP 배분 HP
 
   @Expose()
   @IsOptional()
   @IsInt()
-  apMp: number | null; // AP 배분 MP
+  apMp?: number; // AP 배분 MP
 
   @Expose()
   @IsOptional()
   @IsInt()
-  itemDropRate: number | null; // 아이템 드롭률
+  itemDropRate?: number; // 아이템 드롭률
 
   @Expose()
   @IsOptional()
   @IsInt()
-  mesoAcquisition: number | null; // 메소 획득량
+  mesoAcquisition?: number; // 메소 획득량
 
   @Expose()
   @IsOptional()
   @IsInt()
-  buffDuration: number | null; // 버프 지속시간
+  buffDuration?: number; // 버프 지속시간
 
   @Expose()
   @IsOptional()
   @IsInt()
-  attackSpeed: number | null; // 공격 속도
+  attackSpeed?: number; // 공격 속도
 
   @Expose()
   @IsOptional()
   @IsNumber()
-  normalMonsterDamage: number | null; // 일반 몬스터 데미지
+  normalMonsterDamage?: number; // 일반 몬스터 데미지
 
   @Expose()
   @IsOptional()
   @IsInt()
-  cooldownReductionPercent: number | null; // 재사용 대기시간 감소 (%)
+  cooldownReductionPercent?: number; // 재사용 대기시간 감소 (%)
 
   @Expose()
   @IsOptional()
   @IsInt()
-  cooldownReductionSeconds: number | null; // 재사용 대기시간 감소 (초)
+  cooldownReductionSeconds?: number; // 재사용 대기시간 감소 (초)
 
   @Expose()
   @IsOptional()
   @IsInt()
-  cooldownExemption: number | null; // 재사용 대기시간 미적용
+  cooldownExemption?: number; // 재사용 대기시간 미적용
 
   @Expose()
   @IsOptional()
   @IsNumber()
-  ignoreAttributeResistance: number | null; // 속성 내성 무시
+  ignoreAttributeResistance?: number; // 속성 내성 무시
 
   @Expose()
   @IsOptional()
   @IsNumber()
-  abnormalStatusAdditionalDamage: number | null; // 상태이상 추가 데미지
+  abnormalStatusAdditionalDamage?: number; // 상태이상 추가 데미지
 
   @Expose()
   @IsOptional()
   @IsInt()
-  weaponMastery: number | null; // 무기 숙련도
+  weaponMastery?: number; // 무기 숙련도
 
   @Expose()
   @IsOptional()
   @IsNumber()
-  additionalExp: number | null; // 추가 경험치 획득
+  additionalExp?: number; // 추가 경험치 획득
 
   @Expose()
   @IsOptional()
   @IsInt()
-  attackPower: number | null; // 공격력
+  attackPower?: number; // 공격력
 
   @Expose()
   @IsOptional()
   @IsInt()
-  magicPower: number | null; // 마력
+  magicPower?: number; // 마력
 
   @Expose()
   @IsOptional()
   @IsInt()
-  combatPower: number | null; // 전투력
+  combatPower?: number; // 전투력
 
   @Expose()
   @IsOptional()
   @IsInt()
-  summonDurationIncrease: number | null; // 소환수 지속시간 증가
+  summonDurationIncrease?: number; // 소환수 지속시간 증가
 
   @Expose()
   @IsOptional()
   @IsInt()
-  remainAp: number | null; // 남은 AP 포인트
+  remainAp?: number; // 남은 AP 포인트
 }

@@ -1,12 +1,12 @@
 export interface CharacterItemEquipment {
-  id?: number;
+  // id?: number;
   itemEquipment: ItemEquipment[];
-  presetNo?: number;
-  active?: boolean;
+  presetNo: number;
+  active: boolean;
 }
 
 export interface ItemEquipment {
-  id?: number;
+  // id?: number;
   hash: string;
   part: string;
   slot: string;
@@ -35,16 +35,16 @@ export interface ItemEquipment {
   specialRingLevel?: number;
   dateExpire?: Date;
   dateOptionExpire?: Date;
-  totalOption: ItemOption;
-  baseOption: ItemOption;
-  exceptionalOption: ItemOption;
-  addOption: ItemOption;
-  etcOption: ItemOption;
-  starforceOption: ItemOption;
+  totalOption?: ItemOption;
+  baseOption?: ItemOption;
+  exceptionalOption?: ItemOption;
+  addOption?: ItemOption;
+  etcOption?: ItemOption;
+  starforceOption?: ItemOption;
 }
 
 export interface ItemOption {
-  id?: number;
+  // id?: number;
   hash: string;
   str?: number;
   dex?: number;

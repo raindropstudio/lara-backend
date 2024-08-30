@@ -35,6 +35,8 @@ export class CharacterRepository {
       },
     });
 
+    if (!characterData) return null;
+
     const hyperStatPresets = [
       { presetNo: 1, active: false, hyperStat: [] },
       { presetNo: 2, active: false, hyperStat: [] },
@@ -56,40 +58,49 @@ export class CharacterRepository {
     ];
 
     // 2. 하이퍼스탯 데이터를 프리셋별로 그룹화
-    characterData.hyperStat.forEach((hs) => {
-      const preset = hyperStatPresets.find((p) => p.presetNo === hs.presetNo);
-      if (preset) {
-        preset.active = hs.active; // 활성화 여부 설정
-        const { presetNo, active, ...rest } = hs; // 프리셋 관련 데이터 제외하고 나머지 가져오기
-        preset.hyperStat.push(rest);
-      }
-    });
+    if (characterData.hyperStat) {
+      characterData.hyperStat.forEach((hs) => {
+        const preset = hyperStatPresets.find((p) => p.presetNo === hs.presetNo);
+        if (preset) {
+          preset.active = hs.active; // 활성화 여부 설정
+          const { presetNo, active, ...rest } = hs; // 프리셋 관련 데이터 제외하고 나머지 가져오기
+          preset.hyperStat.push(rest);
+        }
+      });
+    }
 
     // 3. 어빌리티 데이터를 프리셋별로 그룹화
-    characterData.ability.forEach((ab) => {
-      const preset = abilityPresets.find((p) => p.presetNo === ab.presetNo);
-      if (preset) {
-        preset.active = ab.active; // 활성화 여부 설정
-        const { presetNo, active, ...rest } = ab; // 프리셋 관련 데이터 제외하고 나머지 가져오기
-        preset.ability.push(rest);
-      }
-    });
+    if (characterData.ability) {
+      characterData.ability.forEach((ab) => {
+        const preset = abilityPresets.find((p) => p.presetNo === ab.presetNo);
+        if (preset) {
+          preset.active = ab.active; // 활성화 여부 설정
+          const { presetNo, active, ...rest } = ab; // 프리셋 관련 데이터 제외하고 나머지 가져오기
+          preset.ability.push(rest);
+        }
+      });
+    }
 
     // 4. 장비 데이터를 프리셋별로 그룹화
-    characterData.itemEquipment.forEach((eq) => {
-      const preset = itemEquipmentPresets.find((p) => p.presetNo === eq.presetNo);
-      if (preset) {
-        preset.active = eq.active; // 활성화 여부 설정
-        const { presetNo, active, ...rest } = eq; // 프리셋 관련 데이터 제외하고 나머지 가져오기
-        preset.itemEquipment.push(rest);
-      }
-    });
+    if (characterData.itemEquipment) {
+      characterData.itemEquipment.forEach((eq) => {
+        const preset = itemEquipmentPresets.find((p) => p.presetNo === eq.presetNo);
+        if (preset) {
+          preset.active = eq.active; // 활성화 여부 설정
+          const { presetNo, active, ...rest } = eq; // 프리셋 관련 데이터 제외하고 나머지 가져오기
+          preset.itemEquipment.push(rest);
+        }
+      });
+    }
+
+    //? 원래도 이거 안빼면 upsert 오류났었나..?
+    const { id, statId, propensityId, ...characterBasic } = characterData;
 
     return {
-      ...characterData,
-      hyperStat: hyperStatPresets,
-      ability: abilityPresets,
-      itemEquipment: itemEquipmentPresets,
+      ...characterBasic,
+      hyperStat: characterData.hyperStat ? hyperStatPresets : null,
+      ability: characterData.ability ? abilityPresets : null,
+      itemEquipment: characterData.itemEquipment ? itemEquipmentPresets : null,
     };
   }
 
@@ -101,8 +112,9 @@ export class CharacterRepository {
   }
 
   async createOrIgnoreAbility(ability: Ability[]) {
+    const abilityWithoutNo = ability.map(({ abilityNo, ...rest }) => rest);
     return this.prismaService.ability.createMany({
-      data: ability,
+      data: abilityWithoutNo,
       skipDuplicates: true,
     });
   }
@@ -169,19 +181,19 @@ export class CharacterRepository {
     // 장비마다의 모든 옵션에 대해 저장
     const flatOption = itemEquipment.flatMap((item) => {
       return [
-        item.totalOption,
-        item.baseOption,
-        item.exceptionalOption,
-        item.addOption,
-        item.etcOption,
-        item.starforceOption,
+        item?.totalOption,
+        item?.baseOption,
+        item?.exceptionalOption,
+        item?.addOption,
+        item?.etcOption,
+        item?.starforceOption,
       ].filter(Boolean);
     });
     await this.createOrIgnoreItemOption(flatOption);
 
     // 잠재능력
     const flatPotential = itemEquipment.flatMap((item) => {
-      return [...item.potentialOption, ...item.additionalPotentialOption];
+      return [...(item?.potentialOption ?? []), ...(item?.additionalPotentialOption ?? [])].filter(Boolean);
     });
     await this.createOrIgnoreItemPotential(flatPotential);
 
@@ -227,10 +239,24 @@ export class CharacterRepository {
       const potentialConnections = this.createPotentialConnections(itemEquip, potentialIdMap);
 
       // 장비 생성, 단 고유키 충돌로 실패시 무시
+
+      // 옵션, 잠재능력값 삭제
+      const {
+        totalOption,
+        baseOption,
+        exceptionalOption,
+        addOption,
+        etcOption,
+        starforceOption,
+        potentialOption,
+        additionalPotentialOption,
+        ...itemEquipWithoutOption
+      } = itemEquip;
+
       try {
         await this.prismaService.itemEquipment.create({
           data: {
-            ...itemEquip,
+            ...itemEquipWithoutOption,
             ItemEquipmentOption: {
               create: optionConnections,
             },
@@ -240,7 +266,7 @@ export class CharacterRepository {
           },
         });
       } catch (e) {
-        if (e.code !== 'P2002') continue;
+        if (e.code === 'P2002') continue;
         throw e;
       }
     }

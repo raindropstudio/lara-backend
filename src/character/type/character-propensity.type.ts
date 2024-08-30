@@ -1,5 +1,5 @@
 export interface CharacterPropensity {
-  id?: number;
+  // id?: number;
   charismaLevel: number;
   sensibilityLevel: number;
   insightLevel: number;
