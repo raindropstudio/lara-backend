@@ -1,20 +1,12 @@
 import { Optional } from '@nestjs/common';
-import { Expose } from 'class-transformer';
-import { IsBoolean, IsNumber, IsString } from 'class-validator';
+import { Expose, Type } from 'class-transformer';
+import { IsBoolean, IsNumber, IsString, ValidateNested } from 'class-validator';
 
 export class CharacterAbilityDTO {
   @Expose()
-  @IsString()
-  abilityGrade: string;
-
-  @Expose()
-  @IsNumber()
-  @Optional()
-  abilityNo: number;
-
-  @Expose()
-  @IsString()
-  abilityValue: string;
+  @ValidateNested({ each: true })
+  @Type(() => AbilityDTO)
+  abilityInfo: AbilityDTO[];
 
   @Expose()
   @IsNumber()
@@ -24,4 +16,19 @@ export class CharacterAbilityDTO {
   @IsBoolean()
   @Optional()
   active: boolean;
+}
+
+export class AbilityDTO {
+  @Expose()
+  @IsString()
+  abilityGrade: 'EPIC' | 'UNIQUE' | 'LEGENDARY';
+
+  @Expose()
+  @IsNumber()
+  @Optional()
+  abilityNo: number;
+
+  @Expose()
+  @IsString()
+  abilityValue: string;
 }

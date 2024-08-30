@@ -1,116 +1,131 @@
-import { CharacterItemEquipment, ItemOption, Title } from '../type/character-item-equipment.type';
-import { NxapiItemEquipment, NxapiItemEquipmentInfo, NxapiItemOption } from 'src/nxapi/type/nxapi-item-equipment.type';
+import { PotentialGrade } from '@prisma/client';
+import objectHash from 'object-hash';
+import { NxapiItemEquipmentInfo } from 'src/nxapi/type/nxapi-item-equipment.type';
+import { CharacterItemEquipment, ItemEquipment, ItemOption } from '../type/character-item-equipment.type';
 
-// NxapiItemOption을 ItemOption으로 변환
-const mapItemOption = (option: NxapiItemOption): ItemOption => ({
-  str: option.str,
-  dex: option.dex,
-  int: option.int,
-  luk: option.luk,
-  maxHp: option.max_hp,
-  maxMp: option.max_mp,
-  attackPower: option.attack_power,
-  magicPower: option.magic_power,
-  armor: option.armor,
-  speed: option.speed,
-  jump: option.jump,
-  bossDamage: option.boss_damage,
-  ignoreMonsterArmor: option.ignore_monster_armor,
-  allStat: option.all_stat,
-  damage: option.damage,
-  equipmentLevelDecrease: option.equipment_level_decrease,
-  maxHpRate: option.max_hp_rate,
-  maxMpRate: option.max_mp_rate,
-  baseEquipmentLevel: option.base_equipment_level,
-});
+export const characterItemEquipmentMapper = (itemEquipmentData: any): CharacterItemEquipment[] => {
+  // 프리셋 4: 타이틀, 5: 드래곤 또는 메카닉 장비로 간주
+  const presets = [
+    { presetNo: 1, equipment: itemEquipmentData.item_equipment_preset_1 },
+    { presetNo: 2, equipment: itemEquipmentData.item_equipment_preset_2 },
+    { presetNo: 3, equipment: itemEquipmentData.item_equipment_preset_3 },
+    { presetNo: 4, equipment: itemEquipmentData.title ? [itemEquipmentData.title] : [] },
+    {
+      presetNo: 5,
+      equipment: itemEquipmentData.dragon_equipment.length
+        ? itemEquipmentData.dragon_equipment
+        : itemEquipmentData.mechanic_equipment,
+    },
+  ];
 
-// NxapiItemEquipmentInfo를 CharacterItemEquipment로 변환
-const mapItemEquipmentInfo = (info: NxapiItemEquipmentInfo): CharacterItemEquipment => ({
-  part: info.item_equipment_part,
-  slot: info.item_equipment_slot,
-  name: info.item_name,
-  icon: info.item_icon,
-  description: info.item_description,
-  shapeName: info.item_shape_name,
-  shapeIcon: info.item_shape_icon,
-  gender: info.item_gender,
-  totalOption: mapItemOption(info.item_total_option),
-  baseOption: mapItemOption(info.item_base_option),
-  potentialOptionGrade: info.potential_option_grade,
-  additionalPotentialOption: info.additional_potential_option_grade,
-  potentialOption1: info.potential_option_1,
-  potentialOption2: info.potential_option_2,
-  potentialOption3: info.potential_option_3,
-  additionalPotentialOption1: info.additional_potential_option_1,
-  additionalPotentialOption2: info.additional_potential_option_2,
-  additionalPotentialOption3: info.additional_potential_option_3,
-  equipmentLevelIncrease: info.equipment_level_increase,
-  exceptionalOption: mapItemOption(info.item_exceptional_option),
-  addOption: mapItemOption(info.item_add_option),
-  growthExp: info.growth_exp,
-  growthLevel: info.growth_level,
-  scrollUpgrade: info.scroll_upgrade,
-  cuttableCount: info.cuttable_count,
-  goldenHammerFlag: info.golden_hammer_flag,
-  scrollResilienceCount: info.scroll_resilience_count,
-  scrollUpgradeableCount: info.scroll_upgradeable_count,
-  soulName: info.soul_name,
-  soulOption: info.soul_option,
-  etcOption: mapItemOption(info.item_etc_option),
-  starforce: info.starforce,
-  starforceScrollFlag: info.starforce_scroll_flag,
-  starforceOption: mapItemOption(info.item_starforce_option),
-  specialRingLevel: info.special_ring_level,
-  dateExpire: info.date_expire ? new Date(info.date_expire) : undefined,
-  active: true,
-});
+  // item_equipment가 사용 중이고 preset이 null인 경우 프리셋 1번에 할당
+  if (!itemEquipmentData.preset_no) {
+    presets[0].equipment = itemEquipmentData.item_equipment;
+  }
 
-// NxapiItemEquipment에서 Title로 변환
-const mapTitle = (title: NxapiItemEquipment['title']): Title => ({
-  title_name: title.title_name,
-  title_icon: title.title_icon,
-  title_description: title.title_description,
-  date_expire: title.date_expire ? new Date(title.date_expire) : undefined,
-  date_option_expire: title.date_option_expire ? new Date(title.date_option_expire) : undefined,
-});
+  const mapItemOption = (options: any): ItemOption | null => {
+    if (!options) return null;
+    const res = {
+      hash: '',
+      str: options.str ? parseInt(options.str) : null,
+      dex: options.dex ? parseInt(options.dex) : null,
+      int: options.int ? parseInt(options.int) : null,
+      luk: options.luk ? parseInt(options.luk) : null,
+      maxHp: options.max_hp ? parseInt(options.max_hp) : null,
+      maxMp: options.max_mp ? parseInt(options.max_mp) : null,
+      attackPower: options.attack_power ? parseInt(options.attack_power) : null,
+      magicPower: options.magic_power ? parseInt(options.magic_power) : null,
+      armor: options.armor ? parseInt(options.armor) : null,
+      speed: options.speed ? parseInt(options.speed) : null,
+      jump: options.jump ? parseInt(options.jump) : null,
+      bossDamage: options.boss_damage ? parseInt(options.boss_damage) : null,
+      ignoreMonsterArmor: options.ignore_monster_armor ? parseInt(options.ignore_monster_armor) : null,
+      allStat: options.all_stat ? parseInt(options.all_stat) : null,
+      damage: options.damage ? parseInt(options.damage) : null,
+      equipmentLevelDecrease: options.equipment_level_decrease ? parseInt(options.equipment_level_decrease) : null,
+      maxHpRate: options.max_hp_rate ? parseInt(options.max_hp_rate) : null,
+      maxMpRate: options.max_mp_rate ? parseInt(options.max_mp_rate) : null,
+      baseEquipmentLevel: options.base_equipment_level ? parseInt(options.base_equipment_level) : null,
+      exceptionalUpgrade: options.exceptional_upgrade ? parseInt(options.exceptional_upgrade) : null,
+    };
+    res.hash = objectHash(res);
 
-// 최종 매퍼 함수
-export const characterItemEquipmentMapper = (itemEquipmentData: NxapiItemEquipment): CharacterItemEquipment[] => {
-  const mainEquipments = itemEquipmentData.item_equipment.map((item: NxapiItemEquipmentInfo) => ({
-    ...mapItemEquipmentInfo(item),
-    active: true,
-  }));
+    return res;
+  };
 
-  const presetEquipments = [1, 2, 3].flatMap((presetNumber) => {
-    const presetKey = `item_equipment_preset_${presetNumber}`;
-    const preset = itemEquipmentData[presetKey];
-    if (!preset) return [];
-
-    return preset.map((item: NxapiItemEquipmentInfo) => ({
-      ...mapItemEquipmentInfo(item),
-      preset_no: presetNumber,
-      active: false,
-    }));
-  });
-
-  presetEquipments.forEach((presetEquipment) => {
-    if (
-      mainEquipments.some(
-        (mainEquipment) =>
-          mainEquipment.name === presetEquipment.name &&
-          mainEquipment.part === presetEquipment.part &&
-          mainEquipment.slot === presetEquipment.slot &&
-          mainEquipment.icon === presetEquipment.icon,
-      )
-    ) {
-      presetEquipment.active = true;
+  const potentialGrade = (grade: string): PotentialGrade | null => {
+    switch (grade) {
+      case '레어':
+        return 'RARE';
+      case '에픽':
+        return 'EPIC';
+      case '유니크':
+        return 'UNIQUE';
+      case '레전드리':
+        return 'LEGENDARY';
+      default:
+        return null;
     }
-  });
+  };
 
-  const allEquipments = [...mainEquipments, ...presetEquipments].map((equipment) => ({
-    ...equipment,
-    title: mapTitle(itemEquipmentData.title),
-  }));
+  const mapItemEquipment = (item: NxapiItemEquipmentInfo): ItemEquipment => {
+    const res = {
+      hash: '',
+      part: item.item_equipment_part,
+      slot: item.item_equipment_slot,
+      name: item.item_name,
+      icon: item.item_icon,
+      description: item.item_description || null,
+      shapeName: item.item_shape_name,
+      shapeIcon: item.item_shape_icon,
+      gender: item.item_gender || null,
+      potentialOptionGrade: item.potential_option_grade ? potentialGrade(item.potential_option_grade) : null,
+      additionalPotentialOptionGrade: item.additional_potential_option_grade
+        ? potentialGrade(item.additional_potential_option_grade.toUpperCase())
+        : null,
+      potentialOption: [
+        item.potential_option_1 || null,
+        item.potential_option_2 || null,
+        item.potential_option_3 || null,
+      ],
+      additionalPotentialOption: [
+        item.additional_potential_option_1 || null,
+        item.additional_potential_option_2 || null,
+        item.additional_potential_option_3 || null,
+      ],
+      equipmentLevelIncrease: item.equipment_level_increase || null,
+      growthExp: item.growth_exp || null,
+      growthLevel: item.growth_level || null,
+      scrollUpgrade: parseInt(item.scroll_upgrade) || null,
+      cuttableCount: parseInt(item.cuttable_count) || null,
+      goldenHammerFlag: item.golden_hammer_flag === '적용',
+      scrollResilienceCount: parseInt(item.scroll_resilience_count) || null,
+      scrollUpgradeableCount: parseInt(item.scroll_upgradeable_count) || null,
+      soulName: item.soul_name || null,
+      soulOption: item.soul_option || null,
+      starforce: parseInt(item.starforce) || null,
+      starforceScrollFlag: item.starforce_scroll_flag === '사용',
+      specialRingLevel: item.special_ring_level || null,
+      dateExpire: item.date_expire ? new Date(item.date_expire) : null,
+      dateOptionExpire: item.date_option_expire ? new Date(item.date_option_expire) : null,
+      totalOption: mapItemOption(item.item_total_option),
+      baseOption: mapItemOption(item.item_base_option),
+      exceptionalOption: mapItemOption(item.item_exceptional_option),
+      addOption: mapItemOption(item.item_add_option),
+      etcOption: mapItemOption(item.item_etc_option),
+      starforceOption: mapItemOption(item.item_starforce_option),
+    };
 
-  return allEquipments;
+    res.hash = objectHash(res);
+
+    return res;
+  };
+
+  return presets.flatMap(({ presetNo, equipment }) =>
+    equipment.map((item: any) => ({
+      equipment: [mapItemEquipment(item)],
+      presetNo: presetNo,
+      active: itemEquipmentData.preset_no === presetNo || (presetNo === 1 && !itemEquipmentData.preset_no),
+    })),
+  );
 };

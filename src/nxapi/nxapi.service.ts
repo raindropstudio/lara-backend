@@ -1,7 +1,8 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { NxapiItemEquipment } from './type/nxapi-item-equipment.type';
 import axiosRetry from 'axios-retry';
+import { NxapiAbilityData } from './type/nxapi-ability.type';
+import { NxapiItemEquipment } from './type/nxapi-item-equipment.type';
 
 type SkillGrade = '0' | '1' | '1.5' | '2' | '2.5' | '3' | '4' | '5' | '6' | 'hyperpassive' | 'hyperactive';
 
@@ -72,7 +73,7 @@ export class NxapiService implements OnModuleInit {
     return res;
   }
 
-  async fetchCharacterAbility(ocid: string, date?: string): Promise<object> {
+  async fetchCharacterAbility(ocid: string, date?: string): Promise<NxapiAbilityData> {
     const res = await this.nxapi('/character/ability', { ocid, date });
     this.logger.log(
       `fetchCharacterAbility: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 30) + '...'}`,

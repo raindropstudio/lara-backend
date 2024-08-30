@@ -33,39 +33,35 @@ import { CharacterHyperStat } from '../type/character-hyper-stat.type';
 }
 */
 
-export const characterHyperStatMapper = (hyperStatData: object): CharacterHyperStat[] => {
-  const hyperStatList: CharacterHyperStat[] = [];
+export const characterHyperStatMapper = (hyperStatData: any): CharacterHyperStat[] => {
+  const createHyperStats = (preset: any[], presetNo: number, remainPoint: number): CharacterHyperStat => {
+    return {
+      presetNo: presetNo,
+      active: hyperStatData.use_preset_no === String(presetNo),
+      hyperStat: [
+        ...preset
+          .filter((stat: any) => stat.stat_point)
+          .map((stat: any) => ({
+            statType: stat.stat_type,
+            statLevel: stat.stat_level,
+            statPoint: stat.stat_point,
+            statIncrease: stat.stat_increase,
+          })),
+        {
+          statType: 'remainPoint', // 남은 포인트
+          statLevel: null,
+          statPoint: remainPoint, // 남은 포인트 값
+          statIncrease: null,
+        },
+      ],
+    };
+  };
 
-  for (let i = 1; i <= 3; i++) {
-    const preset = i;
-    const presetKey = `hyper_stat_preset_${i}`;
-    const remainPointKey = `hyper_stat_preset_${i}_remain_point`;
+  const characterHyperStats: CharacterHyperStat[] = [
+    createHyperStats(hyperStatData.hyper_stat_preset_1, 1, hyperStatData.hyper_stat_preset_1_remain_point),
+    createHyperStats(hyperStatData.hyper_stat_preset_2, 2, hyperStatData.hyper_stat_preset_2_remain_point),
+    createHyperStats(hyperStatData.hyper_stat_preset_3, 3, hyperStatData.hyper_stat_preset_3_remain_point),
+  ];
 
-    const filteredStatList = (hyperStatData[presetKey] || []).filter(
-      (stat: object) => stat['stat_point'] !== null && stat['stat_level'] !== null && stat['stat_increase'] !== null,
-    );
-
-    const presetStatList: CharacterHyperStat[] = filteredStatList.map((stat: object): CharacterHyperStat => {
-      return {
-        active: hyperStatData['use_preset_no'] === `${i}`,
-        statType: stat['stat_type'],
-        statPoint: stat['stat_point'],
-        statLevel: stat['stat_level'],
-        statIncrease: stat['stat_increase'],
-        preset,
-      };
-    });
-    presetStatList.push({
-      statType: 'use_available_hyper_stat',
-      statPoint: hyperStatData['use_available_hyper_stat'],
-    });
-    presetStatList.push({
-      statType: 'remain_point',
-      statPoint: hyperStatData[remainPointKey],
-    });
-
-    hyperStatList.push(...presetStatList);
-  }
-
-  return hyperStatList;
+  return characterHyperStats;
 };

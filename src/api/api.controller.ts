@@ -13,11 +13,10 @@ export class ApiController {
     @Param('nickname') nickname: string,
     @Query() query: GetCharacterOverallDto,
   ): Promise<CharacterDTO> {
-    const { date, update } = query;
-    //TODO: date는 전일 데이터까지 조회가능 (전일 데이터는 금일 오전 2시부터 조회가능) -> 입력 검사및 예외처리하기
+    const { update } = query;
     //TODO: 오류 예외처리
-    this.logger.log(`getCharacterOverall: ${nickname}, ${date}, ${update}`);
-    const res = await this.characterService.getCharacterOverall(nickname, date, update);
+    this.logger.log(`getCharacterOverall: ${nickname}, ${update}`);
+    const res = await this.characterService.getCharacterOverall(nickname, update);
     return new CharacterDTO(res);
   }
 }

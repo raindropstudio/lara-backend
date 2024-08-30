@@ -1,20 +1,19 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { NxapiService } from 'src/nxapi/nxapi.service';
+import { characterAbilityMapper } from './mapper/character-ability.mapper';
 import { characterBasicMapper } from './mapper/character-basic.mapper';
+import { characterHyperStatMapper } from './mapper/character-hyper-stat.mapper';
+import { characterItemEquipmentMapper } from './mapper/character-item-equipment.mapper';
+import { characterPropensityMapper } from './mapper/character-propensity.mapper';
 import { characterStatMapper } from './mapper/character-stat.mapper';
 import { CharacterRepository } from './repository/character.repository';
-import { Character } from './type/character.type';
+import { CharacterAbility } from './type/character-ability.type';
 import { CharacterBasic } from './type/character-basic.type';
-import { CharacterStat } from './type/character-stat.type';
 import { CharacterHyperStat } from './type/character-hyper-stat.type';
-import { characterHyperStatMapper } from './mapper/character-hyper-stat.mapper';
-import { CharacterPropensity } from './type/character-propensity.type';
-import { characterPropensityMapper } from './mapper/character-propensity.mapper';
-import { CharacterAbility, AbilityData } from './type/character-ability.type';
-import { characterAbilityMapper } from './mapper/character-ability.mapper';
 import { CharacterItemEquipment } from './type/character-item-equipment.type';
-import { characterItemEquipmentMapper } from './mapper/character-item-equipment.mapper';
-import { NxapiItemEquipment } from 'src/nxapi/type/nxapi-item-equipment.type';
+import { CharacterPropensity } from './type/character-propensity.type';
+import { CharacterStat } from './type/character-stat.type';
+import { Character } from './type/character.type';
 
 @Injectable()
 export class CharacterService {
@@ -28,24 +27,23 @@ export class CharacterService {
     return this.nxapiService.fetchCharacterOcid(characterName);
   }
 
-  //? 현재 구현상 과거 데이터 요청시 DB에 저장하지 않음
-  async getCharacterOverall(nickname: string, date?: string, update?: boolean): Promise<Character> {
+  async getCharacterOverall(nickname: string, update?: boolean): Promise<Character> {
     const character = await this.characterRepository.findCharacterOverallByNickname(nickname);
 
     if (update || !character) {
       const ocid = await this.getCharacterOcid(nickname);
 
       const promises = [
-        this.fetchCharacterBasic(ocid, date),
-        this.fetchCharacterStat(ocid, date),
-        this.fetchCharacterHyperStat(ocid, date),
-        this.fetchCharacterPropensity(ocid, date),
-        this.fetchCharacterAbility(ocid, date),
-        this.fetchCharacterItemEquipment(ocid, date),
+        this.fetchCharacterBasic(ocid),
+        this.fetchCharacterStat(ocid),
+        this.getCharacterHyperStat(ocid),
+        this.fetchCharacterPropensity(ocid),
+        this.getCharacterAbility(ocid),
+        this.getCharacterItemEquipment(ocid),
       ];
       const [basic, stat, hyperStat, propensity, ability, itemEquipment] = (await Promise.all(promises)) as [
         CharacterBasic,
-        CharacterStat[],
+        CharacterStat,
         CharacterHyperStat[],
         CharacterPropensity,
         CharacterAbility[],
@@ -62,11 +60,6 @@ export class CharacterService {
         itemEquipment,
       };
 
-      // DB보다 과거 데이터를 요청한 경우, DB에 저장하지 않음
-      if (date && character && character.updatedAt > new Date(date)) {
-        return updatedCharacter;
-      }
-
       await this.characterRepository.upsertCharacterOverall(updatedCharacter);
       return updatedCharacter;
     }
@@ -82,16 +75,22 @@ export class CharacterService {
     return characterBasicMapper(ocid, basicData, popularityData);
   }
 
-  async fetchCharacterStat(ocid: string, date?: string): Promise<CharacterStat[]> {
+  async fetchCharacterStat(ocid: string, date?: string): Promise<CharacterStat> {
     const stat = await this.nxapiService.fetchCharacterStat(ocid, date);
 
     return characterStatMapper(stat);
   }
 
-  async fetchCharacterHyperStat(ocid: string, date?: string): Promise<CharacterHyperStat[]> {
-    const hyperStat = await this.nxapiService.fetchCharacterHyperStat(ocid, date);
+  async getCharacterHyperStat(ocid: string, date?: string): Promise<CharacterHyperStat[]> {
+    const rawHyperStat = await this.nxapiService.fetchCharacterHyperStat(ocid, date);
 
-    return characterHyperStatMapper(hyperStat);
+    const characterHyperStat = characterHyperStatMapper(rawHyperStat);
+
+    // 하이퍼스탯 테이블 업데이트
+    const flatHyperStat = characterHyperStat.flatMap((hyperStat) => hyperStat.hyperStat);
+    await this.characterRepository.createOrIgnoreHyperstat(flatHyperStat);
+
+    return characterHyperStat;
   }
 
   async fetchCharacterPropensity(ocid: string, date?: string) {
@@ -100,15 +99,25 @@ export class CharacterService {
     return characterPropensityMapper(propensity);
   }
 
-  async fetchCharacterAbility(ocid: string, date?: string): Promise<CharacterAbility[]> {
+  async getCharacterAbility(ocid: string, date?: string): Promise<CharacterAbility[]> {
     const ability = await this.nxapiService.fetchCharacterAbility(ocid, date);
 
-    return characterAbilityMapper(ability as AbilityData);
+    const characterAbility = characterAbilityMapper(ability);
+
+    const flatAbility = characterAbility.flatMap((ability) => ability.ability);
+    await this.characterRepository.createOrIgnoreAbility(flatAbility);
+
+    return characterAbility;
   }
 
-  async fetchCharacterItemEquipment(ocid: string, date?: string): Promise<CharacterItemEquipment[]> {
+  async getCharacterItemEquipment(ocid: string, date?: string): Promise<CharacterItemEquipment[]> {
     const itemEquipmentData = await this.nxapiService.fetchCharacterItemEquipment(ocid, date);
 
-    return characterItemEquipmentMapper(itemEquipmentData as NxapiItemEquipment);
+    const characterItemEquipment = characterItemEquipmentMapper(itemEquipmentData);
+
+    const flatItemEquipment = characterItemEquipment.flatMap((itemEquipment) => itemEquipment.itemEquipment);
+    await this.characterRepository.createOrIgnoreItemEquipment(flatItemEquipment);
+
+    return characterItemEquipment;
   }
 }

@@ -1,10 +1,13 @@
 export interface CharacterHyperStat {
   id?: number;
-  characterId?: number;
-  statType: string;
-  statPoint: number;
-  statLevel?: number;
-  statIncrease?: string;
-  preset?: number;
+  hyperStat: HyperStat[];
+  presetNo?: number;
   active?: boolean;
+}
+
+export interface HyperStat {
+  statType: string;
+  statLevel?: number;
+  statPoint: number;
+  statIncrease?: string;
 }

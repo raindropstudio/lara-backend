@@ -1,4 +1,5 @@
-import { AbilityData, AbilityInfo, CharacterAbility } from '../type/character-ability.type';
+import { NxapiAbilityData } from 'src/nxapi/type/nxapi-ability.type';
+import { CharacterAbility } from '../type/character-ability.type';
 /*
 {
   "date": null,
@@ -56,47 +57,46 @@ import { AbilityData, AbilityInfo, CharacterAbility } from '../type/character-ab
   }
 }
 */
-export const characterAbilityMapper = (abilityData: AbilityData): CharacterAbility[] => {
-  const mainAbilities = abilityData.ability_info.map((ability: AbilityInfo) => ({
-    abilityNo: parseInt(ability.ability_no, 10),
-    abilityGrade: ability.ability_grade,
-    abilityValue: ability.ability_value,
-    remainFame: abilityData.remain_fame, // 남은 명성치
-    active: true,
-  }));
-
-  const presetAbilities = [1, 2, 3]
-    .map((presetNumber) => {
-      const presetKey = `ability_preset_${presetNumber}`;
-      const preset = abilityData[presetKey];
-
-      return preset.ability_info.map((ability: AbilityInfo) => ({
-        abilityNo: parseInt(ability.ability_no, 10), // NXAPI에서 ability_no가 string으로 와서 number로 변환...
-        abilityGrade: ability.ability_grade,
-        abilityValue: ability.ability_value,
-        active: false,
-        presetNo: presetNumber,
-      }));
-    })
-    .flat();
-  presetAbilities.push({
-    abilityGrade: '남은 명성치',
-    presetNo: abilityData.remain_fame,
-  });
-
-  // 프리셋 중 현재 적용중인 어빌리티와 동일한 프리셋을 찾아서 active 속성을 true로 변경
-  presetAbilities.forEach((ability: CharacterAbility) => {
-    if (
-      mainAbilities.some(
-        (mainAbility) =>
-          mainAbility.abilityNo === ability.abilityNo &&
-          mainAbility.abilityGrade === ability.abilityGrade &&
-          mainAbility.abilityValue === ability.abilityValue,
-      )
-    ) {
-      ability.active = true;
+export const characterAbilityMapper = (abilityData: NxapiAbilityData): CharacterAbility[] => {
+  const mapAbilityGrade = (grade: string): 'LEGENDARY' | 'UNIQUE' | 'EPIC' => {
+    switch (grade) {
+      case '레전드리':
+        return 'LEGENDARY';
+      case '유니크':
+        return 'UNIQUE';
+      case '에픽':
+        return 'EPIC';
+      default:
+        throw new Error(`Unknown ability grade: ${grade}`);
     }
-  });
+  };
 
-  return presetAbilities;
+  const mapAbilities = (abilities: any[], presetNo: number, isActive: boolean): CharacterAbility => {
+    if (!abilities) return null;
+    return {
+      presetNo,
+      active: isActive,
+      ability: abilities.map((ability) => ({
+        abilityNo: parseInt(ability.ability_no, 10),
+        abilityGrade: mapAbilityGrade(ability.ability_grade),
+        abilityValue: ability.ability_value,
+      })),
+    };
+  };
+
+  const characterAbility: CharacterAbility[] = [];
+
+  const presetAbilities1 =
+    abilityData.preset_no === null
+      ? mapAbilities(abilityData.ability_info, 1, true)
+      : mapAbilities(abilityData.ability_preset_1.ability_info, 1, abilityData.preset_no === 1);
+
+  const presetAbilities2 = mapAbilities(abilityData.ability_preset_2.ability_info, 2, abilityData.preset_no === 2);
+  const presetAbilities3 = mapAbilities(abilityData.ability_preset_3.ability_info, 3, abilityData.preset_no === 3);
+
+  characterAbility.push(presetAbilities1);
+  if (presetAbilities2) characterAbility.push(presetAbilities2);
+  if (presetAbilities3) characterAbility.push(presetAbilities3);
+
+  return characterAbility;
 };

@@ -1,9 +1,10 @@
 import { Expose, Transform, Type } from 'class-transformer';
-import { IsBoolean, IsDate, IsInt, IsNumber, IsString, IsUrl, ValidateNested } from 'class-validator';
-import { CharacterStatDTO } from './character-stat.dto';
-import { CharacterHyperStatDTO } from './character-hyper-stat.dto';
-import { CharacterPropensityDTO } from './character-propensity.dto';
+import { IsBoolean, IsDate, IsInt, IsNumber, IsString, ValidateNested } from 'class-validator';
 import { CharacterAbilityDTO } from './character-ability.dto';
+import { CharacterHyperStatDTO } from './character-hyper-stat.dto';
+import { CharacterItemEquipmentDTO } from './character-item-equipment.dto';
+import { CharacterPropensityDTO } from './character-propensity.dto';
+import { CharacterStatDTO } from './character-stat.dto';
 
 export class CharacterDTO {
   constructor(partial: Partial<CharacterDTO>) {
@@ -48,7 +49,7 @@ export class CharacterDTO {
   guildName: string;
 
   @Expose()
-  @IsUrl()
+  @IsString()
   imageUrl: string;
 
   @Expose()
@@ -74,7 +75,7 @@ export class CharacterDTO {
   @Expose()
   @ValidateNested({ each: true })
   @Type(() => CharacterStatDTO)
-  stat: CharacterStatDTO[];
+  stat: CharacterStatDTO;
 
   @Expose()
   @ValidateNested({ each: true })
@@ -90,4 +91,9 @@ export class CharacterDTO {
   @ValidateNested({ each: true })
   @Type(() => CharacterAbilityDTO)
   ability: CharacterAbilityDTO[];
+
+  @Expose()
+  @ValidateNested({ each: true })
+  @Type(() => CharacterItemEquipmentDTO)
+  itemEquipment: CharacterItemEquipmentDTO[];
 }

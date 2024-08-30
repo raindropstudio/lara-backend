@@ -1,12 +1,7 @@
 import { Expose } from 'class-transformer';
-import { IsBoolean, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsOptional } from 'class-validator';
 
 export class GetCharacterOverallDto {
-  @Expose()
-  @IsOptional()
-  @IsString()
-  date?: string;
-
   @Expose()
   @IsOptional()
   @IsBoolean()

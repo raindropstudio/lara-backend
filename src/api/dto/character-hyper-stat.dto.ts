@@ -1,7 +1,24 @@
-import { Expose } from 'class-transformer';
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { Expose, Type } from 'class-transformer';
+import { IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
 
 export class CharacterHyperStatDTO {
+  @Expose()
+  @ValidateNested({ each: true })
+  @Type(() => HyperStatDTO)
+  hyperStat: HyperStatDTO[];
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  presetNo?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  active?: boolean;
+}
+
+export class HyperStatDTO {
   @Expose()
   @IsString()
   statType: string;
@@ -19,14 +36,4 @@ export class CharacterHyperStatDTO {
   @IsOptional()
   @IsString()
   statIncrease?: string;
-
-  @Expose()
-  @IsOptional()
-  @IsNumber()
-  preset?: number;
-
-  @Expose()
-  @IsOptional()
-  @IsNumber()
-  active?: boolean;
 }

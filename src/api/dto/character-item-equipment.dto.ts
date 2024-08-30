@@ -1,130 +1,102 @@
-/*
-model Equipment {
-  id                        Int       @id @default(autoincrement())
-  characterId               Int
-  character                 Character @relation(fields: [characterId], references: [id])
-  equipmentPart             String
-  equipmentSlot             String
-  itemName                  String
-  itemIcon                  String
-  itemDescription           String?
-  itemShapeName             String
-  itemShapeIcon             String
-  itemGender                String?
-  totalOptions              String
-  baseOptions               String
-  potentialOptionGrade      String
-  additionalPotentialOption String
-  exceptionalOptions        String
-  addOptions                String
-  growthExp                 Int
-  growthLevel               Int
-  scrollUpgrade             Int
-  cuttableCount             Int
-  goldenHammerFlag          String
-  scrollResilienceCount     Int
-  scrollUpgradeableCount    Int
-  soulName                  String?
-  soulOption                String?
-  starforce                 Int
-  starforceScrollFlag       String
-  titleName                 String?
-  titleIcon                 String?
-  titleDescription          String?
-  dateExpire                DateTime?
-  dateOptionExpire          DateTime?
-}
-*/
-
-import { Expose } from 'class-transformer';
-import { IsBoolean, IsOptional, IsString } from 'class-validator';
+import { Expose, Type } from 'class-transformer';
+import { IsArray, IsBoolean, IsDate, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
 
 export class CharacterItemEquipmentDTO {
   @Expose()
+  @ValidateNested({ each: true })
+  itemEquipment: ItemEquipmentDTO[];
+
+  @Expose()
+  @IsNumber()
+  presetNo: number;
+
+  @Expose()
+  @IsBoolean()
+  active: boolean;
+}
+
+export class ItemEquipmentDTO {
+  @Expose()
   @IsString()
-  equipmentPart: string;
+  part: string;
 
   @Expose()
   @IsString()
-  equipmentSlot: string;
+  slot: string;
 
   @Expose()
   @IsString()
-  itemName: string;
+  name: string;
 
   @Expose()
   @IsString()
-  itemIcon: string;
+  icon: string;
 
   @Expose()
   @IsOptional()
   @IsString()
-  itemDescription?: string;
+  description?: string;
 
   @Expose()
   @IsString()
-  itemShapeName: string;
+  shapeName: string;
 
   @Expose()
   @IsString()
-  itemShapeIcon: string;
+  shapeIcon: string;
 
   @Expose()
   @IsOptional()
   @IsString()
-  itemGender?: string;
+  gender?: string;
 
   @Expose()
   @IsString()
-  totalOptions: string;
+  potentialOptionGrade: 'RARE' | 'EPIC' | 'UNIQUE' | 'LEGENDARY';
 
   @Expose()
   @IsString()
-  baseOptions: string;
+  additionalPotentialOptionGrade: 'RARE' | 'EPIC' | 'UNIQUE' | 'LEGENDARY';
 
   @Expose()
-  @IsString()
-  potentialOptionGrade: string;
+  @IsArray()
+  potentialOption: string[];
 
   @Expose()
-  @IsString()
-  additionalPotentialOption: string;
+  @IsArray()
+  additionalPotentialOption: string[];
 
   @Expose()
-  @IsString()
-  exceptionalOptions: string;
+  @IsNumber()
+  equipmentLevelIncrease: number;
 
   @Expose()
-  @IsString()
-  addOptions: string;
+  @IsNumber()
+  growthExp: number;
 
   @Expose()
-  @IsString()
-  growthExp: string;
+  @IsNumber()
+  growthLevel: number;
 
   @Expose()
-  @IsString()
-  growthLevel: string;
+  @IsNumber()
+  scrollUpgrade: number;
 
   @Expose()
-  @IsString()
-  scrollUpgrade: string;
+  @IsNumber()
+  cuttableCount: number;
 
   @Expose()
-  @IsString()
-  cuttableCount: string;
+  @IsBoolean()
+  goldenHammerFlag: boolean;
 
   @Expose()
-  @IsString()
-  goldenHammerFlag: string;
+  @IsNumber()
+  scrollResilienceCount: number;
 
   @Expose()
-  @IsString()
-  scrollResilienceCount: string;
-
-  @Expose()
-  @IsString()
-  scrollUpgradeableCount: string;
+  @IsNumber()
+  scrollUpgradeableCount: number;
 
   @Expose()
   @IsOptional()
@@ -137,39 +109,159 @@ export class CharacterItemEquipmentDTO {
   soulOption?: string;
 
   @Expose()
-  @IsString()
-  starforce: string;
-
-  @Expose()
-  @IsString()
-  starforceScrollFlag: string;
+  @IsOptional()
+  @IsNumber()
+  starforce?: number;
 
   @Expose()
   @IsOptional()
-  @IsString()
-  titleName?: string;
-
-  @Expose()
-  @IsOptional()
-  @IsString()
-  titleIcon?: string;
-
-  @Expose()
-  @IsOptional()
-  @IsString()
-  titleDescription?: string;
-
-  @Expose()
-  @IsOptional()
-  @IsString()
-  dateExpire?: string;
-
-  @Expose()
-  @IsOptional()
-  @IsString()
-  dateOptionExpire?: string;
-
-  @Expose()
   @IsBoolean()
-  active: boolean;
+  starforceScrollFlag?: boolean;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  specialRingLevel?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsDate()
+  dateExpire?: Date;
+
+  @Expose()
+  @IsOptional()
+  @IsDate()
+  dateOptionExpire?: Date;
+
+  @Expose()
+  @ValidateNested({ each: true })
+  @Type(() => ItemOptionDTO)
+  totalOption: ItemOptionDTO;
+
+  @Expose()
+  @ValidateNested({ each: true })
+  @Type(() => ItemOptionDTO)
+  baseOption: ItemOptionDTO;
+
+  @Expose()
+  @ValidateNested({ each: true })
+  @Type(() => ItemOptionDTO)
+  exceptionalOption: ItemOptionDTO;
+
+  @Expose()
+  @ValidateNested({ each: true })
+  @Type(() => ItemOptionDTO)
+  addOption: ItemOptionDTO;
+
+  @Expose()
+  @ValidateNested({ each: true })
+  @Type(() => ItemOptionDTO)
+  etcOption: ItemOptionDTO;
+
+  @Expose()
+  @ValidateNested({ each: true })
+  @Type(() => ItemOptionDTO)
+  starforceOption: ItemOptionDTO;
+}
+
+export class ItemOptionDTO {
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  str?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  dex?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  int?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  luk?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  maxHp?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  maxMp?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  attackPower?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  magicPower?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  armor?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  speed?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  jump?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  bossDamage?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  ignoreMonsterArmor?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  allStat?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  damage?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  equipmentLevelDecrease?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  maxHpRate?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  maxMpRate?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  baseEquipmentLevel?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  exceptionalUpgrade?: number;
 }

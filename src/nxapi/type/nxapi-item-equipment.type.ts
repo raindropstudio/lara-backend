@@ -4,6 +4,8 @@ export interface NxapiItemEquipment {
   item_equipment_preset_2?: NxapiItemEquipmentInfo[];
   item_equipment_preset_3?: NxapiItemEquipmentInfo[];
   title: NxapiTitle;
+  dragon_equipment: NxapiItemEquipmentInfo[];
+  mechanic_equipment: NxapiItemEquipmentInfo[];
 }
 
 export interface NxapiItemEquipmentInfo {
@@ -43,6 +45,7 @@ export interface NxapiItemEquipmentInfo {
   item_starforce_option: NxapiItemOption;
   special_ring_level: number;
   date_expire: string;
+  date_option_expire?: string;
 }
 
 export interface NxapiItemOption {
@@ -65,6 +68,7 @@ export interface NxapiItemOption {
   max_hp_rate: string;
   max_mp_rate: string;
   base_equipment_level: number;
+  exceptional_upgrade: number;
 }
 
 export interface NxapiTitle {
