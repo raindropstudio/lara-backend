@@ -61,7 +61,7 @@ export class CharacterService {
       };
 
       await this.characterRepository.upsertCharacterOverall(updatedCharacter);
-      return updatedCharacter;
+      return await this.characterRepository.findCharacterOverallByNickname(updatedCharacter.nickname);
     }
     return character;
   }

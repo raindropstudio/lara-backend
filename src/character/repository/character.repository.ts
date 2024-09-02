@@ -29,7 +29,20 @@ export class CharacterRepository {
         },
         itemEquipment: {
           include: {
-            itemEquipment: true,
+            itemEquipment: {
+              include: {
+                ItemEquipmentOption: {
+                  include: {
+                    option: true,
+                  },
+                },
+                ItemEquipmentPotential: {
+                  include: {
+                    potential: true,
+                  },
+                },
+              },
+            },
           },
         },
       },
@@ -63,8 +76,7 @@ export class CharacterRepository {
         const preset = hyperStatPresets.find((p) => p.presetNo === hs.presetNo);
         if (preset) {
           preset.active = hs.active; // 활성화 여부 설정
-          const { presetNo, active, ...rest } = hs; // 프리셋 관련 데이터 제외하고 나머지 가져오기
-          preset.hyperStat.push(rest);
+          preset.hyperStat.push(hs.hyperStat);
         }
       });
     }
@@ -75,8 +87,11 @@ export class CharacterRepository {
         const preset = abilityPresets.find((p) => p.presetNo === ab.presetNo);
         if (preset) {
           preset.active = ab.active; // 활성화 여부 설정
-          const { presetNo, active, ...rest } = ab; // 프리셋 관련 데이터 제외하고 나머지 가져오기
-          preset.ability.push(rest);
+          preset.ability.push({
+            abilityNo: ab.abilityNo,
+            abilityGrade: ab.ability.abilityGrade,
+            abilityValue: ab.ability.abilityValue,
+          });
         }
       });
     }
@@ -87,8 +102,34 @@ export class CharacterRepository {
         const preset = itemEquipmentPresets.find((p) => p.presetNo === eq.presetNo);
         if (preset) {
           preset.active = eq.active; // 활성화 여부 설정
-          const { presetNo, active, ...rest } = eq; // 프리셋 관련 데이터 제외하고 나머지 가져오기
-          preset.itemEquipment.push(rest);
+          preset.itemEquipment.push({
+            ...eq.itemEquipment,
+            potentialOption: [
+              eq.itemEquipment.ItemEquipmentPotential.find((potential) => potential.potentialNo === 1)?.potential
+                ?.potential,
+              eq.itemEquipment.ItemEquipmentPotential.find((potential) => potential.potentialNo === 2)?.potential
+                ?.potential,
+              eq.itemEquipment.ItemEquipmentPotential.find((potential) => potential.potentialNo === 3)?.potential
+                ?.potential,
+            ],
+            additionalPotentialOption: [
+              eq.itemEquipment.ItemEquipmentPotential.find((potential) => potential.potentialNo === 4)?.potential
+                ?.potential,
+              eq.itemEquipment.ItemEquipmentPotential.find((potential) => potential.potentialNo === 5)?.potential
+                ?.potential,
+              eq.itemEquipment.ItemEquipmentPotential.find((potential) => potential.potentialNo === 6)?.potential
+                ?.potential,
+            ],
+            totalOption: eq.itemEquipment.ItemEquipmentOption.find((option) => option.optionType === 'TOTAL')?.option,
+            baseOption: eq.itemEquipment.ItemEquipmentOption.find((option) => option.optionType === 'BASE')?.option,
+            exceptionalOption: eq.itemEquipment.ItemEquipmentOption.find(
+              (option) => option.optionType === 'EXCEPTIONAL',
+            )?.option,
+            addOption: eq.itemEquipment.ItemEquipmentOption.find((option) => option.optionType === 'ADD')?.option,
+            etcOption: eq.itemEquipment.ItemEquipmentOption.find((option) => option.optionType === 'ETC')?.option,
+            starforceOption: eq.itemEquipment.ItemEquipmentOption.find((option) => option.optionType === 'STARFORCE')
+              ?.option,
+          });
         }
       });
     }

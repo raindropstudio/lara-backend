@@ -144,7 +144,7 @@ model CharacterAbility {
   presetNo    Int // 프리셋 미지정 캐릭터는 강제 1 매핑
   active      Boolean
 
-  @@id([characterId, presetNo, abilityId])
+  @@id([characterId, presetNo, abilityNo, abilityId])
 }
 
 model Ability {
