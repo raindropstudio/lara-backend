@@ -103,7 +103,7 @@ export class ItemOptionDTO {
   exceptionalUpgrade?: number;
 }
 
-export class ItemEquipmentDTO {
+export class ItemEquipmentInfoDTO {
   @Expose()
   @IsString()
   part: string;
@@ -261,8 +261,8 @@ export class ItemEquipmentDTO {
 export class CharacterItemEquipmentDTO {
   @Expose()
   @ValidateNested({ each: true })
-  @Type(() => ItemEquipmentDTO)
-  itemEquipment: ItemEquipmentDTO[];
+  @Type(() => ItemEquipmentInfoDTO)
+  itemEquipmentInfo: ItemEquipmentInfoDTO[];
 
   @Expose()
   @IsNumber()

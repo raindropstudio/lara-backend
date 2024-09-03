@@ -34,11 +34,11 @@ model Character {
   popularity           Int?
   stat                 Stat?                    @relation(fields: [statId], references: [id])
   statId               Int?                     @unique
-  hyperStat            CharacterHyperStat[]
+  hyperStatPreset      CharacterHyperStat[]
   propensity           Propensity?              @relation(fields: [propensityId], references: [id])
   propensityId         Int?                     @unique
-  ability              CharacterAbility[]
-  itemEquipment        CharacterItemEquipment[]
+  abilityPreset        CharacterAbility[]
+  itemEquipmentPreset  CharacterItemEquipment[]
   cashEquipment        CashEquipment[]
   symbol               Symbol[]
   setEffect            SetEffect[]
@@ -138,13 +138,13 @@ model Propensity {
 model CharacterAbility {
   character   Character @relation(fields: [characterId], references: [id])
   characterId Int
-  ability     Ability   @relation(fields: [abilityId], references: [id])
-  abilityId   Int
+  ability     Ability?  @relation(fields: [abilityId], references: [id])
+  abilityId   Int?
   abilityNo   Int // 어빌리티 몇번째 슬롯인지
-  presetNo    Int // 프리셋 미지정 캐릭터는 강제 1 매핑
+  presetNo    Int // 프리셋 미지정 캐릭터는 강제 1 매핑, 프리셋 0의 abilityNo는 remainFame
   active      Boolean
 
-  @@id([characterId, presetNo, abilityNo, abilityId])
+  @@id([characterId, presetNo, abilityNo])
 }
 
 model Ability {

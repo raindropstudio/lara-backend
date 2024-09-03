@@ -4,8 +4,19 @@ import { IsBoolean, IsNumber, IsString, ValidateNested } from 'class-validator';
 export class CharacterAbilityDTO {
   @Expose()
   @ValidateNested({ each: true })
-  @Type(() => AbilityDTO)
-  ability: AbilityDTO[];
+  @Type(() => AbilityPresetDTO)
+  preset: AbilityPresetDTO[];
+
+  @Expose()
+  @IsNumber()
+  remainFame: number;
+}
+
+export class AbilityPresetDTO {
+  @Expose()
+  @ValidateNested({ each: true })
+  @Type(() => AbilityInfoDTO)
+  abilityInfo: AbilityInfoDTO[];
 
   @Expose()
   @IsNumber()
@@ -16,10 +27,10 @@ export class CharacterAbilityDTO {
   active: boolean;
 }
 
-export class AbilityDTO {
+export class AbilityInfoDTO {
   @Expose()
   @IsString()
-  abilityGrade: 'RARE' | 'EPIC' | 'UNIQUE' | 'LEGENDARY';
+  abilityGrade: 'RARE' | 'EPIC' | 'UNIQUE' | 'LEGENDARY' | 'REMAIN_FAME';
 
   @Expose()
   @IsNumber()

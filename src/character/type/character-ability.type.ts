@@ -1,11 +1,15 @@
 export interface CharacterAbility {
-  // id?: number;
-  ability: Ability[];
+  remainFame: number;
+  preset: AbilityPreset[];
+}
+
+export interface AbilityPreset {
+  abilityInfo: AbilityInfo[];
   presetNo: number;
   active: boolean;
 }
 
-export interface Ability {
+export interface AbilityInfo {
   abilityNo: number;
   abilityGrade: 'LEGENDARY' | 'UNIQUE' | 'EPIC' | 'RARE';
   abilityValue: string;

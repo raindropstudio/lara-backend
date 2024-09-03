@@ -7,8 +7,8 @@ import { CharacterStat } from './character-stat.type';
 
 export interface Character extends CharacterBasic {
   stat: CharacterStat;
-  hyperStat: CharacterHyperStat[];
+  hyperStatPreset: CharacterHyperStat[];
   propensity: CharacterPropensity;
-  ability: CharacterAbility[];
-  itemEquipment: CharacterItemEquipment[];
+  ability: CharacterAbility;
+  itemEquipmentPreset: CharacterItemEquipment[];
 }

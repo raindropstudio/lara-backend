@@ -80,7 +80,7 @@ export class CharacterDTO {
   @Expose()
   @ValidateNested({ each: true })
   @Type(() => CharacterHyperStatDTO)
-  hyperStat: CharacterHyperStatDTO[];
+  hyperStatPreset: CharacterHyperStatDTO[];
 
   @Expose()
   @ValidateNested({ each: true })
@@ -90,10 +90,10 @@ export class CharacterDTO {
   @Expose()
   @ValidateNested({ each: true })
   @Type(() => CharacterAbilityDTO)
-  ability: CharacterAbilityDTO[];
+  ability: CharacterAbilityDTO;
 
   @Expose()
   @ValidateNested({ each: true })
   @Type(() => CharacterItemEquipmentDTO)
-  itemEquipment: CharacterItemEquipmentDTO[];
+  itemEquipmentPreset: CharacterItemEquipmentDTO[];
 }

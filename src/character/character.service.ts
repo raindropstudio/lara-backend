@@ -41,12 +41,14 @@ export class CharacterService {
         this.getCharacterAbility(ocid),
         this.getCharacterItemEquipment(ocid),
       ];
-      const [basic, stat, hyperStat, propensity, ability, itemEquipment] = (await Promise.all(promises)) as [
+      const [basic, stat, hyperStatPreset, propensity, ability, itemEquipmentPreset] = (await Promise.all(
+        promises,
+      )) as [
         CharacterBasic,
         CharacterStat,
         CharacterHyperStat[],
         CharacterPropensity,
-        CharacterAbility[],
+        CharacterAbility,
         CharacterItemEquipment[],
       ];
 
@@ -54,10 +56,10 @@ export class CharacterService {
         ...character,
         ...basic,
         stat,
-        hyperStat,
+        hyperStatPreset,
         propensity,
         ability,
-        itemEquipment,
+        itemEquipmentPreset,
       };
 
       await this.characterRepository.upsertCharacterOverall(updatedCharacter);
@@ -87,7 +89,13 @@ export class CharacterService {
     const characterHyperStat = characterHyperStatMapper(rawHyperStat);
 
     // 하이퍼스탯 테이블 업데이트
-    const flatHyperStat = characterHyperStat.flatMap((hyperStat) => hyperStat.hyperStat);
+    const flatHyperStat = characterHyperStat.flatMap((hyperStat) => {
+      hyperStat.hyperStatInfo.push({
+        statType: '_REMAIN_POINT',
+        statPoint: hyperStat.remainPoint,
+      });
+      return hyperStat.hyperStatInfo;
+    });
     await this.characterRepository.createOrIgnoreHyperstat(flatHyperStat);
 
     return characterHyperStat;
@@ -99,12 +107,12 @@ export class CharacterService {
     return characterPropensityMapper(propensity);
   }
 
-  async getCharacterAbility(ocid: string, date?: string): Promise<CharacterAbility[]> {
+  async getCharacterAbility(ocid: string, date?: string): Promise<CharacterAbility> {
     const ability = await this.nxapiService.fetchCharacterAbility(ocid, date);
 
     const characterAbility = characterAbilityMapper(ability);
 
-    const flatAbility = characterAbility.flatMap((ability) => ability.ability);
+    const flatAbility = characterAbility.preset.flatMap((ability) => ability.abilityInfo);
     await this.characterRepository.createOrIgnoreAbility(flatAbility);
 
     return characterAbility;
@@ -115,7 +123,7 @@ export class CharacterService {
 
     const characterItemEquipment = characterItemEquipmentMapper(itemEquipmentData);
 
-    const flatItemEquipment = characterItemEquipment.flatMap((itemEquipment) => itemEquipment.itemEquipment);
+    const flatItemEquipment = characterItemEquipment.flatMap((itemEquipment) => itemEquipment.itemEquipmentInfo);
     await this.characterRepository.createOrIgnoreItemEquipment(flatItemEquipment);
 
     return characterItemEquipment;

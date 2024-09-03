@@ -1,11 +1,11 @@
 export interface CharacterItemEquipment {
   // id?: number;
-  itemEquipment: ItemEquipment[];
+  itemEquipmentInfo: ItemEquipmentInfo[];
   presetNo: number;
   active: boolean;
 }
 
-export interface ItemEquipment {
+export interface ItemEquipmentInfo {
   // id?: number;
   hash: string;
   part: string;

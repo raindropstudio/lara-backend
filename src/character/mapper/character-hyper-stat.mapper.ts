@@ -38,7 +38,8 @@ export const characterHyperStatMapper = (hyperStatData: any): CharacterHyperStat
     return {
       presetNo: presetNo,
       active: hyperStatData.use_preset_no === String(presetNo),
-      hyperStat: [
+      remainPoint: remainPoint,
+      hyperStatInfo: [
         ...preset
           .filter((stat: any) => stat.stat_point)
           .map((stat: any) => ({
@@ -47,12 +48,6 @@ export const characterHyperStatMapper = (hyperStatData: any): CharacterHyperStat
             statPoint: stat.stat_point,
             statIncrease: stat.stat_increase,
           })),
-        {
-          statType: 'remainPoint', // 남은 포인트
-          statLevel: null,
-          statPoint: remainPoint, // 남은 포인트 값
-          statIncrease: null,
-        },
       ],
     };
   };

@@ -1,7 +1,7 @@
 import { PotentialGrade } from '@prisma/client';
 import * as objectHash from 'object-hash';
 import { NxapiItemEquipmentInfo } from 'src/nxapi/type/nxapi-item-equipment.type';
-import { CharacterItemEquipment, ItemEquipment, ItemOption } from '../type/character-item-equipment.type';
+import { CharacterItemEquipment, ItemEquipmentInfo, ItemOption } from '../type/character-item-equipment.type';
 
 export const characterItemEquipmentMapper = (itemEquipmentData: any): CharacterItemEquipment[] => {
   // 프리셋 4: 타이틀, 5: 드래곤 또는 메카닉 장비로 간주
@@ -87,7 +87,7 @@ export const characterItemEquipmentMapper = (itemEquipmentData: any): CharacterI
     return code;
   };
 
-  const mapItemEquipment = (item: NxapiItemEquipmentInfo): ItemEquipment => {
+  const mapItemEquipment = (item: NxapiItemEquipmentInfo): ItemEquipmentInfo => {
     const res = {
       hash: '',
       part: item.item_equipment_part,

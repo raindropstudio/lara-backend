@@ -5,17 +5,19 @@ export class CharacterHyperStatDTO {
   @Expose()
   @ValidateNested({ each: true })
   @Type(() => HyperStatDTO)
-  hyperStat: HyperStatDTO[];
+  hyperStatInfo: HyperStatDTO[];
 
   @Expose()
-  @IsOptional()
   @IsNumber()
-  presetNo?: number;
+  presetNo: number;
 
   @Expose()
-  @IsOptional()
   @IsNumber()
-  active?: boolean;
+  active: boolean;
+
+  @Expose()
+  @IsNumber()
+  remainPoint: number;
 }
 
 export class HyperStatDTO {

@@ -1,11 +1,12 @@
 export interface CharacterHyperStat {
   // id?: number;
-  hyperStat: HyperStat[];
-  presetNo?: number;
-  active?: boolean;
+  hyperStatInfo: HyperStatInfo[];
+  presetNo: number;
+  active: boolean;
+  remainPoint: number;
 }
 
-export interface HyperStat {
+export interface HyperStatInfo {
   statType: string;
   statLevel?: number;
   statPoint: number;
