@@ -157,7 +157,7 @@ export class CharacterRepository {
     }
 
     //? 원래도 이거 안빼면 upsert 오류났었나..?
-    const { id, statId, propensityId, ...characterBasic } = characterData;
+    const { id, statId, propensityId, abilityPreset, ...characterBasic } = characterData;
 
     const res = {
       ...characterBasic,
@@ -170,30 +170,84 @@ export class CharacterRepository {
   }
 
   async createOrIgnoreHyperstat(hyperStats: HyperStatInfo[]) {
+    // ON CONFLICT 시 auto_increment가 너무 많이 튀는거 방지용
+    // 캐릭터가 많아질수록 insert 할 행이 줄고, 경쟁조건이 많이 없을것으로 예상해서 이정도로 처리
+
+    // 들어온 값에서 중복유무 체크
+    const uniqueHyperStats = Array.from(
+      new Map(hyperStats.map((hs) => [hs.statType + '-' + hs.statPoint, hs])).values(),
+    );
+
+    const existingHyperStats = await this.prismaService.hyperStat.findMany({
+      where: {
+        OR: uniqueHyperStats.map((hs) => ({
+          statType: hs.statType,
+          statPoint: hs.statPoint,
+        })),
+      },
+      select: { statType: true, statPoint: true },
+    });
+
+    const newHyperStats = uniqueHyperStats.filter(
+      (hs) => !existingHyperStats.some((ehs) => ehs.statType === hs.statType && ehs.statPoint === hs.statPoint),
+    );
     return this.prismaService.hyperStat.createMany({
-      data: hyperStats,
+      data: newHyperStats,
       skipDuplicates: true,
     });
   }
 
   async createOrIgnoreAbility(ability: AbilityInfo[]) {
-    const abilityWithoutNo = ability.map(({ abilityNo, ...rest }) => rest);
+    const uniqueAbilities = Array.from(new Map(ability.map((ab) => [ab.abilityValue, ab])).values());
+
+    const existingAbilities = await this.prismaService.ability.findMany({
+      where: {
+        abilityValue: { in: uniqueAbilities.map((ab) => ab.abilityValue) },
+      },
+      select: { abilityValue: true },
+    });
+
+    const newAbilities = uniqueAbilities
+      .filter((ab) => !existingAbilities.some((eab) => eab.abilityValue === ab.abilityValue))
+      .map(({ abilityNo, ...rest }) => rest);
     return this.prismaService.ability.createMany({
-      data: abilityWithoutNo,
+      data: newAbilities,
       skipDuplicates: true,
     });
   }
 
   private async createOrIgnoreItemOption(itemOptions: ItemOption[]) {
+    const uniqueItemOptions = Array.from(new Map(itemOptions.map((io) => [io.hash, io])).values());
+
+    const existingItemOptions = await this.prismaService.itemOption.findMany({
+      where: {
+        hash: { in: uniqueItemOptions.map((io) => io.hash) },
+      },
+      select: { hash: true },
+    });
+
+    const newOptions = uniqueItemOptions.filter((io) => !existingItemOptions.some((eio) => eio.hash === io.hash));
     return this.prismaService.itemOption.createMany({
-      data: itemOptions,
+      data: newOptions,
       skipDuplicates: true,
     });
   }
 
   private async createOrIgnoreItemPotential(itemPotentials: string[]) {
+    const uniqueItemPotentials = Array.from(new Set(itemPotentials));
+
+    const existingItemPotentials = await this.prismaService.potential.findMany({
+      where: {
+        potential: { in: uniqueItemPotentials },
+      },
+      select: { potential: true },
+    });
+
+    const newPotentials = uniqueItemPotentials
+      .filter((potential) => !existingItemPotentials.some((eip) => eip.potential === potential))
+      .map((potential) => ({ potential }));
     return this.prismaService.potential.createMany({
-      data: itemPotentials.map((potential) => ({ potential })),
+      data: newPotentials,
       skipDuplicates: true,
     });
   }

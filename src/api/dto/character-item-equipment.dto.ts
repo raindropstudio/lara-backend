@@ -127,11 +127,11 @@ export class ItemEquipmentInfoDTO {
 
   @Expose()
   @IsString()
-  shapeName: string;
+  shapeName?: string;
 
   @Expose()
   @IsString()
-  shapeIcon: string;
+  shapeIcon?: string;
 
   @Expose()
   @IsOptional()
@@ -140,51 +140,51 @@ export class ItemEquipmentInfoDTO {
 
   @Expose()
   @IsString()
-  potentialOptionGrade: 'RARE' | 'EPIC' | 'UNIQUE' | 'LEGENDARY';
+  potentialOptionGrade?: 'RARE' | 'EPIC' | 'UNIQUE' | 'LEGENDARY';
 
   @Expose()
   @IsString()
-  additionalPotentialOptionGrade: 'RARE' | 'EPIC' | 'UNIQUE' | 'LEGENDARY';
+  additionalPotentialOptionGrade?: 'RARE' | 'EPIC' | 'UNIQUE' | 'LEGENDARY';
 
   @Expose()
   @IsArray()
-  potentialOption: string[];
+  potentialOption?: string[];
 
   @Expose()
   @IsArray()
-  additionalPotentialOption: string[];
+  additionalPotentialOption?: string[];
 
   @Expose()
   @IsNumber()
-  equipmentLevelIncrease: number;
+  equipmentLevelIncrease?: number;
 
   @Expose()
   @IsNumber()
-  growthExp: number;
+  growthExp?: number;
 
   @Expose()
   @IsNumber()
-  growthLevel: number;
+  growthLevel?: number;
 
   @Expose()
   @IsNumber()
-  scrollUpgrade: number;
+  scrollUpgrade?: number;
 
   @Expose()
   @IsNumber()
-  cuttableCount: number;
+  cuttableCount?: number;
 
   @Expose()
   @IsBoolean()
-  goldenHammerFlag: boolean;
+  goldenHammerFlag?: boolean;
 
   @Expose()
   @IsNumber()
-  scrollResilienceCount: number;
+  scrollResilienceCount?: number;
 
   @Expose()
   @IsNumber()
-  scrollUpgradeableCount: number;
+  scrollUpgradeableCount?: number;
 
   @Expose()
   @IsOptional()

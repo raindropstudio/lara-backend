@@ -117,16 +117,18 @@ export const characterItemEquipmentMapper = (itemEquipmentData: any): CharacterI
       growthLevel: item.growth_level || null,
       scrollUpgrade: parseInt(item.scroll_upgrade) || null,
       cuttableCount: parseInt(item.cuttable_count) || null,
-      goldenHammerFlag: item.golden_hammer_flag === '적용',
+      goldenHammerFlag: item?.golden_hammer_flag == null ? null : item.golden_hammer_flag === '적용',
       scrollResilienceCount: parseInt(item.scroll_resilience_count) || null,
       scrollUpgradeableCount: parseInt(item.scroll_upgradeable_count) || null,
       soulName: item.soul_name || null,
       soulOption: item.soul_option || null,
       starforce: parseInt(item.starforce) || null,
-      starforceScrollFlag: item.starforce_scroll_flag === '사용',
+      starforceScrollFlag: item?.starforce_scroll_flag == null ? null : item.starforce_scroll_flag === '사용',
       specialRingLevel: item.special_ring_level || null,
       dateExpire: item.date_expire ? new Date(item.date_expire) : null,
-      dateOptionExpire: item.date_option_expire ? new Date(item.date_option_expire) : null,
+      dateOptionExpire: item.date_option_expire
+        ? new Date(item.date_option_expire === 'expired' ? '1999-01-01T00:00:00' : item.date_option_expire)
+        : null,
       totalOption: item.item_total_option ? mapItemOption(item.item_total_option) : null,
       baseOption: item.item_base_option ? mapItemOption(item.item_base_option) : null,
       exceptionalOption: item.item_exceptional_option ? mapItemOption(item.item_exceptional_option) : null,
@@ -140,11 +142,12 @@ export const characterItemEquipmentMapper = (itemEquipmentData: any): CharacterI
     return res;
   };
 
-  return presets.flatMap(({ presetNo, equipment: itemEquipment }) =>
-    itemEquipment.map((item: any) => ({
-      itemEquipment: [mapItemEquipment(item)],
-      presetNo: presetNo,
-      active: itemEquipmentData.preset_no === presetNo || (presetNo === 1 && !itemEquipmentData.preset_no),
-    })),
+  return presets.flatMap(
+    ({ presetNo, equipment: itemEquipment }): CharacterItemEquipment =>
+      itemEquipment.map((item) => ({
+        itemEquipmentInfo: [mapItemEquipment(item)],
+        presetNo: presetNo,
+        active: itemEquipmentData.preset_no === presetNo || (presetNo === 1 && !itemEquipmentData.preset_no),
+      })),
   );
 };
