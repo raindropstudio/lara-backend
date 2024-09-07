@@ -1,9 +1,9 @@
 import { PotentialGrade } from '@prisma/client';
 import * as objectHash from 'object-hash';
+import { ItemEquipmentInfoDto, ItemEquipmentPresetDto, ItemOptionDto } from 'src/common/dto/item-equipment.dto';
 import { NxapiItemEquipmentInfo } from 'src/nxapi/type/nxapi-item-equipment.type';
-import { CharacterItemEquipment, ItemEquipmentInfo, ItemOption } from '../type/character-item-equipment.type';
 
-export const characterItemEquipmentMapper = (itemEquipmentData: any): CharacterItemEquipment[] => {
+export const itemEquipmentMapper = (itemEquipmentData: any): ItemEquipmentPresetDto[] => {
   // 프리셋 4: 타이틀, 5: 드래곤 또는 메카닉 장비로 간주
   const presets = [
     { presetNo: 1, equipment: itemEquipmentData.item_equipment_preset_1 },
@@ -35,7 +35,7 @@ export const characterItemEquipmentMapper = (itemEquipmentData: any): CharacterI
     presets[0].equipment = itemEquipmentData.item_equipment;
   }
 
-  const mapItemOption = (options: any): ItemOption | null => {
+  const mapItemOption = (options: any): ItemOptionDto | null => {
     if (!options) return null;
     const res = {
       hash: '',
@@ -87,7 +87,7 @@ export const characterItemEquipmentMapper = (itemEquipmentData: any): CharacterI
     return code;
   };
 
-  const mapItemEquipment = (item: NxapiItemEquipmentInfo): ItemEquipmentInfo => {
+  const mapItemEquipment = (item: NxapiItemEquipmentInfo): ItemEquipmentInfoDto => {
     const res = {
       hash: '',
       part: item.item_equipment_part,
@@ -142,12 +142,11 @@ export const characterItemEquipmentMapper = (itemEquipmentData: any): CharacterI
     return res;
   };
 
-  return presets.flatMap(
-    ({ presetNo, equipment: itemEquipment }): CharacterItemEquipment =>
-      itemEquipment.map((item) => ({
-        itemEquipmentInfo: [mapItemEquipment(item)],
-        presetNo: presetNo,
-        active: itemEquipmentData.preset_no === presetNo || (presetNo === 1 && !itemEquipmentData.preset_no),
-      })),
-  );
+  return presets.flatMap(({ presetNo, equipment: itemEquipment }): ItemEquipmentPresetDto => {
+    return {
+      presetNo: presetNo,
+      itemEquipmentInfo: itemEquipment.map((item) => mapItemEquipment(item)),
+      active: itemEquipmentData.preset_no === presetNo || (presetNo === 1 && !itemEquipmentData.preset_no),
+    };
+  });
 };

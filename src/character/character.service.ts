@@ -1,58 +1,45 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { AbilityDto } from 'src/common/dto/ability.dto';
+import { CharacterBasicDto } from 'src/common/dto/character-basic.dto';
+import { CharacterDto } from 'src/common/dto/character.dto';
+import { HyperStatPresetDto } from 'src/common/dto/hyper-stat.dto';
+import { ItemEquipmentPresetDto } from 'src/common/dto/item-equipment.dto';
+import { PropensityDto } from 'src/common/dto/propensity.dto';
+import { StatDto } from 'src/common/dto/stat.dto';
+import { removeNulls } from 'src/common/util/removeNulls';
 import { NxapiService } from 'src/nxapi/nxapi.service';
-import { characterAbilityMapper } from './mapper/character-ability.mapper';
-import { characterBasicMapper } from './mapper/character-basic.mapper';
-import { characterHyperStatMapper } from './mapper/character-hyper-stat.mapper';
-import { characterItemEquipmentMapper } from './mapper/character-item-equipment.mapper';
-import { characterPropensityMapper } from './mapper/character-propensity.mapper';
-import { characterStatMapper } from './mapper/character-stat.mapper';
+import { AbilityRepository } from './repository/ability.repository';
 import { CharacterRepository } from './repository/character.repository';
-import { CharacterAbility } from './type/character-ability.type';
-import { CharacterBasic } from './type/character-basic.type';
-import { CharacterHyperStat } from './type/character-hyper-stat.type';
-import { CharacterItemEquipment } from './type/character-item-equipment.type';
-import { CharacterPropensity } from './type/character-propensity.type';
-import { CharacterStat } from './type/character-stat.type';
-import { Character } from './type/character.type';
+import { HyperStatRepository } from './repository/hyper-stat.repository';
+import { ItemEquipmentRepository } from './repository/item-equipment.repository';
 
 @Injectable()
 export class CharacterService {
   constructor(
     private readonly nxapiService: NxapiService,
     private readonly characterRepository: CharacterRepository,
+    private readonly hyperStatRepository: HyperStatRepository,
+    private readonly abilityRepository: AbilityRepository,
+    private readonly itemEquipmentRepository: ItemEquipmentRepository,
   ) {}
   private readonly logger = new Logger(CharacterService.name);
 
-  private async getCharacterOcid(characterName: string): Promise<string> {
-    return this.nxapiService.fetchCharacterOcid(characterName);
-  }
-
-  async getCharacterOverall(nickname: string, update?: boolean): Promise<Character> {
+  async getCharacterOverall(nickname: string, update?: boolean): Promise<CharacterDto> {
     const character = await this.characterRepository.findCharacterOverallByNickname(nickname);
 
     if (update || !character) {
-      const ocid = await this.getCharacterOcid(nickname);
+      const ocid = await this.nxapiService.fetchCharacterOcid(nickname);
 
-      const promises = [
+      const [basic, stat, hyperStatPreset, propensity, ability, itemEquipmentPreset] = await Promise.all([
         this.fetchCharacterBasic(ocid),
         this.fetchCharacterStat(ocid),
         this.getCharacterHyperStat(ocid),
         this.fetchCharacterPropensity(ocid),
         this.getCharacterAbility(ocid),
         this.getCharacterItemEquipment(ocid),
-      ];
-      const [basic, stat, hyperStatPreset, propensity, ability, itemEquipmentPreset] = (await Promise.all(
-        promises,
-      )) as [
-        CharacterBasic,
-        CharacterStat,
-        CharacterHyperStat[],
-        CharacterPropensity,
-        CharacterAbility,
-        CharacterItemEquipment[],
-      ];
+      ]);
 
-      const updatedCharacter: Character = {
+      const updatedCharacter: CharacterDto = {
         ...character,
         ...basic,
         stat,
@@ -63,68 +50,50 @@ export class CharacterService {
       };
 
       await this.characterRepository.upsertCharacterOverall(updatedCharacter);
-      return await this.characterRepository.findCharacterOverallByNickname(updatedCharacter.nickname);
+      return removeNulls(updatedCharacter);
     }
-    return character;
+    return removeNulls(character);
   }
 
-  async fetchCharacterBasic(ocid: string, date?: string): Promise<CharacterBasic> {
+  async fetchCharacterBasic(ocid: string, date?: string): Promise<CharacterBasicDto> {
     const baiscPromise = this.nxapiService.fetchCharacterBasic(ocid, date);
     const popularityPromise = this.nxapiService.fetchCharacterPopularity(ocid, date);
 
-    const [basicData, popularityData] = await Promise.all([baiscPromise, popularityPromise]);
+    const [basicDto, popularity] = await Promise.all([baiscPromise, popularityPromise]);
+    basicDto.popularity = popularity;
 
-    return characterBasicMapper(ocid, basicData, popularityData);
+    return basicDto;
   }
 
-  async fetchCharacterStat(ocid: string, date?: string): Promise<CharacterStat> {
-    const stat = await this.nxapiService.fetchCharacterStat(ocid, date);
-
-    return characterStatMapper(stat);
+  async fetchCharacterStat(ocid: string, date?: string): Promise<StatDto> {
+    return await this.nxapiService.fetchCharacterStat(ocid, date);
   }
 
-  async getCharacterHyperStat(ocid: string, date?: string): Promise<CharacterHyperStat[]> {
-    const rawHyperStat = await this.nxapiService.fetchCharacterHyperStat(ocid, date);
-
-    const characterHyperStat = characterHyperStatMapper(rawHyperStat);
+  async getCharacterHyperStat(ocid: string, date?: string): Promise<HyperStatPresetDto[]> {
+    const characterHyperStat = await this.nxapiService.fetchCharacterHyperStat(ocid, date);
 
     // 하이퍼스탯 테이블 업데이트
-    const flatHyperStat = characterHyperStat.flatMap((hyperStat) => {
-      hyperStat.hyperStatInfo.push({
-        statType: '_REMAIN_POINT',
-        statPoint: hyperStat.remainPoint,
-      });
-      return hyperStat.hyperStatInfo;
-    });
-    await this.characterRepository.createOrIgnoreHyperstat(flatHyperStat);
+    await this.hyperStatRepository.createOrIgnoreHyperstat(characterHyperStat);
 
     return characterHyperStat;
   }
 
-  async fetchCharacterPropensity(ocid: string, date?: string) {
-    const propensity = await this.nxapiService.fetchCharacterPropensity(ocid, date);
-
-    return characterPropensityMapper(propensity);
+  async fetchCharacterPropensity(ocid: string, date?: string): Promise<PropensityDto> {
+    return await this.nxapiService.fetchCharacterPropensity(ocid, date);
   }
 
-  async getCharacterAbility(ocid: string, date?: string): Promise<CharacterAbility> {
-    const ability = await this.nxapiService.fetchCharacterAbility(ocid, date);
+  async getCharacterAbility(ocid: string, date?: string): Promise<AbilityDto> {
+    const characterAbility = await this.nxapiService.fetchCharacterAbility(ocid, date);
 
-    const characterAbility = characterAbilityMapper(ability);
-
-    const flatAbility = characterAbility.preset.flatMap((ability) => ability.abilityInfo);
-    await this.characterRepository.createOrIgnoreAbility(flatAbility);
+    await this.abilityRepository.createOrIgnoreAbility(characterAbility);
 
     return characterAbility;
   }
 
-  async getCharacterItemEquipment(ocid: string, date?: string): Promise<CharacterItemEquipment[]> {
-    const itemEquipmentData = await this.nxapiService.fetchCharacterItemEquipment(ocid, date);
+  async getCharacterItemEquipment(ocid: string, date?: string): Promise<ItemEquipmentPresetDto[]> {
+    const characterItemEquipment = await this.nxapiService.fetchCharacterItemEquipment(ocid, date);
 
-    const characterItemEquipment = characterItemEquipmentMapper(itemEquipmentData);
-
-    const flatItemEquipment = characterItemEquipment.flatMap((itemEquipment) => itemEquipment.itemEquipmentInfo);
-    await this.characterRepository.createOrIgnoreItemEquipment(flatItemEquipment);
+    await this.itemEquipmentRepository.createOrIgnoreItemEquipment(characterItemEquipment);
 
     return characterItemEquipment;
   }

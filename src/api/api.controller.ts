@@ -1,7 +1,7 @@
 import { Controller, Get, Logger, Param, Query } from '@nestjs/common';
+import { plainToInstance } from 'class-transformer';
 import { CharacterService } from 'src/character/character.service';
-import { CharacterDTO } from './dto/character.dto';
-import { GetCharacterOverallDto } from './dto/get-character-overall.dto';
+import { CharacterOverallResDto } from './dto/character-overall-res.dto';
 
 @Controller()
 export class ApiController {
@@ -11,12 +11,11 @@ export class ApiController {
   @Get('character/:nickname')
   async getCharacterOverall(
     @Param('nickname') nickname: string,
-    @Query() query: GetCharacterOverallDto,
-  ): Promise<CharacterDTO> {
-    const { update } = query;
+    @Query('update') update?: boolean,
+  ): Promise<CharacterOverallResDto> {
     //TODO: 오류 예외처리
     this.logger.log(`getCharacterOverall: ${nickname}, ${update}`);
     const res = await this.characterService.getCharacterOverall(nickname, update);
-    return new CharacterDTO(res);
+    return plainToInstance(CharacterOverallResDto, res);
   }
 }

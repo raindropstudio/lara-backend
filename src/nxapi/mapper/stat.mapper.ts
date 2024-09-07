@@ -1,30 +1,7 @@
-/*
-{
-  "date": null,
-  "character_class": "비숍",
-  "final_stat": [
-    {
-      "stat_name": "최소 스탯공격력",
-      "stat_value": "37261606"
-    },
-    {
-      "stat_name": "최대 스탯공격력",
-      "stat_value": "39222741"
-    },
-    {
-      "stat_name": "데미지",
-      "stat_value": "72.00"
-    },
-    // ...
-  ],
-  "remain_ap": 0
-}
-*/
+import { StatDto } from 'src/common/dto/stat.dto';
 
-import { CharacterStat } from '../type/character-stat.type';
-
-export const characterStatMapper = (statData: any): CharacterStat => {
-  const statMapping: { [key: string]: keyof CharacterStat } = {
+export const statMapper = (statData: any): StatDto => {
+  const statMapping: { [key: string]: keyof StatDto } = {
     '최대 스탯공격력': 'maxStatAttackPower',
     '최소 스탯공격력': 'minStatAttackPower',
     데미지: 'damage',
@@ -71,7 +48,7 @@ export const characterStatMapper = (statData: any): CharacterStat => {
     '소환수 지속시간 증가': 'summonDurationIncrease',
   };
 
-  const characterStat: CharacterStat = {};
+  const characterStat: StatDto = {};
 
   statData.final_stat.forEach((stat: { stat_name: string; stat_value: string }) => {
     const key = statMapping[stat.stat_name];
