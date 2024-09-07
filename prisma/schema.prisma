@@ -5,7 +5,8 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["relationJoins", "typedSql"]
 }
 
 datasource db {
@@ -14,28 +15,30 @@ datasource db {
 }
 
 model Character {
-  id                   Int                @id @default(autoincrement())
+  id                   Int                      @id @default(autoincrement())
   ocid                 String
-  nickname             String             @unique
-  worldName            String
-  gender               String
-  class                String
-  classLevel           String
-  level                Int
-  exp                  BigInt
-  expRate              Float
-  guildName            String?
-  imageUrl             String             @db.VarChar(2048)
-  dateCreate           DateTime
-  accessFlag           Boolean
-  liberationQuestClear Boolean
-  popularity           Int
   updatedAt            DateTime
-  stat                 Stat[]
-  hyperStat            HyperStat[]
-  propensity           Propensity?
-  ability              Ability[]
-  equipment            Equipment[]
+  nickname             String                   @unique
+  worldName            String?
+  gender               String?
+  class                String?
+  classLevel           String?
+  level                Int?
+  exp                  BigInt?
+  expRate              Float?
+  guildName            String?
+  imageUrl             String?                  @db.VarChar(299) // URL의 코드부분만 저장
+  dateCreate           DateTime?
+  accessFlag           Boolean?
+  liberationQuestClear Boolean?
+  popularity           Int?
+  stat                 Stat?                    @relation(fields: [statId], references: [id])
+  statId               Int?                     @unique
+  hyperStatPreset      CharacterHyperStat[]
+  propensity           Propensity?              @relation(fields: [propensityId], references: [id])
+  propensityId         Int?                     @unique
+  abilityPreset        CharacterAbility[]
+  itemEquipmentPreset  CharacterItemEquipment[]
   cashEquipment        CashEquipment[]
   symbol               Symbol[]
   setEffect            SetEffect[]
@@ -50,77 +53,227 @@ model Character {
 }
 
 model Stat {
-  id          Int       @id @default(autoincrement())
-  characterId Int
+  id                             Int        @id @default(autoincrement())
+  maxStatAttackPower             Int? // 최대 스탯공격력
+  minStatAttackPower             Int? // 최소 스탯공격력
+  damage                         Float? // 데미지
+  bossMonsterDamage              Float? // 보스 몬스터 데미지
+  finalDamage                    Float? // 최종 데미지
+  ignoreDefenseRate              Float? // 방어율 무시
+  criticalRate                   Int? // 크리티컬 확률
+  criticalDamage                 Float? // 크리티컬 데미지
+  abnormalStatusResistance       Int? // 상태이상 내성
+  stance                         Int? // 스탠스
+  defense                        Int? // 방어력
+  moveSpeed                      Int? // 이동속도
+  jumpPower                      Int? // 점프력
+  starForce                      Int? // 스타포스
+  arcaneForce                    Int? // 아케인포스
+  authenticForce                 Int? // 어센틱포스
+  str                            Int? // STR
+  dex                            Int? // DEX
+  int                            Int? // INT
+  luk                            Int? // LUK
+  hp                             Int? // HP
+  mp                             Int? // MP
+  apStr                          Int? // AP 배분 STR
+  apDex                          Int? // AP 배분 DEX
+  apInt                          Int? // AP 배분 INT
+  apLuk                          Int? // AP 배분 LUK
+  apHp                           Int? // AP 배분 HP
+  apMp                           Int? // AP 배분 MP
+  itemDropRate                   Int? // 아이템 드롭률
+  mesoAcquisition                Int? // 메소 획득량
+  buffDuration                   Int? // 버프 지속시간
+  attackSpeed                    Int? // 공격 속도
+  normalMonsterDamage            Float? // 일반 몬스터 데미지
+  cooldownReductionPercent       Int? // 재사용 대기시간 감소 (%)
+  cooldownReductionSeconds       Int? // 재사용 대기시간 감소 (초)
+  cooldownExemption              Int? // 재사용 대기시간 미적용
+  ignoreAttributeResistance      Float? // 속성 내성 무시
+  abnormalStatusAdditionalDamage Float? // 상태이상 추가 데미지
+  weaponMastery                  Int? // 무기 숙련도
+  additionalExp                  Float? // 추가 경험치 획득
+  attackPower                    Int? // 공격력
+  magicPower                     Int? // 마력
+  combatPower                    Int? // 전투력
+  summonDurationIncrease         Int? // 소환수 지속시간 증가
+  remainAp                       Int? // 남은 AP 포인트
+  Character                      Character? // 재사용 가능성 매우 낮다고 판단해서 1:1
+}
+
+model CharacterHyperStat {
   character   Character @relation(fields: [characterId], references: [id])
-  statName    String
-  statValue   Float?
+  characterId Int
+  hyperStat   HyperStat @relation(fields: [hyperStatId], references: [id])
+  hyperStatId Int
+  presetNo    Int
+  active      Boolean
+
+  @@id([characterId, presetNo, hyperStatId])
 }
 
 model HyperStat {
-  id           Int       @id @default(autoincrement())
-  characterId  Int
-  character    Character @relation(fields: [characterId], references: [id])
-  statType     String
+  id           Int                  @id @default(autoincrement())
+  statType     String // remainPoint 이름은 여기에
   statLevel    Int?
-  statPoint    Int
+  statPoint    Int // remainPoint 값은 여기에
   statIncrease String?
-  preset       Int?
-  active       Boolean?
+  character    CharacterHyperStat[]
+
+  @@unique([statType, statPoint])
 }
 
 model Propensity {
-  id               Int       @id @default(autoincrement())
-  characterId      Int       @unique
-  character        Character @relation(fields: [characterId], references: [id])
+  id               Int        @id @default(autoincrement())
   charismaLevel    Int
   sensibilityLevel Int
   insightLevel     Int
   willingnessLevel Int
   handicraftLevel  Int
   charmLevel       Int
+  character        Character?
+}
+
+model CharacterAbility {
+  character   Character @relation(fields: [characterId], references: [id])
+  characterId Int
+  ability     Ability?  @relation(fields: [abilityId], references: [id])
+  abilityId   Int?
+  abilityNo   Int // 어빌리티 몇번째 슬롯인지
+  presetNo    Int // 프리셋 미지정 캐릭터는 강제 1 매핑, 프리셋 0의 abilityNo는 remainFame
+  active      Boolean
+
+  @@id([characterId, presetNo, abilityNo])
 }
 
 model Ability {
-  id           Int       @id @default(autoincrement())
-  characterId  Int
-  character    Character @relation(fields: [characterId], references: [id])
-  abilityGrade String
-  abilityNo    Int?
-  abilityValue String?
-  presetNo     Int?
-  active       Boolean?
+  id           Int                @id @default(autoincrement())
+  abilityGrade AbilityGrade
+  abilityValue String             @unique
+  character    CharacterAbility[]
 }
 
-model Equipment {
-  id                        Int       @id @default(autoincrement())
-  characterId               Int
-  character                 Character @relation(fields: [characterId], references: [id])
-  equipmentPart             String
-  equipmentSlot             String
-  itemName                  String
-  itemIcon                  String
-  itemDescription           String?
-  itemShapeName             String
-  itemShapeIcon             String
-  itemGender                String?
-  totalOptions              Json
-  baseOptions               Json
-  potentialOptionGrade      String
-  additionalPotentialOption String
-  exceptionalOptions        Json
-  addOptions                Json
-  growthExp                 Int
-  growthLevel               Int
-  scrollUpgrade             Int
-  cuttableCount             Int
-  goldenHammerFlag          String
-  scrollResilienceCount     Int
-  scrollUpgradeableCount    Int
-  soulName                  String?
-  soulOption                Json?
-  starforce                 Int
-  starforceScrollFlag       String
+enum AbilityGrade {
+  RARE
+  EPIC
+  UNIQUE
+  LEGENDARY
+}
+
+model CharacterItemEquipment {
+  character       Character     @relation(fields: [characterId], references: [id])
+  characterId     Int
+  itemEquipment   ItemEquipment @relation(fields: [itemEquipmentId], references: [id])
+  itemEquipmentId Int
+  presetNo        Int
+  active          Boolean
+
+  @@id([characterId, presetNo, itemEquipmentId])
+}
+
+model ItemEquipment {
+  id                             Int             @id @default(autoincrement())
+  hash                           String          @unique
+  part                           String
+  slot                           String
+  name                           String
+  icon                           String
+  description                    String?
+  shapeName                      String?
+  shapeIcon                      String?
+  gender                         String?
+  potentialOptionGrade           PotentialGrade?
+  additionalPotentialOptionGrade PotentialGrade?
+  equipmentLevelIncrease         Int?
+  growthExp                      Int?
+  growthLevel                    Int?
+  scrollUpgrade                  Int? // 작
+  cuttableCount                  Int?
+  goldenHammerFlag               Boolean? // 황망 유무
+  scrollResilienceCount          Int?
+  scrollUpgradeableCount         Int?
+  soulName                       String? // 무기
+  soulOption                     String? // 무기
+  starforce                      Int?
+  starforceScrollFlag            Boolean? // 놀장 여부
+  specialRingLevel               Int? // 시드링 레벨
+  dateExpire                     DateTime?
+  dateOptionExpire               DateTime? // 훈장 옵션 만료일
+
+  character              CharacterItemEquipment[]
+  ItemEquipmentOption    ItemEquipmentOption[]
+  ItemEquipmentPotential ItemEquipmentPotential[]
+}
+
+enum PotentialGrade {
+  RARE
+  EPIC
+  UNIQUE
+  LEGENDARY
+}
+
+model ItemEquipmentPotential {
+  id          Int           @id @default(autoincrement())
+  equipment   ItemEquipment @relation(fields: [equipmentId], references: [id])
+  equipmentId Int
+  potential   Potential     @relation(fields: [potentialId], references: [id])
+  potentialId Int
+  potentialNo Int // potential: 0, 1, 2 | additionalPotential: 3, 4, 5
+
+  @@unique([equipmentId, potentialId, potentialNo])
+}
+
+model Potential {
+  id                     Int                      @id @default(autoincrement())
+  potential              String                   @unique
+  ItemEquipmentPotential ItemEquipmentPotential[]
+}
+
+model ItemEquipmentOption {
+  id              Int           @id @default(autoincrement())
+  itemEquipment   ItemEquipment @relation(fields: [itemEquipmentId], references: [id])
+  itemEquipmentId Int
+  option          ItemOption    @relation(fields: [optionId], references: [id])
+  optionId        Int
+  optionType      OptionType
+
+  @@unique([itemEquipmentId, optionType, optionId])
+}
+
+enum OptionType {
+  TOTAL // 합산
+  BASE // 기본
+  EXCEPTIONAL // 익셉셔널
+  ADD // 추옵
+  ETC // 작
+  STARFORCE // 스타포스
+}
+
+model ItemOption {
+  id                     Int                   @id @default(autoincrement())
+  hash                   String                @unique
+  str                    Int?
+  dex                    Int?
+  int                    Int?
+  luk                    Int?
+  maxHp                  Int?
+  maxMp                  Int?
+  attackPower            Int?
+  magicPower             Int?
+  armor                  Int?
+  speed                  Int?
+  jump                   Int?
+  bossDamage             Int?
+  ignoreMonsterArmor     Int?
+  allStat                Int?
+  damage                 Int?
+  equipmentLevelDecrease Int?
+  maxHpRate              Int?
+  maxMpRate              Int?
+  baseEquipmentLevel     Int?
+  exceptionalUpgrade     Int?
+  ItemEquipmentOption    ItemEquipmentOption[]
 }
 
 model CashEquipment {
