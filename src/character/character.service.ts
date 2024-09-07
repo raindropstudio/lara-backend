@@ -26,7 +26,6 @@ export class CharacterService {
 
   async getCharacterOverall(nickname: string, update?: boolean): Promise<CharacterDto> {
     const character = await this.characterRepository.findCharacterOverallByNickname(nickname);
-
     if (update || !character) {
       const ocid = await this.nxapiService.fetchCharacterOcid(nickname);
 
