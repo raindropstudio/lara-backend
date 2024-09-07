@@ -29,22 +29,22 @@ export class CharacterBasicDto {
   expRate: number;
 
   @Expose()
-  guildName: string;
+  guildName?: string;
 
   @Expose()
   imageUrl: string;
 
   @Expose()
-  dateCreate: Date;
+  dateCreate?: Date;
 
   @Expose()
-  accessFlag: boolean;
+  accessFlag?: boolean;
 
   @Expose()
   liberationQuestClear: boolean;
 
   @Expose()
-  popularity: number;
+  popularity?: number;
 
   @Expose()
   updatedAt: Date;
