@@ -102,16 +102,12 @@ export const itemEquipmentMapper = (itemEquipmentData: any): ItemEquipmentPreset
       additionalPotentialOptionGrade: item.additional_potential_option_grade
         ? potentialGrade(item.additional_potential_option_grade.toUpperCase())
         : null,
-      potentialOption: [
-        item.potential_option_1 || null,
-        item.potential_option_2 || null,
-        item.potential_option_3 || null,
-      ],
+      potentialOption: [item.potential_option_1, item.potential_option_2, item.potential_option_3].filter(Boolean),
       additionalPotentialOption: [
-        item.additional_potential_option_1 || null,
-        item.additional_potential_option_2 || null,
-        item.additional_potential_option_3 || null,
-      ],
+        item.additional_potential_option_1,
+        item.additional_potential_option_2,
+        item.additional_potential_option_3,
+      ].filter(Boolean),
       equipmentLevelIncrease: item.equipment_level_increase || null,
       growthExp: item.growth_exp || null,
       growthLevel: item.growth_level || null,

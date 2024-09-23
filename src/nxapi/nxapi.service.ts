@@ -15,6 +15,8 @@ import { propensityMapper } from './mapper/propensity.mapper';
 import { statMapper } from './mapper/stat.mapper';
 import { NxapiAbilityData } from './type/nxapi-ability.type';
 import { NxapiItemEquipment } from './type/nxapi-item-equipment.type';
+import { NxapiUnionRankingData } from './type/nxapi-union-ranking.type';
+import { NxapiUnion } from './type/nxapi-union.type';
 
 type SkillGrade = '0' | '1' | '1.5' | '2' | '2.5' | '3' | '4' | '5' | '6' | 'hyperpassive' | 'hyperactive';
 
@@ -36,6 +38,11 @@ export class NxapiService implements OnModuleInit {
   private async nxapi<T>(url: string, params: { [key: string]: string }): Promise<T> {
     try {
       const res = await this.httpService.axiosRef.get(url, { params });
+      this.logger.verbose(
+        `${url} ` +
+          `${'..' + JSON.stringify(params).slice(9, 16) + '..'} => ` +
+          `${'..' + JSON.stringify(res.data).slice(10, 60) + '...'}`,
+      );
       return res.data;
     } catch (e) {
       this.logger.error(e);
@@ -45,59 +52,41 @@ export class NxapiService implements OnModuleInit {
 
   async fetchCharacterOcid(characterName: string): Promise<string> {
     const res = await this.nxapi<any>('/id', { character_name: characterName });
-    this.logger.log(`fetchCharacterOcid: ${characterName} => ${res.ocid}`);
     return res.ocid;
   }
 
   async fetchCharacterBasic(ocid: string, date?: string): Promise<CharacterBasicDto> {
     const res = await this.nxapi<any>('/character/basic', { ocid, date });
-    this.logger.log(`fetchCharacterBasic: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 50) + '...'}`);
     return characterBasicMapper(ocid, res);
   }
 
   async fetchCharacterPopularity(ocid: string, date?: string): Promise<number> {
     const res = await this.nxapi<any>('/character/popularity', { ocid, date });
-    this.logger.log(
-      `fetchCharacterPopularity: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 50) + '...'}`,
-    );
     return res.popularity;
   }
 
   async fetchCharacterStat(ocid: string, date?: string): Promise<StatDto> {
     const res = await this.nxapi<any>('/character/stat', { ocid, date });
-    this.logger.log(`fetchCharacterStat: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 50) + '...'}`);
     return statMapper(res);
   }
 
   async fetchCharacterHyperStat(ocid: string, date?: string): Promise<HyperStatPresetDto[]> {
     const res = await this.nxapi<any>('/character/hyper-stat', { ocid, date });
-    this.logger.log(
-      `fetchCharacterHyperStat: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 50) + '...'}`,
-    );
     return hyperStatMapper(res);
   }
 
   async fetchCharacterPropensity(ocid: string, date?: string): Promise<PropensityDto> {
     const res = await this.nxapi<any>('/character/propensity', { ocid, date });
-    this.logger.log(
-      `fetchCharacterPropensity: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 50) + '...'}`,
-    );
     return propensityMapper(res);
   }
 
   async fetchCharacterAbility(ocid: string, date?: string): Promise<AbilityDto> {
     const res = await this.nxapi<NxapiAbilityData>('/character/ability', { ocid, date });
-    this.logger.log(
-      `fetchCharacterAbility: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 50) + '...'}`,
-    );
     return abilityMapper(res);
   }
 
   async fetchCharacterItemEquipment(ocid: string, date?: string): Promise<ItemEquipmentPresetDto[]> {
     const res = await this.nxapi<NxapiItemEquipment>('/character/item-equipment', { ocid, date });
-    this.logger.log(
-      `fetchCharacterItemEquipment: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 50) + '...'}`,
-    );
     return itemEquipmentMapper(res);
   }
 
@@ -106,33 +95,21 @@ export class NxapiService implements OnModuleInit {
       ocid,
       date,
     });
-    this.logger.log(
-      `fetchCharacterCashitemEquipment: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 50) + '...'}`,
-    );
     return res;
   }
 
   async fetchCharacterSymbolEquipment(ocid: string, date?: string): Promise<object> {
     const res = await this.nxapi<any>('/character/symbol-equipment', { ocid, date });
-    this.logger.log(
-      `fetchCharacterSymbolEquipment: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 50) + '...'}`,
-    );
     return res;
   }
 
   async fetchCharacterSetEffect(ocid: string, date?: string): Promise<object> {
     const res = await this.nxapi<any>('/character/set-effect', { ocid, date });
-    this.logger.log(
-      `fetchCharacterSetEffect: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 50) + '...'}`,
-    );
     return res;
   }
 
   async fetchCharacterBeautyEquipment(ocid: string, date?: string): Promise<object> {
     const res = await this.nxapi<any>('/character/beauty-equipment', { ocid, date });
-    this.logger.log(
-      `fetchCharacterBeautyEquipment: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 50) + '...'}`,
-    );
     return res;
   }
 
@@ -141,17 +118,11 @@ export class NxapiService implements OnModuleInit {
       ocid,
       date,
     });
-    this.logger.log(
-      `fetchCharacterAndroidEquipment: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 50) + '...'}`,
-    );
     return res;
   }
 
   async fetchCharacterPetEquipment(ocid: string, date?: string): Promise<object> {
     const res = await this.nxapi<any>('/character/pet-equipment', { ocid, date });
-    this.logger.log(
-      `fetchCharacterPetEquipment: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 50) + '...'}`,
-    );
     return res;
   }
 
@@ -161,47 +132,51 @@ export class NxapiService implements OnModuleInit {
       date,
       character_skill_grade: skillGrade,
     });
-    this.logger.log(`fetchCharacterSkill: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 50) + '...'}`);
     return res;
   }
 
   async fetchCharacterLinkSkill(ocid: string, date?: string): Promise<object> {
     const res = await this.nxapi<any>('/character/link-skill', { ocid, date });
-    this.logger.log(
-      `fetchCharacterLinkSkill: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 50) + '...'}`,
-    );
     return res;
   }
 
   async fetchCharacterVmatrix(ocid: string, date?: string): Promise<object> {
     const res = await this.nxapi<any>('/character/vmatrix', { ocid, date });
-    this.logger.log(
-      `fetchCharacterVmatrix: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 50) + '...'}`,
-    );
     return res;
   }
 
   async fetchCharacterHexamatrix(ocid: string, date?: string): Promise<object> {
     const res = await this.nxapi<any>('/character/hexamatrix', { ocid, date });
-    this.logger.log(
-      `fetchCharacterHexamatrix: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 50) + '...'}`,
-    );
     return res;
   }
 
   async fetchCharacterHexamatrixStat(ocid: string, date?: string): Promise<object> {
     const res = await this.nxapi<any>('/character/hexamatrix-stat', { ocid, date });
-    this.logger.log(
-      `fetchCharacterHexamatrixStat: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 50) + '...'}`,
-    );
     return res;
   }
 
-  async fetchCharacterDojang(ocid: string, date?: string): Promise<object> {
-    const res = await this.nxapi<any>('/character/dojang', { ocid, date });
-    this.logger.log(
-      `fetchCharacterDojang: ${ocid.slice(0, 10) + '...'} => ${JSON.stringify(res).slice(0, 50) + '...'}`,
-    );
+  // 유니온
+
+  async fetchUnion(ocid: string, date?: string): Promise<object> {
+    const res = await this.nxapi<NxapiUnion>('/user/union', { ocid, date });
+    return res;
+  }
+
+  // 랭킹
+
+  async fetchUnionRanking(date?: string, worldName?: string, ocid?: string, page?: string): Promise<object> {
+    // 조회시각이 KST 오전 8시 30분 이전일 경우 전날, 이외에는 오늘로 date 자동설정
+    //? 안전빵 더 줘서 8시 59분
+    if (!date) {
+      const now = new Date();
+      const kst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+      const kstHour = kst.getHours();
+      date =
+        kstHour < 8 || (kstHour === 8 && kst.getMinutes() < 59)
+          ? new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+          : now.toISOString().slice(0, 10);
+    }
+    const res = await this.nxapi<NxapiUnionRankingData>('/ranking/union', { date, world_name: worldName, ocid, page });
     return res;
   }
 }

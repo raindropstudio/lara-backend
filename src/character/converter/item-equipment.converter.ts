@@ -60,14 +60,14 @@ export const convertItemEquipmentToDto = (itemEquipmentEntity: ItemEquipmentEnti
         getPotentialText(itemEquipment, 1),
         getPotentialText(itemEquipment, 2),
         getPotentialText(itemEquipment, 3),
-      ];
+      ].filter(Boolean);
     }
     if (itemEquipment.additionalPotentialOptionGrade) {
       res['additionalPotentialOption'] = [
         getPotentialText(itemEquipment, 4),
         getPotentialText(itemEquipment, 5),
         getPotentialText(itemEquipment, 6),
-      ];
+      ].filter(Boolean);
     }
     return res;
   };
