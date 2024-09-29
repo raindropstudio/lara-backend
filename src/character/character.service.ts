@@ -1,17 +1,22 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { AbilityDto } from 'src/common/dto/ability.dto';
+import { CashEquipmentPresetDto } from 'src/common/dto/cash-equipment.dto';
 import { CharacterBasicDto } from 'src/common/dto/character-basic.dto';
 import { CharacterDto } from 'src/common/dto/character.dto';
 import { HyperStatPresetDto } from 'src/common/dto/hyper-stat.dto';
 import { ItemEquipmentPresetDto } from 'src/common/dto/item-equipment.dto';
 import { PropensityDto } from 'src/common/dto/propensity.dto';
 import { StatDto } from 'src/common/dto/stat.dto';
-import { removeNulls } from 'src/common/util/removeNulls';
+import { UnionDto } from 'src/common/dto/union.dto';
+import { removeNulls } from 'src/common/util/remove-nulls';
 import { NxapiService } from 'src/nxapi/nxapi.service';
+import { convertCashEquipmentToEntity } from './converter/cash-equipment.converter';
 import { AbilityRepository } from './repository/ability.repository';
+import { CashEquipmentRepository } from './repository/cash-equipment.repository';
 import { CharacterRepository } from './repository/character.repository';
 import { HyperStatRepository } from './repository/hyper-stat.repository';
 import { ItemEquipmentRepository } from './repository/item-equipment.repository';
+import { ItemOptionRepository } from './repository/item-option.repository';
 
 @Injectable()
 export class CharacterService {
@@ -20,7 +25,9 @@ export class CharacterService {
     private readonly characterRepository: CharacterRepository,
     private readonly hyperStatRepository: HyperStatRepository,
     private readonly abilityRepository: AbilityRepository,
+    private readonly itemOptionRepository: ItemOptionRepository,
     private readonly itemEquipmentRepository: ItemEquipmentRepository,
+    private readonly cashEquipmentRepository: CashEquipmentRepository,
   ) {}
   private readonly logger = new Logger(CharacterService.name);
 
@@ -29,14 +36,17 @@ export class CharacterService {
     if (update || !character) {
       const ocid = await this.nxapiService.fetchCharacterOcid(nickname);
 
-      const [basic, stat, hyperStatPreset, propensity, ability, itemEquipmentPreset] = await Promise.all([
-        this.fetchCharacterBasic(ocid),
-        this.fetchCharacterStat(ocid),
-        this.getCharacterHyperStat(ocid),
-        this.fetchCharacterPropensity(ocid),
-        this.getCharacterAbility(ocid),
-        this.getCharacterItemEquipment(ocid),
-      ]);
+      const [basic, stat, hyperStatPreset, propensity, ability, itemEquipmentPreset, cashEquipmentPreset, union] =
+        await Promise.all([
+          this.fetchCharacterBasic(ocid),
+          this.fetchCharacterStat(ocid),
+          this.getCharacterHyperStat(ocid),
+          this.fetchCharacterPropensity(ocid),
+          this.getCharacterAbility(ocid),
+          this.getCharacterItemEquipment(ocid),
+          this.getCharacterCashitemEquipment(ocid),
+          this.fetchUnion(ocid),
+        ]);
 
       const updatedCharacter: CharacterDto = {
         ...character,
@@ -46,6 +56,8 @@ export class CharacterService {
         propensity,
         ability,
         itemEquipmentPreset,
+        cashEquipmentPreset,
+        union,
       };
 
       await this.characterRepository.upsertCharacterOverall(updatedCharacter);
@@ -95,5 +107,21 @@ export class CharacterService {
     await this.itemEquipmentRepository.createOrIgnoreItemEquipment(characterItemEquipment);
 
     return characterItemEquipment;
+  }
+
+  async getCharacterCashitemEquipment(ocid: string, date?: string): Promise<CashEquipmentPresetDto[]> {
+    const characterCashItemEquipment = await this.nxapiService.fetchCharacterCashitemEquipment(ocid, date);
+
+    const flattenCashEquipment = convertCashEquipmentToEntity(characterCashItemEquipment);
+    await this.itemOptionRepository.createOrIgnoreItemOption(
+      flattenCashEquipment.flatMap((item) => item?.option).filter((option) => option),
+    );
+    await this.cashEquipmentRepository.createOrIgnoreCashEquipment(characterCashItemEquipment);
+
+    return characterCashItemEquipment;
+  }
+
+  async fetchUnion(ocid: string, date?: string): Promise<UnionDto> {
+    return await this.nxapiService.fetchUnion(ocid, date);
   }
 }

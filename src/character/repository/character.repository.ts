@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CharacterDto } from 'src/common/dto/character.dto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { convertAbilityToDto, convertAbilityToEntity } from '../converter/ability.converter';
+import { convertCashEquipmentToDto, convertCashEquipmentToEntity } from '../converter/cash-equipment.converter';
 import { convertHyperStatToDto, convertHyperStatToEntity } from '../converter/hyper-stat.converter';
 import { convertItemEquipmentToDto, convertItemEquipmentToEntity } from '../converter/item-equipment.converter';
 
@@ -45,19 +46,24 @@ export class CharacterRepository {
             },
           },
         },
+        cashEquipmentPreset: {
+          include: {
+            cashEquipment: true,
+            option: true,
+          },
+        },
+        union: true,
       },
     });
 
     if (!characterData) return null;
-
-    //? 원래도 이거 안빼면 upsert 오류났었나..?
-    const { id, statId, propensityId, abilityPreset, ...characterBasic } = characterData;
-
+    const { abilityPreset, ...character } = characterData;
     return {
-      ...characterBasic,
+      ...character,
       hyperStatPreset: convertHyperStatToDto(characterData.hyperStatPreset),
       ability: convertAbilityToDto(characterData.abilityPreset),
       itemEquipmentPreset: convertItemEquipmentToDto(characterData.itemEquipmentPreset),
+      cashEquipmentPreset: convertCashEquipmentToDto(characterData.cashEquipmentPreset),
     };
   }
 
@@ -67,17 +73,21 @@ export class CharacterRepository {
       hyperStatPreset,
       propensity,
       ability,
-      itemEquipmentPreset: characterItemEquipmentList,
-      ...characterBasic
+      itemEquipmentPreset,
+      cashEquipmentPreset,
+      union,
+      ...characterData
     } = character;
 
-    // 0. 하이퍼스탯, 어빌리티, 장비 데이터 flatten, 상위 데이터 적절히 삽입
+    // 0. 따로 처리할 데이터 flatten, 상위 데이터 적절히 삽입
     const flatHyperStat = convertHyperStatToEntity(hyperStatPreset);
     const flatAbility = convertAbilityToEntity(ability);
-    const flatItemEquipment = convertItemEquipmentToEntity(characterItemEquipmentList);
+    const flatItemEquipment = convertItemEquipmentToEntity(itemEquipmentPreset);
+    const flatCashEquipment = convertCashEquipmentToEntity(cashEquipmentPreset);
+    const cashOption = flatCashEquipment.map((eq) => eq.option).filter((opt) => opt);
 
     // 1. 트랜잭션 밖에서 필요한 ID를 고유값을 사용해 한 번에 조회
-    const [hyperStatIds, abilityIds, itemEquipmentIds] = await Promise.all([
+    const [hyperStatIds, abilityIds, itemEquipmentIds, cashEquipmentIds, cashEquipOptionIds] = await Promise.all([
       // HyperStat IDs 조회
       this.prismaService.hyperStat.findMany({
         where: {
@@ -104,26 +114,44 @@ export class CharacterRepository {
         },
         select: { id: true, hash: true },
       }),
+
+      // CashEquipment IDs 조회
+      this.prismaService.cashEquipment.findMany({
+        where: {
+          icon: { in: flatCashEquipment.map((eq) => eq.icon) },
+        },
+        select: { id: true, icon: true },
+      }),
+
+      // CashEquipment 관련 Option IDs 조회
+      this.prismaService.itemOption.findMany({
+        where: {
+          hash: { in: cashOption.map((opt) => opt.hash) },
+        },
+        select: { id: true, hash: true },
+      }),
     ]);
 
     // 2. ID들을 조회한 결과에 따라 매핑하여 삽입할 데이터 준비
     const hyperStatMap = new Map(hyperStatIds.map((hs) => [`${hs.statType}_${hs.statPoint}`, hs.id]));
     const abilityMap = new Map(abilityIds.map((ab) => [ab.abilityValue, ab.id]));
     const itemEquipmentMap = new Map(itemEquipmentIds.map((eq) => [eq.hash, eq.id]));
+    const cashEquipmentMap = new Map(cashEquipmentIds.map((eq) => [eq.icon, eq.id]));
+    const cashEquipOptionMap = new Map(cashEquipOptionIds.map((opt) => [opt.hash, opt.id]));
 
     // 3. 트랜잭션 내에서 Character와 연결된 항목들을 처리
     await this.prismaService.$transaction(async (prisma) => {
       // Character upsert
+
+      const { id, statId, propensityId, unionId, ...characterBasic } = characterData;
+
       const upsertedCharacter = await prisma.character.upsert({
         where: { nickname: characterBasic.nickname },
         update: {
           ...characterBasic,
-          stat: {
-            update: stat,
-          },
-          propensity: {
-            update: propensity,
-          },
+          stat: statId ? { update: stat } : { create: stat },
+          propensity: propensityId ? { update: propensity } : { create: propensity },
+          union: unionId ? { update: union } : { create: union },
         },
         create: {
           ...characterBasic,
@@ -132,6 +160,9 @@ export class CharacterRepository {
           },
           propensity: {
             create: propensity,
+          },
+          union: {
+            create: union,
           },
         },
       });
@@ -146,6 +177,9 @@ export class CharacterRepository {
         where: { characterId },
       });
       await prisma.characterItemEquipment.deleteMany({
+        where: { characterId },
+      });
+      await prisma.characterCashEquipment.deleteMany({
         where: { characterId },
       });
 
@@ -185,6 +219,26 @@ export class CharacterRepository {
             itemEquipmentId: itemEquipmentMap.get(eq.hash),
             presetNo: eq.presetNo,
             active: eq.active,
+          })),
+        skipDuplicates: true,
+      });
+
+      // 캐시장비 연결
+      await prisma.characterCashEquipment.createMany({
+        data: flatCashEquipment
+          .filter((eq) => cashEquipmentMap.has(eq.icon)) // 존재하는 ID만 사용
+          .map((eq) => ({
+            characterId: characterId,
+            cashEquipmentId: cashEquipmentMap.get(eq.icon),
+            presetNo: eq.presetNo,
+            active: eq.active,
+            optionId: eq.option ? cashEquipOptionMap.get(eq.option.hash) : null,
+            dateExpire: eq.dateExpire,
+            dateOptionExpire: eq.dateOptionExpire,
+            coloringPrismRange: eq.coloringPrismRange,
+            coloringPrismHue: eq.coloringPrismHue,
+            coloringPrismSaturation: eq.coloringPrismSaturation,
+            coloringPrismValue: eq.coloringPrismValue,
           })),
         skipDuplicates: true,
       });

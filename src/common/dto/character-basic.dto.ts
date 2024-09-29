@@ -1,6 +1,7 @@
 import { Expose, Transform } from 'class-transformer';
 
 export class CharacterBasicDto {
+  id?: number;
   ocid: string;
 
   @Expose()
@@ -48,4 +49,8 @@ export class CharacterBasicDto {
 
   @Expose()
   updatedAt: Date;
+
+  statId?: number;
+  propensityId?: number;
+  unionId?: number;
 }

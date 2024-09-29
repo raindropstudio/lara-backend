@@ -2,18 +2,23 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import axiosRetry from 'axios-retry';
 import { AbilityDto } from 'src/common/dto/ability.dto';
+import { CashEquipmentPresetDto } from 'src/common/dto/cash-equipment.dto';
 import { CharacterBasicDto } from 'src/common/dto/character-basic.dto';
 import { HyperStatPresetDto } from 'src/common/dto/hyper-stat.dto';
 import { ItemEquipmentPresetDto } from 'src/common/dto/item-equipment.dto';
 import { PropensityDto } from 'src/common/dto/propensity.dto';
 import { StatDto } from 'src/common/dto/stat.dto';
+import { UnionDto } from 'src/common/dto/union.dto';
 import { abilityMapper } from './mapper/ability.mapper';
+import { cashEquipmentMapper } from './mapper/cashitem-equipment.mapper';
 import { characterBasicMapper } from './mapper/character-basic.mapper';
 import { hyperStatMapper } from './mapper/hyper-stat.mapper';
 import { itemEquipmentMapper } from './mapper/item-equipment.mapper';
 import { propensityMapper } from './mapper/propensity.mapper';
 import { statMapper } from './mapper/stat.mapper';
+import { unionMapper } from './mapper/union.mapper';
 import { NxapiAbilityData } from './type/nxapi-ability.type';
+import { NxApiCashEquipment } from './type/nxapi-cash-equipment.type';
 import { NxapiItemEquipment } from './type/nxapi-item-equipment.type';
 import { NxapiUnionRankingData } from './type/nxapi-union-ranking.type';
 import { NxapiUnion } from './type/nxapi-union.type';
@@ -49,6 +54,8 @@ export class NxapiService implements OnModuleInit {
       throw e;
     }
   }
+
+  // 캐릭터
 
   async fetchCharacterOcid(characterName: string): Promise<string> {
     const res = await this.nxapi<any>('/id', { character_name: characterName });
@@ -90,12 +97,9 @@ export class NxapiService implements OnModuleInit {
     return itemEquipmentMapper(res);
   }
 
-  async fetchCharacterCashitemEquipment(ocid: string, date?: string): Promise<object> {
-    const res = await this.nxapi<any>('/character/cashitem-equipment', {
-      ocid,
-      date,
-    });
-    return res;
+  async fetchCharacterCashitemEquipment(ocid: string, date?: string): Promise<CashEquipmentPresetDto[]> {
+    const res = await this.nxapi<NxApiCashEquipment>('/character/cashitem-equipment', { ocid, date });
+    return cashEquipmentMapper(res);
   }
 
   async fetchCharacterSymbolEquipment(ocid: string, date?: string): Promise<object> {
@@ -157,9 +161,9 @@ export class NxapiService implements OnModuleInit {
 
   // 유니온
 
-  async fetchUnion(ocid: string, date?: string): Promise<object> {
+  async fetchUnion(ocid: string, date?: string): Promise<UnionDto> {
     const res = await this.nxapi<NxapiUnion>('/user/union', { ocid, date });
-    return res;
+    return unionMapper(res);
   }
 
   // 랭킹

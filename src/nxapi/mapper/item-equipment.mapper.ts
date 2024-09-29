@@ -1,6 +1,7 @@
 import { PotentialGrade } from '@prisma/client';
 import * as objectHash from 'object-hash';
 import { ItemEquipmentInfoDto, ItemEquipmentPresetDto, ItemOptionDto } from 'src/common/dto/item-equipment.dto';
+import { extractImageCode } from 'src/common/util/extract-image-code';
 import { NxapiItemEquipmentInfo } from 'src/nxapi/type/nxapi-item-equipment.type';
 
 export const itemEquipmentMapper = (itemEquipmentData: any): ItemEquipmentPresetDto[] => {
@@ -80,23 +81,16 @@ export const itemEquipmentMapper = (itemEquipmentData: any): ItemEquipmentPreset
     }
   };
 
-  const extractItemImageCode = (imageUrl: string): string => {
-    const url = new URL(imageUrl);
-    const path = url.pathname;
-    const code = path.split('/').pop().split('.')[0];
-    return code;
-  };
-
   const mapItemEquipment = (item: NxapiItemEquipmentInfo): ItemEquipmentInfoDto => {
     const res = {
       hash: '',
       part: item.item_equipment_part,
       slot: item.item_equipment_slot,
       name: item.item_name,
-      icon: item.item_icon ? extractItemImageCode(item.item_icon) : null,
+      icon: item.item_icon ? extractImageCode(item.item_icon) : null,
       description: item.item_description || null,
       shapeName: item.item_shape_name || null,
-      shapeIcon: item.item_shape_icon ? extractItemImageCode(item.item_shape_icon) : null,
+      shapeIcon: item.item_shape_icon ? extractImageCode(item.item_shape_icon) : null,
       gender: item.item_gender || null,
       potentialOptionGrade: item.potential_option_grade ? potentialGrade(item.potential_option_grade) : null,
       additionalPotentialOptionGrade: item.additional_potential_option_grade

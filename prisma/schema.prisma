@@ -39,7 +39,7 @@ model Character {
   propensityId         Int?                     @unique
   abilityPreset        CharacterAbility[]
   itemEquipmentPreset  CharacterItemEquipment[]
-  cashEquipment        CashEquipment[]
+  cashEquipmentPreset  CharacterCashEquipment[]
   symbol               Symbol[]
   setEffect            SetEffect[]
   beauty               BeautyEquipment?
@@ -49,7 +49,8 @@ model Character {
   linkSkill            LinkSkill[]
   vMatrix              VMatrix[]
   hexaMatrix           HexaMatrix[]
-  dojang               Dojang?
+  union                Union?                   @relation(fields: [unionId], references: [id])
+  unionId              Int?                     @unique
 }
 
 model Stat {
@@ -179,7 +180,7 @@ model ItemEquipment {
   slot                           String
   name                           String
   icon                           String
-  description                    String?
+  description                    String?         @db.VarChar(500)
   shapeName                      String?
   shapeIcon                      String?
   gender                         String?
@@ -251,8 +252,8 @@ enum OptionType {
 }
 
 model ItemOption {
-  id                     Int                   @id @default(autoincrement())
-  hash                   String                @unique
+  id                     Int                      @id @default(autoincrement())
+  hash                   String                   @unique
   str                    Int?
   dex                    Int?
   int                    Int?
@@ -274,19 +275,48 @@ model ItemOption {
   baseEquipmentLevel     Int?
   exceptionalUpgrade     Int?
   ItemEquipmentOption    ItemEquipmentOption[]
+  CharacterCashEquipment CharacterCashEquipment[]
+}
+
+model CharacterCashEquipment {
+  characterId             Int
+  character               Character       @relation(fields: [characterId], references: [id])
+  cashEquipmentId         Int
+  cashEquipment           CashEquipment   @relation(fields: [cashEquipmentId], references: [id])
+  optionId                Int?
+  option                  ItemOption?     @relation(fields: [optionId], references: [id])
+  dateExpire              DateTime?
+  dateOptionExpire        DateTime?
+  coloringPrismRange      PrismRangeType?
+  coloringPrismHue        Int?
+  coloringPrismSaturation Int?
+  coloringPrismValue      Int?
+  presetNo                Int // 베이스 0, 외형 1, 2, 3, 제로-베타 엔버-드레스업 베이스 4, 외형 5, 6, 7
+  active                  Boolean
+
+  @@id([characterId, presetNo, cashEquipmentId])
+}
+
+enum PrismRangeType {
+  ALL
+  RED
+  YELLOW
+  GREEN
+  CYAN
+  BLUE
+  PURPLE
 }
 
 model CashEquipment {
-  id                    Int       @id @default(autoincrement())
-  characterId           Int
-  character             Character @relation(fields: [characterId], references: [id])
-  cashItemEquipmentPart String
-  cashItemEquipmentSlot String
-  cashItemName          String
-  cashItemIcon          String
-  cashItemDescription   String?
-  cashItemOption        Json
-  dateExpire            DateTime?
+  id                     Int                      @id @default(autoincrement())
+  part                   String
+  slot                   String
+  name                   String
+  icon                   String                   @unique
+  description            String?                  @db.VarChar(500)
+  label                  String?
+  itemGender             String?
+  characterCashEquipment CharacterCashEquipment[]
 }
 
 model Symbol {
@@ -413,11 +443,11 @@ model HexaMatrix {
   linkedSkill   Json
 }
 
-model Dojang {
-  id               Int       @id @default(autoincrement())
-  characterId      Int       @unique
-  character        Character @relation(fields: [characterId], references: [id])
-  bestFloor        Int
-  dateDojangRecord DateTime
-  bestTime         Int
+model Union {
+  id                 Int        @id @default(autoincrement())
+  character          Character?
+  unionLevel         Int
+  unionArtifactLevel Int
+  unionArtifactExp   Int
+  unionArtifactPoint Int
 }
