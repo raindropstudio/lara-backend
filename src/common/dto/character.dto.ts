@@ -7,6 +7,7 @@ import { ItemEquipmentPresetDto } from './item-equipment.dto';
 import { PropensityDto } from './propensity.dto';
 import { StatDto } from './stat.dto';
 import { UnionDto } from './union.dto';
+import { SymbolDto } from './symbol.dto';
 
 export class CharacterDto extends CharacterBasicDto {
   @Expose()
@@ -36,4 +37,8 @@ export class CharacterDto extends CharacterBasicDto {
   @Expose()
   @Type(() => UnionDto)
   union: UnionDto;
+
+  @Expose()
+  @Type(() => SymbolDto)
+  symbol: SymbolDto[];
 }

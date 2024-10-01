@@ -7,6 +7,7 @@ import { HyperStatPresetDto } from 'src/common/dto/hyper-stat.dto';
 import { ItemEquipmentPresetDto } from 'src/common/dto/item-equipment.dto';
 import { PropensityDto } from 'src/common/dto/propensity.dto';
 import { StatDto } from 'src/common/dto/stat.dto';
+import { SymbolDto } from 'src/common/dto/symbol.dto';
 import { UnionDto } from 'src/common/dto/union.dto';
 import { removeNulls } from 'src/common/util/remove-nulls';
 import { NxapiService } from 'src/nxapi/nxapi.service';
@@ -36,17 +37,27 @@ export class CharacterService {
     if (update || !character) {
       const ocid = await this.nxapiService.fetchCharacterOcid(nickname);
 
-      const [basic, stat, hyperStatPreset, propensity, ability, itemEquipmentPreset, cashEquipmentPreset, union] =
-        await Promise.all([
-          this.fetchCharacterBasic(ocid),
-          this.fetchCharacterStat(ocid),
-          this.getCharacterHyperStat(ocid),
-          this.fetchCharacterPropensity(ocid),
-          this.getCharacterAbility(ocid),
-          this.getCharacterItemEquipment(ocid),
-          this.getCharacterCashitemEquipment(ocid),
-          this.fetchUnion(ocid),
-        ]);
+      const [
+        basic,
+        stat,
+        hyperStatPreset,
+        propensity,
+        ability,
+        itemEquipmentPreset,
+        cashEquipmentPreset,
+        symbol,
+        union,
+      ] = await Promise.all([
+        this.fetchCharacterBasic(ocid),
+        this.fetchCharacterStat(ocid),
+        this.getCharacterHyperStat(ocid),
+        this.fetchCharacterPropensity(ocid),
+        this.getCharacterAbility(ocid),
+        this.getCharacterItemEquipment(ocid),
+        this.getCharacterCashitemEquipment(ocid),
+        this.fetchCharacterSymbol(ocid),
+        this.fetchUnion(ocid),
+      ]);
 
       const updatedCharacter: CharacterDto = {
         ...character,
@@ -57,6 +68,7 @@ export class CharacterService {
         ability,
         itemEquipmentPreset,
         cashEquipmentPreset,
+        symbol,
         union,
       };
 
@@ -119,6 +131,10 @@ export class CharacterService {
     await this.cashEquipmentRepository.createOrIgnoreCashEquipment(characterCashItemEquipment);
 
     return characterCashItemEquipment;
+  }
+
+  async fetchCharacterSymbol(ocid: string, date?: string): Promise<SymbolDto[]> {
+    return await this.nxapiService.fetchCharacterSymbolEquipment(ocid, date);
   }
 
   async fetchUnion(ocid: string, date?: string): Promise<UnionDto> {

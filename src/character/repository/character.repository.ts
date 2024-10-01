@@ -52,6 +52,7 @@ export class CharacterRepository {
             option: true,
           },
         },
+        symbol: true,
         union: true,
       },
     });
@@ -75,6 +76,7 @@ export class CharacterRepository {
       ability,
       itemEquipmentPreset,
       cashEquipmentPreset,
+      symbol,
       union,
       ...characterData
     } = character;
@@ -182,6 +184,9 @@ export class CharacterRepository {
       await prisma.characterCashEquipment.deleteMany({
         where: { characterId },
       });
+      await prisma.symbol.deleteMany({
+        where: { characterId },
+      });
 
       // 하이퍼스탯 중간 테이블 연결
       await prisma.characterHyperStat.createMany({
@@ -241,6 +246,14 @@ export class CharacterRepository {
             coloringPrismValue: eq.coloringPrismValue,
           })),
         skipDuplicates: true,
+      });
+
+      // 심볼 생성
+      await prisma.symbol.createMany({
+        data: symbol.map((sym) => ({
+          characterId: characterId,
+          ...sym,
+        })),
       });
     });
   }
