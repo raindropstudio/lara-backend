@@ -320,21 +320,23 @@ model CashEquipment {
 }
 
 model Symbol {
-  id                  Int       @id @default(autoincrement())
   characterId         Int
   character           Character @relation(fields: [characterId], references: [id])
-  symbolName          String
-  symbolIcon          String
-  symbolDescription   String
-  symbolForce         Int
-  symbolLevel         Int
-  symbolStr           Int
-  symbolDex           Int
-  symbolInt           Int
-  symbolLuk           Int
-  symbolHp            Int
-  symbolGrowthCount   Int
-  symbolRequireGrowth Int
+  name          String
+  force         Int
+  level         Int
+  str           Int
+  dex           Int
+  int           Int
+  luk           Int
+  hp            Int
+  dropRate      Int
+  mesoRate      Int
+  expRate       Int
+  growthCount   Int
+  requireGrowthCount Int
+
+  @@id([characterId, name])
 }
 
 model SetEffect {

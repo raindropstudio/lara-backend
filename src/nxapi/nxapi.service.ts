@@ -8,6 +8,7 @@ import { HyperStatPresetDto } from 'src/common/dto/hyper-stat.dto';
 import { ItemEquipmentPresetDto } from 'src/common/dto/item-equipment.dto';
 import { PropensityDto } from 'src/common/dto/propensity.dto';
 import { StatDto } from 'src/common/dto/stat.dto';
+import { SymbolDto } from 'src/common/dto/symbol.dto';
 import { UnionDto } from 'src/common/dto/union.dto';
 import { abilityMapper } from './mapper/ability.mapper';
 import { cashEquipmentMapper } from './mapper/cashitem-equipment.mapper';
@@ -16,10 +17,12 @@ import { hyperStatMapper } from './mapper/hyper-stat.mapper';
 import { itemEquipmentMapper } from './mapper/item-equipment.mapper';
 import { propensityMapper } from './mapper/propensity.mapper';
 import { statMapper } from './mapper/stat.mapper';
+import { symbolMapper } from './mapper/symbol.mapper';
 import { unionMapper } from './mapper/union.mapper';
 import { NxapiAbilityData } from './type/nxapi-ability.type';
 import { NxApiCashEquipment } from './type/nxapi-cash-equipment.type';
 import { NxapiItemEquipment } from './type/nxapi-item-equipment.type';
+import { NxapiSymbolData } from './type/nxapi-symbol.type';
 import { NxapiUnionRankingData } from './type/nxapi-union-ranking.type';
 import { NxapiUnion } from './type/nxapi-union.type';
 
@@ -102,9 +105,9 @@ export class NxapiService implements OnModuleInit {
     return cashEquipmentMapper(res);
   }
 
-  async fetchCharacterSymbolEquipment(ocid: string, date?: string): Promise<object> {
-    const res = await this.nxapi<any>('/character/symbol-equipment', { ocid, date });
-    return res;
+  async fetchCharacterSymbolEquipment(ocid: string, date?: string): Promise<SymbolDto[]> {
+    const res = await this.nxapi<NxapiSymbolData>('/character/symbol-equipment', { ocid, date });
+    return symbolMapper(res);
   }
 
   async fetchCharacterSetEffect(ocid: string, date?: string): Promise<object> {

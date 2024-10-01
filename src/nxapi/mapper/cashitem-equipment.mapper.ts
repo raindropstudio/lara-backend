@@ -57,7 +57,6 @@ const mapCashItemOption = (option: NxApiCashEquipmentOption[]): ItemOptionDto =>
     baseEquipmentLevel: null,
     exceptionalUpgrade: null,
   };
-  console.log(res);
   res.hash = objectHash.sha1(res);
 
   return res;
