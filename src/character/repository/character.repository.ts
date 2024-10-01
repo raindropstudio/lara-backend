@@ -61,7 +61,6 @@ export class CharacterRepository {
     const { abilityPreset, ...character } = characterData;
     return {
       ...character,
-      symbol: characterData.symbol,
       hyperStatPreset: convertHyperStatToDto(characterData.hyperStatPreset),
       ability: convertAbilityToDto(characterData.abilityPreset),
       itemEquipmentPreset: convertItemEquipmentToDto(characterData.itemEquipmentPreset),
