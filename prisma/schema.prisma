@@ -11,7 +11,7 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = env("DB_URL")
+  url      = env("DATABASE_URL")
 }
 
 model Character {
@@ -320,20 +320,20 @@ model CashEquipment {
 }
 
 model Symbol {
-  characterId         Int
-  character           Character @relation(fields: [characterId], references: [id])
-  name          String
-  force         Int
-  level         Int
-  str           Int
-  dex           Int
-  int           Int
-  luk           Int
-  hp            Int
-  dropRate      Int
-  mesoRate      Int
-  expRate       Int
-  growthCount   Int
+  characterId        Int
+  character          Character @relation(fields: [characterId], references: [id])
+  name               String
+  force              Int
+  level              Int
+  str                Int
+  dex                Int
+  int                Int
+  luk                Int
+  hp                 Int
+  dropRate           Int
+  mesoRate           Int
+  expRate            Int
+  growthCount        Int
   requireGrowthCount Int
 
   @@id([characterId, name])

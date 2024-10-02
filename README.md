@@ -22,7 +22,7 @@ $ doppler setup
 
 ```text
 NXAPI_KEY : 넥슨 OPEN API KEY
-DB_URL : MySQL URL
+DATABASE_URL : MySQL URL
 ```
 
 ```bash
