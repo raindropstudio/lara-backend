@@ -41,7 +41,7 @@ model Character {
   itemEquipmentPreset  CharacterItemEquipment[]
   cashEquipmentPreset  CharacterCashEquipment[]
   symbol               Symbol[]
-  setEffect            SetEffect[]
+  setEffect            CharacterSetEffect[]
   beauty               BeautyEquipment?
   android              AndroidEquipment[]
   pet                  PetEquipment[]
@@ -339,13 +339,22 @@ model Symbol {
   @@id([characterId, name])
 }
 
+model CharacterSetEffect {
+  characterId Int
+  character   Character @relation(fields: [characterId], references: [id])
+  setEffectId Int
+  setEffect   SetEffect @relation(fields: [setEffectId], references: [id])
+  setCount    Int
+
+  @@id([characterId, setEffectId])
+}
+
 model SetEffect {
-  id            Int       @id @default(autoincrement())
-  characterId   Int
-  character     Character @relation(fields: [characterId], references: [id])
-  setName       String
-  totalSetCount Int
-  setOption     Json
+  id                 Int                  @id @default(autoincrement())
+  setName            String
+  hash               String
+  setOptionList      Json // 세트옵션 자체가 텍스트인 관계로 모든 세트옵션을 JSON으로 저장
+  CharacterSetEffect CharacterSetEffect[]
 }
 
 model BeautyEquipment {

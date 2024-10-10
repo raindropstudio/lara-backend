@@ -7,6 +7,7 @@ import { CharacterBasicDto } from 'src/common/dto/character-basic.dto';
 import { HyperStatPresetDto } from 'src/common/dto/hyper-stat.dto';
 import { ItemEquipmentPresetDto } from 'src/common/dto/item-equipment.dto';
 import { PropensityDto } from 'src/common/dto/propensity.dto';
+import { SetEffectDto } from 'src/common/dto/set-effect.dto';
 import { StatDto } from 'src/common/dto/stat.dto';
 import { SymbolDto } from 'src/common/dto/symbol.dto';
 import { UnionDto } from 'src/common/dto/union.dto';
@@ -16,12 +17,14 @@ import { characterBasicMapper } from './mapper/character-basic.mapper';
 import { hyperStatMapper } from './mapper/hyper-stat.mapper';
 import { itemEquipmentMapper } from './mapper/item-equipment.mapper';
 import { propensityMapper } from './mapper/propensity.mapper';
+import { setEffectMapper } from './mapper/set-effect.mapper';
 import { statMapper } from './mapper/stat.mapper';
 import { symbolMapper } from './mapper/symbol.mapper';
 import { unionMapper } from './mapper/union.mapper';
 import { NxapiAbilityData } from './type/nxapi-ability.type';
 import { NxApiCashEquipment } from './type/nxapi-cash-equipment.type';
 import { NxapiItemEquipment } from './type/nxapi-item-equipment.type';
+import { NxapiSetEffect } from './type/nxapi-set-effect.type';
 import { NxapiSymbolData } from './type/nxapi-symbol.type';
 import { NxapiUnionRankingData } from './type/nxapi-union-ranking.type';
 import { NxapiUnion } from './type/nxapi-union.type';
@@ -110,9 +113,9 @@ export class NxapiService implements OnModuleInit {
     return symbolMapper(res);
   }
 
-  async fetchCharacterSetEffect(ocid: string, date?: string): Promise<object> {
-    const res = await this.nxapi<any>('/character/set-effect', { ocid, date });
-    return res;
+  async fetchCharacterSetEffect(ocid: string, date?: string): Promise<SetEffectDto[]> {
+    const res = await this.nxapi<NxapiSetEffect>('/character/set-effect', { ocid, date });
+    return setEffectMapper(res);
   }
 
   async fetchCharacterBeautyEquipment(ocid: string, date?: string): Promise<object> {

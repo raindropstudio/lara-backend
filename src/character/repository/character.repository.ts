@@ -5,6 +5,7 @@ import { convertAbilityToDto, convertAbilityToEntity } from '../converter/abilit
 import { convertCashEquipmentToDto, convertCashEquipmentToEntity } from '../converter/cash-equipment.converter';
 import { convertHyperStatToDto, convertHyperStatToEntity } from '../converter/hyper-stat.converter';
 import { convertItemEquipmentToDto, convertItemEquipmentToEntity } from '../converter/item-equipment.converter';
+import { convertSetEffectToDto } from '../converter/set-effect.converter';
 
 @Injectable()
 export class CharacterRepository {
@@ -53,6 +54,11 @@ export class CharacterRepository {
           },
         },
         symbol: true,
+        setEffect: {
+          include: {
+            setEffect: true,
+          },
+        },
         union: true,
       },
     });
@@ -65,6 +71,7 @@ export class CharacterRepository {
       ability: convertAbilityToDto(characterData.abilityPreset),
       itemEquipmentPreset: convertItemEquipmentToDto(characterData.itemEquipmentPreset),
       cashEquipmentPreset: convertCashEquipmentToDto(characterData.cashEquipmentPreset),
+      setEffect: convertSetEffectToDto(characterData.setEffect),
     };
   }
 
@@ -77,6 +84,7 @@ export class CharacterRepository {
       itemEquipmentPreset,
       cashEquipmentPreset,
       symbol,
+      setEffect,
       union,
       ...characterData
     } = character;
@@ -89,50 +97,59 @@ export class CharacterRepository {
     const cashOption = flatCashEquipment.map((eq) => eq.option).filter((opt) => opt);
 
     // 1. 트랜잭션 밖에서 필요한 ID를 고유값을 사용해 한 번에 조회
-    const [hyperStatIds, abilityIds, itemEquipmentIds, cashEquipmentIds, cashEquipOptionIds] = await Promise.all([
-      // HyperStat IDs 조회
-      this.prismaService.hyperStat.findMany({
-        where: {
-          OR: flatHyperStat.map((hs) => ({
-            statType: hs.statType,
-            statPoint: hs.statPoint,
-          })),
-        },
-        select: { id: true, statType: true, statPoint: true },
-      }),
+    const [hyperStatIds, abilityIds, itemEquipmentIds, cashEquipmentIds, cashEquipOptionIds, setEffectIds] =
+      await Promise.all([
+        // HyperStat IDs 조회
+        this.prismaService.hyperStat.findMany({
+          where: {
+            OR: flatHyperStat.map((hs) => ({
+              statType: hs.statType,
+              statPoint: hs.statPoint,
+            })),
+          },
+          select: { id: true, statType: true, statPoint: true },
+        }),
 
-      // Ability IDs 조회
-      this.prismaService.ability.findMany({
-        where: {
-          abilityValue: { in: flatAbility.map((ab) => ab.abilityValue) },
-        },
-        select: { id: true, abilityValue: true },
-      }),
+        // Ability IDs 조회
+        this.prismaService.ability.findMany({
+          where: {
+            abilityValue: { in: flatAbility.map((ab) => ab.abilityValue) },
+          },
+          select: { id: true, abilityValue: true },
+        }),
 
-      // ItemEquipment IDs 조회
-      this.prismaService.itemEquipment.findMany({
-        where: {
-          hash: { in: flatItemEquipment.map((eq) => eq.hash) },
-        },
-        select: { id: true, hash: true },
-      }),
+        // ItemEquipment IDs 조회
+        this.prismaService.itemEquipment.findMany({
+          where: {
+            hash: { in: flatItemEquipment.map((eq) => eq.hash) },
+          },
+          select: { id: true, hash: true },
+        }),
 
-      // CashEquipment IDs 조회
-      this.prismaService.cashEquipment.findMany({
-        where: {
-          icon: { in: flatCashEquipment.map((eq) => eq.icon) },
-        },
-        select: { id: true, icon: true },
-      }),
+        // CashEquipment IDs 조회
+        this.prismaService.cashEquipment.findMany({
+          where: {
+            icon: { in: flatCashEquipment.map((eq) => eq.icon) },
+          },
+          select: { id: true, icon: true },
+        }),
 
-      // CashEquipment 관련 Option IDs 조회
-      this.prismaService.itemOption.findMany({
-        where: {
-          hash: { in: cashOption.map((opt) => opt.hash) },
-        },
-        select: { id: true, hash: true },
-      }),
-    ]);
+        // CashEquipment 관련 Option IDs 조회
+        this.prismaService.itemOption.findMany({
+          where: {
+            hash: { in: cashOption.map((opt) => opt.hash) },
+          },
+          select: { id: true, hash: true },
+        }),
+
+        // 세트효과
+        this.prismaService.setEffect.findMany({
+          where: {
+            setName: { in: setEffect.map((setEff) => setEff.setName) },
+          },
+          select: { id: true, setName: true },
+        }),
+      ]);
 
     // 2. ID들을 조회한 결과에 따라 매핑하여 삽입할 데이터 준비
     const hyperStatMap = new Map(hyperStatIds.map((hs) => [`${hs.statType}_${hs.statPoint}`, hs.id]));
@@ -140,6 +157,7 @@ export class CharacterRepository {
     const itemEquipmentMap = new Map(itemEquipmentIds.map((eq) => [eq.hash, eq.id]));
     const cashEquipmentMap = new Map(cashEquipmentIds.map((eq) => [eq.icon, eq.id]));
     const cashEquipOptionMap = new Map(cashEquipOptionIds.map((opt) => [opt.hash, opt.id]));
+    const setEffectMap = new Map(setEffectIds.map((setEff) => [setEff.setName, setEff.id]));
 
     // 3. 트랜잭션 내에서 Character와 연결된 항목들을 처리
     await this.prismaService.$transaction(async (prisma) => {
@@ -185,6 +203,9 @@ export class CharacterRepository {
         where: { characterId },
       });
       await prisma.symbol.deleteMany({
+        where: { characterId },
+      });
+      await prisma.characterSetEffect.deleteMany({
         where: { characterId },
       });
 
@@ -253,6 +274,15 @@ export class CharacterRepository {
         data: symbol.map((sym) => ({
           characterId: characterId,
           ...sym,
+        })),
+      });
+
+      // 세트효과 생성
+      await prisma.characterSetEffect.createMany({
+        data: setEffect.map((setEff) => ({
+          characterId: characterId,
+          setEffectId: setEffectMap.get(setEff.setName),
+          setCount: setEff.setCount,
         })),
       });
     });

@@ -5,9 +5,10 @@ import { CharacterBasicDto } from './character-basic.dto';
 import { HyperStatPresetDto } from './hyper-stat.dto';
 import { ItemEquipmentPresetDto } from './item-equipment.dto';
 import { PropensityDto } from './propensity.dto';
+import { SetEffectDto } from './set-effect.dto';
 import { StatDto } from './stat.dto';
-import { UnionDto } from './union.dto';
 import { SymbolDto } from './symbol.dto';
+import { UnionDto } from './union.dto';
 
 export class CharacterDto extends CharacterBasicDto {
   @Expose()
@@ -37,6 +38,10 @@ export class CharacterDto extends CharacterBasicDto {
   @Expose()
   @Type(() => UnionDto)
   union: UnionDto;
+
+  @Expose()
+  @Type(() => SetEffectDto)
+  setEffect: SetEffectDto[];
 
   @Expose()
   @Type(() => SymbolDto)

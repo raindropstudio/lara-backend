@@ -8,6 +8,7 @@ import { CharacterRepository } from './repository/character.repository';
 import { HyperStatRepository } from './repository/hyper-stat.repository';
 import { ItemEquipmentRepository } from './repository/item-equipment.repository';
 import { ItemOptionRepository } from './repository/item-option.repository';
+import { SetEffectRepository } from './repository/set-effect.repository';
 
 @Module({
   imports: [NxapiModule],
@@ -20,6 +21,7 @@ import { ItemOptionRepository } from './repository/item-option.repository';
     ItemOptionRepository,
     ItemEquipmentRepository,
     CashEquipmentRepository,
+    SetEffectRepository,
   ],
   exports: [CharacterService],
 })

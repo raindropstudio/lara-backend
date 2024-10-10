@@ -6,6 +6,7 @@ import { CharacterDto } from 'src/common/dto/character.dto';
 import { HyperStatPresetDto } from 'src/common/dto/hyper-stat.dto';
 import { ItemEquipmentPresetDto } from 'src/common/dto/item-equipment.dto';
 import { PropensityDto } from 'src/common/dto/propensity.dto';
+import { SetEffectDto } from 'src/common/dto/set-effect.dto';
 import { StatDto } from 'src/common/dto/stat.dto';
 import { SymbolDto } from 'src/common/dto/symbol.dto';
 import { UnionDto } from 'src/common/dto/union.dto';
@@ -18,6 +19,7 @@ import { CharacterRepository } from './repository/character.repository';
 import { HyperStatRepository } from './repository/hyper-stat.repository';
 import { ItemEquipmentRepository } from './repository/item-equipment.repository';
 import { ItemOptionRepository } from './repository/item-option.repository';
+import { SetEffectRepository } from './repository/set-effect.repository';
 
 @Injectable()
 export class CharacterService {
@@ -29,6 +31,7 @@ export class CharacterService {
     private readonly itemOptionRepository: ItemOptionRepository,
     private readonly itemEquipmentRepository: ItemEquipmentRepository,
     private readonly cashEquipmentRepository: CashEquipmentRepository,
+    private readonly setEffectRepository: SetEffectRepository,
   ) {}
   private readonly logger = new Logger(CharacterService.name);
 
@@ -46,6 +49,7 @@ export class CharacterService {
         itemEquipmentPreset,
         cashEquipmentPreset,
         symbol,
+        setEffect,
         union,
       ] = await Promise.all([
         this.fetchCharacterBasic(ocid),
@@ -56,6 +60,7 @@ export class CharacterService {
         this.getCharacterItemEquipment(ocid),
         this.getCharacterCashitemEquipment(ocid),
         this.fetchCharacterSymbol(ocid),
+        this.getCharacterSetEffect(ocid),
         this.fetchUnion(ocid),
       ]);
 
@@ -69,6 +74,7 @@ export class CharacterService {
         itemEquipmentPreset,
         cashEquipmentPreset,
         symbol,
+        setEffect,
         union,
       };
 
@@ -135,6 +141,14 @@ export class CharacterService {
 
   async fetchCharacterSymbol(ocid: string, date?: string): Promise<SymbolDto[]> {
     return await this.nxapiService.fetchCharacterSymbolEquipment(ocid, date);
+  }
+
+  async getCharacterSetEffect(ocid: string, date?: string): Promise<SetEffectDto[]> {
+    const characterSetEffect = await this.nxapiService.fetchCharacterSetEffect(ocid, date);
+
+    await this.setEffectRepository.createOrIgnoreSetEffect(characterSetEffect);
+
+    return characterSetEffect;
   }
 
   async fetchUnion(ocid: string, date?: string): Promise<UnionDto> {
