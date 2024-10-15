@@ -25,6 +25,7 @@ COPY --from=builder /app/prisma ./prisma
 
 EXPOSE 3000
 
+ARG DATABASE_URL
 ENV DATABASE_URL=$DATABASE_URL
 
 RUN npm run db:deploy
