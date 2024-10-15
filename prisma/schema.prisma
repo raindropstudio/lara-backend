@@ -42,13 +42,6 @@ model Character {
   cashEquipmentPreset  CharacterCashEquipment[]
   symbol               Symbol[]
   setEffect            CharacterSetEffect[]
-  beauty               BeautyEquipment?
-  android              AndroidEquipment[]
-  pet                  PetEquipment[]
-  skill                Skill[]
-  linkSkill            LinkSkill[]
-  vMatrix              VMatrix[]
-  hexaMatrix           HexaMatrix[]
   union                Union?                   @relation(fields: [unionId], references: [id])
   unionId              Int?                     @unique
 }
@@ -355,103 +348,6 @@ model SetEffect {
   hash               String
   setOptionList      Json // 세트옵션 자체가 텍스트인 관계로 모든 세트옵션을 JSON으로 저장
   CharacterSetEffect CharacterSetEffect[]
-}
-
-model BeautyEquipment {
-  id            Int       @id @default(autoincrement())
-  characterId   Int       @unique
-  character     Character @relation(fields: [characterId], references: [id])
-  hairName      String
-  baseColor     String
-  mixColor      String
-  mixRate       Int
-  faceName      String
-  faceBaseColor String
-  faceMixColor  String
-  faceMixRate   Int
-  skinName      String
-}
-
-model AndroidEquipment {
-  id                       Int       @id @default(autoincrement())
-  characterId              Int
-  character                Character @relation(fields: [characterId], references: [id])
-  androidName              String
-  androidNickname          String
-  androidIcon              String
-  androidDescription       String
-  androidHair              Json?
-  androidFace              Json?
-  androidSkinName          String?
-  androidCashItemEquipment Json
-  androidEarSensorClipFlag String
-  androidGender            String
-  androidGrade             Int
-  androidNonHumanoidFlag   String
-  androidShopUsableFlag    String
-}
-
-model PetEquipment {
-  id                Int       @id @default(autoincrement())
-  characterId       Int
-  character         Character @relation(fields: [characterId], references: [id])
-  petName           String
-  petNickname       String
-  petIcon           String
-  petDescription    String
-  petEquipment      Json
-  petAutoSkill      Json
-  petType           String?
-  petSkill          Json
-  petDateExpire     DateTime
-  petAppearance     String
-  petAppearanceIcon String
-}
-
-model Skill {
-  id               Int       @id @default(autoincrement())
-  characterId      Int
-  character        Character @relation(fields: [characterId], references: [id])
-  skillName        String
-  skillDescription String
-  skillLevel       Int
-  skillEffect      String?
-  skillIcon        String
-}
-
-model LinkSkill {
-  id               Int       @id @default(autoincrement())
-  characterId      Int
-  character        Character @relation(fields: [characterId], references: [id])
-  skillName        String
-  skillDescription String
-  skillLevel       Int
-  skillEffect      String
-  skillIcon        String
-}
-
-model VMatrix {
-  id          Int       @id @default(autoincrement())
-  characterId Int
-  character   Character @relation(fields: [characterId], references: [id])
-  slotId      Int
-  slotLevel   Int
-  vCoreName   String
-  vCoreType   String
-  vCoreLevel  Int
-  vCoreSkill1 String
-  vCoreSkill2 String
-  vCoreSkill3 String
-}
-
-model HexaMatrix {
-  id            Int       @id @default(autoincrement())
-  characterId   Int
-  character     Character @relation(fields: [characterId], references: [id])
-  hexaCoreName  String
-  hexaCoreLevel Int
-  hexaCoreType  String
-  linkedSkill   Json
 }
 
 model Union {
