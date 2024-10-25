@@ -5,6 +5,7 @@ import { convertAbilityToDto, convertAbilityToEntity } from '../converter/abilit
 import { convertCashEquipmentToDto, convertCashEquipmentToEntity } from '../converter/cash-equipment.converter';
 import { convertHyperStatToDto, convertHyperStatToEntity } from '../converter/hyper-stat.converter';
 import { convertItemEquipmentToDto, convertItemEquipmentToEntity } from '../converter/item-equipment.converter';
+import { convertPetEquipmentToDto, convertPetEquipmentToEntity } from '../converter/pet-equipment.converter';
 import { convertSetEffectToDto } from '../converter/set-effect.converter';
 
 @Injectable()
@@ -59,6 +60,7 @@ export class CharacterRepository {
             setEffect: true,
           },
         },
+        PetEquipment: true,
         union: true,
       },
     });
@@ -72,6 +74,7 @@ export class CharacterRepository {
       itemEquipmentPreset: convertItemEquipmentToDto(characterData.itemEquipmentPreset),
       cashEquipmentPreset: convertCashEquipmentToDto(characterData.cashEquipmentPreset),
       setEffect: convertSetEffectToDto(characterData.setEffect),
+      petEquipment: convertPetEquipmentToDto(characterData.PetEquipment),
     };
   }
 
@@ -85,6 +88,7 @@ export class CharacterRepository {
       cashEquipmentPreset,
       symbol,
       setEffect,
+      petEquipment,
       union,
       ...characterData
     } = character;
@@ -149,6 +153,14 @@ export class CharacterRepository {
           },
           select: { id: true, setName: true },
         }),
+
+        // PetEquipment IDs 조회
+        this.prismaService.petEquipment.findMany({
+          where: {
+            petNo: { in: petEquipment.map((pet) => pet.petNo) },
+          },
+          select: { id: true, petNo: true },
+        }),
       ]);
 
     // 2. ID들을 조회한 결과에 따라 매핑하여 삽입할 데이터 준비
@@ -172,24 +184,25 @@ export class CharacterRepository {
           stat: statId ? { update: stat } : { create: stat },
           propensity: propensityId ? { update: propensity } : { create: propensity },
           union: unionId ? { update: union } : { create: union },
+          PetEquipment: {
+            deleteMany: {},
+            create: petEquipment.map(convertPetEquipmentToEntity),
+          },
         },
         create: {
           ...characterBasic,
-          stat: {
-            create: stat,
-          },
-          propensity: {
-            create: propensity,
-          },
-          union: {
-            create: union,
+          stat: { create: stat },
+          propensity: { create: propensity },
+          union: { create: union },
+          PetEquipment: {
+            create: petEquipment.map(convertPetEquipmentToEntity),
           },
         },
       });
 
       const characterId = upsertedCharacter.id;
 
-      // 기존 연결된 하이퍼스탯, 어빌리티, 장비 삭제
+      // 기존 연결된 하이퍼스탯, 어빌리티, 장비, 펫장비 삭제
       await prisma.characterHyperStat.deleteMany({
         where: { characterId },
       });
@@ -225,7 +238,7 @@ export class CharacterRepository {
       // 어빌리티 연결
       await prisma.characterAbility.createMany({
         data: flatAbility
-          .filter((ab) => abilityMap.has(ab.abilityValue)) // 존재하는 ID만 사용
+          .filter((ab) => abilityMap.has(ab.abilityValue))
           .map((ab) => ({
             characterId: characterId,
             abilityId: abilityMap.get(ab.abilityValue),
@@ -239,7 +252,7 @@ export class CharacterRepository {
       // 장비 연결
       await prisma.characterItemEquipment.createMany({
         data: flatItemEquipment
-          .filter((eq) => itemEquipmentMap.has(eq.hash)) // 존재하는 ID만 사용
+          .filter((eq) => itemEquipmentMap.has(eq.hash))
           .map((eq) => ({
             characterId: characterId,
             itemEquipmentId: itemEquipmentMap.get(eq.hash),
@@ -252,7 +265,7 @@ export class CharacterRepository {
       // 캐시장비 연결
       await prisma.characterCashEquipment.createMany({
         data: flatCashEquipment
-          .filter((eq) => cashEquipmentMap.has(eq.icon)) // 존재하는 ID만 사용
+          .filter((eq) => cashEquipmentMap.has(eq.icon))
           .map((eq) => ({
             characterId: characterId,
             cashEquipmentId: cashEquipmentMap.get(eq.icon),

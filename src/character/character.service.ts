@@ -5,6 +5,7 @@ import { CharacterBasicDto } from 'src/common/dto/character-basic.dto';
 import { CharacterDto } from 'src/common/dto/character.dto';
 import { HyperStatPresetDto } from 'src/common/dto/hyper-stat.dto';
 import { ItemEquipmentPresetDto } from 'src/common/dto/item-equipment.dto';
+import { PetEquipmentDataDto } from 'src/common/dto/pet-equipment.dto';
 import { PropensityDto } from 'src/common/dto/propensity.dto';
 import { SetEffectDto } from 'src/common/dto/set-effect.dto';
 import { StatDto } from 'src/common/dto/stat.dto';
@@ -50,6 +51,7 @@ export class CharacterService {
         cashEquipmentPreset,
         symbol,
         setEffect,
+        petEquipment,
         union,
       ] = await Promise.all([
         this.fetchCharacterBasic(ocid),
@@ -61,6 +63,7 @@ export class CharacterService {
         this.getCharacterCashitemEquipment(ocid),
         this.fetchCharacterSymbol(ocid),
         this.getCharacterSetEffect(ocid),
+        this.getCharacterPetEquipment(ocid),
         this.fetchUnion(ocid),
       ]);
 
@@ -75,6 +78,7 @@ export class CharacterService {
         cashEquipmentPreset,
         symbol,
         setEffect,
+        petEquipment,
         union,
       };
 
@@ -149,6 +153,12 @@ export class CharacterService {
     await this.setEffectRepository.createOrIgnoreSetEffect(characterSetEffect);
 
     return characterSetEffect;
+  }
+
+  async getCharacterPetEquipment(ocid: string, date?: string): Promise<PetEquipmentDataDto[]> {
+    const characterPetEquipment = await this.nxapiService.fetchCharacterPetEquipment(ocid, date);
+
+    return characterPetEquipment;
   }
 
   async fetchUnion(ocid: string, date?: string): Promise<UnionDto> {

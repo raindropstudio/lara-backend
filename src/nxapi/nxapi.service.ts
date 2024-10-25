@@ -6,6 +6,7 @@ import { CashEquipmentPresetDto } from 'src/common/dto/cash-equipment.dto';
 import { CharacterBasicDto } from 'src/common/dto/character-basic.dto';
 import { HyperStatPresetDto } from 'src/common/dto/hyper-stat.dto';
 import { ItemEquipmentPresetDto } from 'src/common/dto/item-equipment.dto';
+import { PetEquipmentDataDto } from 'src/common/dto/pet-equipment.dto';
 import { PropensityDto } from 'src/common/dto/propensity.dto';
 import { SetEffectDto } from 'src/common/dto/set-effect.dto';
 import { StatDto } from 'src/common/dto/stat.dto';
@@ -16,6 +17,7 @@ import { cashEquipmentMapper } from './mapper/cashitem-equipment.mapper';
 import { characterBasicMapper } from './mapper/character-basic.mapper';
 import { hyperStatMapper } from './mapper/hyper-stat.mapper';
 import { itemEquipmentMapper } from './mapper/item-equipment.mapper';
+import { petEquipmentMapper } from './mapper/pet-equipment.mapper';
 import { propensityMapper } from './mapper/propensity.mapper';
 import { setEffectMapper } from './mapper/set-effect.mapper';
 import { statMapper } from './mapper/stat.mapper';
@@ -131,9 +133,9 @@ export class NxapiService implements OnModuleInit {
     return res;
   }
 
-  async fetchCharacterPetEquipment(ocid: string, date?: string): Promise<object> {
+  async fetchCharacterPetEquipment(ocid: string, date?: string): Promise<PetEquipmentDataDto[]> {
     const res = await this.nxapi<any>('/character/pet-equipment', { ocid, date });
-    return res;
+    return petEquipmentMapper(res);
   }
 
   async fetchCharacterSkill(ocid: string, skillGrade: SkillGrade, date?: string): Promise<object> {
