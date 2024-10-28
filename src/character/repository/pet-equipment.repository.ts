@@ -12,7 +12,7 @@ export class PetEquipmentRepository {
     });
 
     await this.prismaService.petEquipment.createMany({
-      data: petEquipmentData.map(pet => ({
+      data: petEquipmentData.map((pet) => ({
         characterId,
         petNo: pet.petNo,
         petName: pet.petInfo.petName,

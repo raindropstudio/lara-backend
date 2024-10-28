@@ -26,6 +26,7 @@ import { unionMapper } from './mapper/union.mapper';
 import { NxapiAbilityData } from './type/nxapi-ability.type';
 import { NxApiCashEquipment } from './type/nxapi-cash-equipment.type';
 import { NxapiItemEquipment } from './type/nxapi-item-equipment.type';
+import { NxapiPetEquipmentData } from './type/nxapi-pet-equipment.type';
 import { NxapiSetEffect } from './type/nxapi-set-effect.type';
 import { NxapiSymbolData } from './type/nxapi-symbol.type';
 import { NxapiUnionRankingData } from './type/nxapi-union-ranking.type';
@@ -134,7 +135,7 @@ export class NxapiService implements OnModuleInit {
   }
 
   async fetchCharacterPetEquipment(ocid: string, date?: string): Promise<PetEquipmentDataDto[]> {
-    const res = await this.nxapi<any>('/character/pet-equipment', { ocid, date });
+    const res = await this.nxapi<NxapiPetEquipmentData>('/character/pet-equipment', { ocid, date });
     return petEquipmentMapper(res);
   }
 
