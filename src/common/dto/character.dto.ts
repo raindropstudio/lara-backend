@@ -4,6 +4,7 @@ import { CashEquipmentPresetDto } from './cash-equipment.dto';
 import { CharacterBasicDto } from './character-basic.dto';
 import { HyperStatPresetDto } from './hyper-stat.dto';
 import { ItemEquipmentPresetDto } from './item-equipment.dto';
+import { PetEquipmentDataDto } from './pet-equipment.dto';
 import { PropensityDto } from './propensity.dto';
 import { SetEffectDto } from './set-effect.dto';
 import { StatDto } from './stat.dto';
@@ -42,6 +43,10 @@ export class CharacterDto extends CharacterBasicDto {
   @Expose()
   @Type(() => SetEffectDto)
   setEffect: SetEffectDto[];
+
+  @Expose()
+  @Type(() => PetEquipmentDataDto)
+  petEquipment: PetEquipmentDataDto[];
 
   @Expose()
   @Type(() => SymbolDto)

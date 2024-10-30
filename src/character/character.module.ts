@@ -8,6 +8,7 @@ import { CharacterRepository } from './repository/character.repository';
 import { HyperStatRepository } from './repository/hyper-stat.repository';
 import { ItemEquipmentRepository } from './repository/item-equipment.repository';
 import { ItemOptionRepository } from './repository/item-option.repository';
+import { PetEquipmentRepository } from './repository/pet-equipment.repository';
 import { SetEffectRepository } from './repository/set-effect.repository';
 
 @Module({
@@ -22,6 +23,7 @@ import { SetEffectRepository } from './repository/set-effect.repository';
     ItemEquipmentRepository,
     CashEquipmentRepository,
     SetEffectRepository,
+    PetEquipmentRepository,
   ],
   exports: [CharacterService],
 })

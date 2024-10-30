@@ -42,6 +42,7 @@ model Character {
   cashEquipmentPreset  CharacterCashEquipment[]
   symbol               Symbol[]
   setEffect            CharacterSetEffect[]
+  PetEquipment         PetEquipment[]
   union                Union?                   @relation(fields: [unionId], references: [id])
   unionId              Int?                     @unique
 }
@@ -348,6 +349,35 @@ model SetEffect {
   hash               String
   setOptionList      Json // 세트옵션 자체가 텍스트인 관계로 모든 세트옵션을 JSON으로 저장
   CharacterSetEffect CharacterSetEffect[]
+}
+
+model PetEquipment {
+  id                Int       @id @default(autoincrement())
+  characterId       Int
+  character         Character @relation(fields: [characterId], references: [id])
+  petName           String
+  petNickname       String
+  petIcon           String
+  petDescription    String
+  itemName          String?
+  itemIcon          String?
+  itemDescription   String?
+  attackPower       Int?
+  magicPower        Int?
+  scrollUpgrade     Int?
+  scrollUpgradable  Int?
+  itemShape         String?
+  itemShapeIcon     String?
+  autoSkill1        String?
+  autoSkill1Icon    String?
+  autoSkill2        String?
+  autoSkill2Icon    String?
+  petSkills         Json?
+  petType           String?
+  petDateExpire     DateTime?
+  petAppearance     String?
+  petAppearanceIcon String?
+  petNo             Int
 }
 
 model Union {
