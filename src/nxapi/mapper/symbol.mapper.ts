@@ -11,9 +11,9 @@ const symbolInfoMapper = (symbolData: NxapiSymbolInfo): SymbolDto => {
     int: parseInt(symbolData.symbol_int),
     luk: parseInt(symbolData.symbol_luk),
     hp: parseInt(symbolData.symbol_hp),
-    dropRate: parseInt(symbolData.symbol_drop_rate),
-    mesoRate: parseInt(symbolData.symbol_meso_rate),
-    expRate: parseInt(symbolData.symbol_exp_rate),
+    dropRate: symbolData.symbol_drop_rate ? parseInt(symbolData.symbol_drop_rate) : 0,
+    mesoRate: symbolData.symbol_meso_rate ? parseInt(symbolData.symbol_meso_rate) : 0,
+    expRate: symbolData.symbol_exp_rate ? parseInt(symbolData.symbol_exp_rate) : 0,
     growthCount: symbolData.symbol_growth_count,
     requireGrowthCount: symbolData.symbol_require_growth_count,
   };
