@@ -45,6 +45,7 @@ model Character {
   PetEquipment         PetEquipment[]
   union                Union?                   @relation(fields: [unionId], references: [id])
   unionId              Int?                     @unique
+  hexaCores            CharacterHexaCore[]
 }
 
 model Stat {
@@ -387,4 +388,61 @@ model Union {
   unionArtifactLevel Int
   unionArtifactExp   Int
   unionArtifactPoint Int
+}
+
+enum HexaCoreType {
+  MASTERY_CORE     @map("마스터리 코어")
+  SKILL_CORE       @map("스킬 코어")
+  ENHANCEMENT_CORE @map("강화 코어")
+  COMMON_CORE      @map("공용 코어")
+}
+
+// 헥사 코어 마스터 테이블
+model HexaCore {
+  id              Int                 @id @default(autoincrement())
+  characterClass  String
+  coreName        String
+  coreType        HexaCoreType
+  description     String?             @db.Text
+  descriptionHash String?
+  skills          HexaCoreSkill[]
+  characters      CharacterHexaCore[]
+
+  @@unique([characterClass, coreName])
+}
+
+// 코어에 연결된 스킬 정보
+model HexaCoreSkill {
+  id           Int                   @id @default(autoincrement())
+  hexaCoreId   Int
+  skillName    String
+  skillIcon    String?
+  iconHash     String?
+  core         HexaCore              @relation(fields: [hexaCoreId], references: [id])
+  levelEffects HexaCoreSkillEffect[]
+
+  @@unique([hexaCoreId, skillName])
+}
+
+// 스킬 레벨별 효과
+model HexaCoreSkillEffect {
+  id              Int           @id @default(autoincrement())
+  hexaCoreSkillId Int
+  level           Int
+  effect          String        @db.Text
+  hash            String
+  skill           HexaCoreSkill @relation(fields: [hexaCoreSkillId], references: [id])
+
+  @@unique([hexaCoreSkillId, level])
+}
+
+// 캐릭터가 장착한 코어 정보
+model CharacterHexaCore {
+  characterId Int
+  character   Character @relation(fields: [characterId], references: [id])
+  hexaCoreId  Int
+  coreLevel   Int
+  core        HexaCore  @relation(fields: [hexaCoreId], references: [id])
+
+  @@id([characterId, hexaCoreId])
 }

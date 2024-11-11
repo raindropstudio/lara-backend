@@ -3,6 +3,7 @@ import { CharacterDto } from 'src/common/dto/character.dto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { convertAbilityToDto, convertAbilityToEntity } from '../converter/ability.converter';
 import { convertCashEquipmentToDto, convertCashEquipmentToEntity } from '../converter/cash-equipment.converter';
+import { convertHexaMatrixToDto } from '../converter/hexa-matrix.converter';
 import { convertHyperStatToDto, convertHyperStatToEntity } from '../converter/hyper-stat.converter';
 import { convertItemEquipmentToDto, convertItemEquipmentToEntity } from '../converter/item-equipment.converter';
 import { convertPetEquipmentToDto, convertPetEquipmentToEntity } from '../converter/pet-equipment.converter';
@@ -61,6 +62,19 @@ export class CharacterRepository {
           },
         },
         PetEquipment: true,
+        hexaCores: {
+          include: {
+            core: {
+              include: {
+                skills: {
+                  include: {
+                    levelEffects: true,
+                  },
+                },
+              },
+            },
+          },
+        },
         union: true,
       },
     });
@@ -75,6 +89,7 @@ export class CharacterRepository {
       cashEquipmentPreset: convertCashEquipmentToDto(characterData.cashEquipmentPreset),
       setEffect: convertSetEffectToDto(characterData.setEffect),
       petEquipment: convertPetEquipmentToDto(characterData.PetEquipment),
+      hexaMatrix: convertHexaMatrixToDto(characterData.hexaCores),
     };
   }
 
@@ -90,6 +105,7 @@ export class CharacterRepository {
       setEffect,
       petEquipment,
       union,
+      hexaMatrix,
       ...characterData
     } = character;
 
@@ -100,68 +116,86 @@ export class CharacterRepository {
     const flatCashEquipment = convertCashEquipmentToEntity(cashEquipmentPreset);
     const cashOption = flatCashEquipment.map((eq) => eq.option).filter((opt) => opt);
 
-    // 1. 트랜잭션 밖에서 필요한 ID를 고유값을 사용해 한 번에 조회
-    const [hyperStatIds, abilityIds, itemEquipmentIds, cashEquipmentIds, cashEquipOptionIds, setEffectIds] =
-      await Promise.all([
-        // HyperStat IDs 조회
-        this.prismaService.hyperStat.findMany({
-          where: {
-            OR: flatHyperStat.map((hs) => ({
-              statType: hs.statType,
-              statPoint: hs.statPoint,
-            })),
-          },
-          select: { id: true, statType: true, statPoint: true },
-        }),
+    // 1. 트랜잭션 밖서 필요한 ID를 고유값을 사용해 한 번에 조회
+    const [
+      hyperStatIds,
+      abilityIds,
+      itemEquipmentIds,
+      cashEquipmentIds,
+      cashEquipOptionIds,
+      setEffectIds,
+      hexaCoreIds,
+    ] = await Promise.all([
+      // HyperStat IDs 조회
+      this.prismaService.hyperStat.findMany({
+        where: {
+          OR: flatHyperStat.map((hs) => ({
+            statType: hs.statType,
+            statPoint: hs.statPoint,
+          })),
+        },
+        select: { id: true, statType: true, statPoint: true },
+      }),
 
-        // Ability IDs 조회
-        this.prismaService.ability.findMany({
-          where: {
-            abilityValue: { in: flatAbility.map((ab) => ab.abilityValue) },
-          },
-          select: { id: true, abilityValue: true },
-        }),
+      // Ability IDs 조회
+      this.prismaService.ability.findMany({
+        where: {
+          abilityValue: { in: flatAbility.map((ab) => ab.abilityValue) },
+        },
+        select: { id: true, abilityValue: true },
+      }),
 
-        // ItemEquipment IDs 조회
-        this.prismaService.itemEquipment.findMany({
-          where: {
-            hash: { in: flatItemEquipment.map((eq) => eq.hash) },
-          },
-          select: { id: true, hash: true },
-        }),
+      // ItemEquipment IDs 조회
+      this.prismaService.itemEquipment.findMany({
+        where: {
+          hash: { in: flatItemEquipment.map((eq) => eq.hash) },
+        },
+        select: { id: true, hash: true },
+      }),
 
-        // CashEquipment IDs 조회
-        this.prismaService.cashEquipment.findMany({
-          where: {
-            icon: { in: flatCashEquipment.map((eq) => eq.icon) },
-          },
-          select: { id: true, icon: true },
-        }),
+      // CashEquipment IDs 조회
+      this.prismaService.cashEquipment.findMany({
+        where: {
+          icon: { in: flatCashEquipment.map((eq) => eq.icon) },
+        },
+        select: { id: true, icon: true },
+      }),
 
-        // CashEquipment 관련 Option IDs 조회
-        this.prismaService.itemOption.findMany({
-          where: {
-            hash: { in: cashOption.map((opt) => opt.hash) },
-          },
-          select: { id: true, hash: true },
-        }),
+      // CashEquipment 관련 Option IDs 조회
+      this.prismaService.itemOption.findMany({
+        where: {
+          hash: { in: cashOption.map((opt) => opt.hash) },
+        },
+        select: { id: true, hash: true },
+      }),
 
-        // 세트효과
-        this.prismaService.setEffect.findMany({
-          where: {
-            setName: { in: setEffect.map((setEff) => setEff.setName) },
-          },
-          select: { id: true, setName: true },
-        }),
+      // 세트효과
+      this.prismaService.setEffect.findMany({
+        where: {
+          setName: { in: setEffect.map((setEff) => setEff.setName) },
+        },
+        select: { id: true, setName: true },
+      }),
 
-        // PetEquipment IDs 조회
-        this.prismaService.petEquipment.findMany({
-          where: {
-            petNo: { in: petEquipment.map((pet) => pet.petNo) },
-          },
-          select: { id: true, petNo: true },
-        }),
-      ]);
+      // HexaCore IDs 조회
+      this.prismaService.hexaCore.findMany({
+        where: {
+          OR:
+            hexaMatrix?.cores?.map((core) => ({
+              characterClass: hexaMatrix.characterClass,
+              coreName: core.coreName,
+            })) ?? [],
+        },
+        select: {
+          id: true,
+          characterClass: true,
+          coreName: true,
+        },
+      }),
+    ]);
+
+    // Map 생성
+    const hexaCoreMap = new Map(hexaCoreIds.map((core) => [`${core.characterClass}_${core.coreName}`, core.id]));
 
     // 2. ID들을 조회한 결과에 따라 매핑하여 삽입할 데이터 준비
     const hyperStatMap = new Map(hyperStatIds.map((hs) => [`${hs.statType}_${hs.statPoint}`, hs.id]));
@@ -188,6 +222,14 @@ export class CharacterRepository {
             deleteMany: {},
             create: petEquipment.map(convertPetEquipmentToEntity),
           },
+          hexaCores: {
+            deleteMany: {},
+            create:
+              hexaMatrix?.cores?.map((core) => ({
+                hexaCoreId: hexaCoreMap.get(`${hexaMatrix.characterClass}_${core.coreName}`),
+                coreLevel: core.coreLevel,
+              })) ?? [],
+          },
         },
         create: {
           ...characterBasic,
@@ -196,6 +238,13 @@ export class CharacterRepository {
           union: { create: union },
           PetEquipment: {
             create: petEquipment.map(convertPetEquipmentToEntity),
+          },
+          hexaCores: {
+            create:
+              hexaMatrix?.cores?.map((core) => ({
+                hexaCoreId: hexaCoreMap.get(`${hexaMatrix.characterClass}_${core.coreName}`),
+                coreLevel: core.coreLevel,
+              })) ?? [],
           },
         },
       });
@@ -219,6 +268,9 @@ export class CharacterRepository {
         where: { characterId },
       });
       await prisma.characterSetEffect.deleteMany({
+        where: { characterId },
+      });
+      await prisma.characterHexaCore.deleteMany({
         where: { characterId },
       });
 
@@ -297,6 +349,17 @@ export class CharacterRepository {
           setEffectId: setEffectMap.get(setEff.setName),
           setCount: setEff.setCount,
         })),
+      });
+
+      // HexaCore 연결 추가
+      await prisma.characterHexaCore.createMany({
+        data:
+          hexaMatrix?.cores?.map((core) => ({
+            characterId: characterId,
+            hexaCoreId: hexaCoreMap.get(`${hexaMatrix.characterClass}_${core.coreName}`),
+            coreLevel: core.coreLevel,
+          })) ?? [],
+        skipDuplicates: true,
       });
     });
   }

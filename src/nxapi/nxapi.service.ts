@@ -4,6 +4,7 @@ import axiosRetry from 'axios-retry';
 import { AbilityDto } from 'src/common/dto/ability.dto';
 import { CashEquipmentPresetDto } from 'src/common/dto/cash-equipment.dto';
 import { CharacterBasicDto } from 'src/common/dto/character-basic.dto';
+import { HexaMatrixDto } from 'src/common/dto/hexa-matrix.dto';
 import { HyperStatPresetDto } from 'src/common/dto/hyper-stat.dto';
 import { ItemEquipmentPresetDto } from 'src/common/dto/item-equipment.dto';
 import { PetEquipmentDataDto } from 'src/common/dto/pet-equipment.dto';
@@ -15,6 +16,7 @@ import { UnionDto } from 'src/common/dto/union.dto';
 import { abilityMapper } from './mapper/ability.mapper';
 import { cashEquipmentMapper } from './mapper/cashitem-equipment.mapper';
 import { characterBasicMapper } from './mapper/character-basic.mapper';
+import { hexaCoreMapper } from './mapper/hexa-matrix.mapper';
 import { hyperStatMapper } from './mapper/hyper-stat.mapper';
 import { itemEquipmentMapper } from './mapper/item-equipment.mapper';
 import { petEquipmentMapper } from './mapper/pet-equipment.mapper';
@@ -25,6 +27,7 @@ import { symbolMapper } from './mapper/symbol.mapper';
 import { unionMapper } from './mapper/union.mapper';
 import { NxapiAbilityData } from './type/nxapi-ability.type';
 import { NxApiCashEquipment } from './type/nxapi-cash-equipment.type';
+import { NxapiHexaMatrixData, NxapiSkillGrade6Data } from './type/nxapi-hexa-matrix.type';
 import { NxapiItemEquipment } from './type/nxapi-item-equipment.type';
 import { NxapiPetEquipmentData } from './type/nxapi-pet-equipment.type';
 import { NxapiSetEffect } from './type/nxapi-set-effect.type';
@@ -158,13 +161,22 @@ export class NxapiService implements OnModuleInit {
     return res;
   }
 
-  async fetchCharacterHexamatrix(ocid: string, date?: string): Promise<object> {
-    const res = await this.nxapi<any>('/character/hexamatrix', { ocid, date });
+  async fetchCharacterHexamatrix(ocid: string, date?: string): Promise<NxapiHexaMatrixData> {
+    const res = await this.nxapi<NxapiHexaMatrixData>('/character/hexamatrix', { ocid, date });
     return res;
   }
 
   async fetchCharacterHexamatrixStat(ocid: string, date?: string): Promise<object> {
     const res = await this.nxapi<any>('/character/hexamatrix-stat', { ocid, date });
+    return res;
+  }
+
+  async fetchCharacterSkillGrade6(ocid: string, date?: string): Promise<NxapiSkillGrade6Data> {
+    const res = await this.nxapi<NxapiSkillGrade6Data>('/character/skill', {
+      ocid,
+      date,
+      character_skill_grade: '6',
+    });
     return res;
   }
 
@@ -191,5 +203,15 @@ export class NxapiService implements OnModuleInit {
     }
     const res = await this.nxapi<NxapiUnionRankingData>('/ranking/union', { date, world_name: worldName, ocid, page });
     return res;
+  }
+
+  // 헥사코어
+  async fetchCharacterHexaCoreData(ocid: string, date?: string): Promise<HexaMatrixDto> {
+    const [hexaMatrix, skillGrade6] = await Promise.all([
+      this.fetchCharacterHexamatrix(ocid, date),
+      this.fetchCharacterSkillGrade6(ocid, date),
+    ]);
+
+    return hexaCoreMapper(hexaMatrix, skillGrade6);
   }
 }

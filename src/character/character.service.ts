@@ -3,6 +3,7 @@ import { AbilityDto } from 'src/common/dto/ability.dto';
 import { CashEquipmentPresetDto } from 'src/common/dto/cash-equipment.dto';
 import { CharacterBasicDto } from 'src/common/dto/character-basic.dto';
 import { CharacterDto } from 'src/common/dto/character.dto';
+import { HexaMatrixDto } from 'src/common/dto/hexa-matrix.dto';
 import { HyperStatPresetDto } from 'src/common/dto/hyper-stat.dto';
 import { ItemEquipmentPresetDto } from 'src/common/dto/item-equipment.dto';
 import { PetEquipmentDataDto } from 'src/common/dto/pet-equipment.dto';
@@ -12,11 +13,13 @@ import { StatDto } from 'src/common/dto/stat.dto';
 import { SymbolDto } from 'src/common/dto/symbol.dto';
 import { UnionDto } from 'src/common/dto/union.dto';
 import { removeNulls } from 'src/common/util/remove-nulls';
+import { hexaCoreMapper } from 'src/nxapi/mapper/hexa-matrix.mapper';
 import { NxapiService } from 'src/nxapi/nxapi.service';
 import { convertCashEquipmentToEntity } from './converter/cash-equipment.converter';
 import { AbilityRepository } from './repository/ability.repository';
 import { CashEquipmentRepository } from './repository/cash-equipment.repository';
 import { CharacterRepository } from './repository/character.repository';
+import { HexaMatrixRepository } from './repository/hexa-matrix.repository';
 import { HyperStatRepository } from './repository/hyper-stat.repository';
 import { ItemEquipmentRepository } from './repository/item-equipment.repository';
 import { ItemOptionRepository } from './repository/item-option.repository';
@@ -33,6 +36,7 @@ export class CharacterService {
     private readonly itemEquipmentRepository: ItemEquipmentRepository,
     private readonly cashEquipmentRepository: CashEquipmentRepository,
     private readonly setEffectRepository: SetEffectRepository,
+    private readonly hexaMatrixRepository: HexaMatrixRepository,
   ) {}
   private readonly logger = new Logger(CharacterService.name);
 
@@ -52,6 +56,7 @@ export class CharacterService {
         symbol,
         setEffect,
         petEquipment,
+        hexaMatrix,
         union,
       ] = await Promise.all([
         this.fetchCharacterBasic(ocid),
@@ -64,6 +69,7 @@ export class CharacterService {
         this.fetchCharacterSymbol(ocid),
         this.getCharacterSetEffect(ocid),
         this.getCharacterPetEquipment(ocid),
+        this.getCharacterHexaMatrix(ocid),
         this.fetchUnion(ocid),
       ]);
 
@@ -79,6 +85,7 @@ export class CharacterService {
         symbol,
         setEffect,
         petEquipment,
+        hexaMatrix,
         union,
       };
 
@@ -159,6 +166,19 @@ export class CharacterService {
     const characterPetEquipment = await this.nxapiService.fetchCharacterPetEquipment(ocid, date);
 
     return characterPetEquipment;
+  }
+
+  async getCharacterHexaMatrix(ocid: string, date?: string): Promise<HexaMatrixDto> {
+    const hexaMatrix = await this.nxapiService.fetchCharacterHexamatrix(ocid, date);
+    const skillGrade6 = await this.nxapiService.fetchCharacterSkillGrade6(ocid, date);
+    const hexaMatrixDto = hexaCoreMapper(hexaMatrix, skillGrade6);
+
+    // HexaCore 마스터 데이터 생성 추가
+    if (hexaMatrixDto) {
+      await this.hexaMatrixRepository.createOrIgnoreHexaMatrix(hexaMatrixDto);
+    }
+
+    return hexaMatrixDto;
   }
 
   async fetchUnion(ocid: string, date?: string): Promise<UnionDto> {
