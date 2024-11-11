@@ -26,13 +26,17 @@ export const convertHexaMatrixToDto = (hexaCores: CharacterHexaCoreWithRelations
       coreName: core.core.coreName,
       coreLevel: core.coreLevel,
       coreType: coreTypeMap[core.core.coreType],
-      skills: core.core.skills.map((skill) => ({
-        skillName: skill.skillName,
-        description: core.core.description ?? null,
-        skillIcon: skill.skillIcon,
-        currentEffect: skill.levelEffects.find((e) => e.level === core.coreLevel)?.effect ?? null,
-        nextEffect: null,
-      })),
+      skills: core.core.skills.map((skill) => {
+        const currentEffect = skill.levelEffects.find((e) => e.level === core.coreLevel)?.effect ?? null;
+        const nextEffect = skill.levelEffects.find((e) => e.level === core.coreLevel + 1)?.effect ?? null; // 다음레벨 효과
+        return {
+          skillName: skill.skillName,
+          description: core.core.description ?? null,
+          skillIcon: skill.skillIcon,
+          currentEffect,
+          nextEffect,
+        };
+      }),
     })),
   };
 };

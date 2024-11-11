@@ -80,18 +80,34 @@ export class HexaMatrixRepository {
 
         // HexaCoreSkillEffect 마스터 데이터 생성
         const skillEffects = hexaMatrix.cores.flatMap((core) =>
-          core.skills.map((skill) => {
+          core.skills.flatMap((skill) => {
             const hexaCoreId = hexaCoreMap.get(`${hexaMatrix.characterClass}_${core.coreName}`);
             const hexaCoreSkillId = skillMap.get(`${hexaCoreId}_${skill.skillName}`);
 
-            return {
-              hexaCoreSkillId,
-              level: core.coreLevel,
-              effect: skill.currentEffect,
-              hash: createHash('sha256')
-                .update(`${hexaCoreSkillId}_${core.coreLevel}_${skill.currentEffect}`)
-                .digest('hex'),
-            };
+            return [
+              // 현재 레벨 효과
+              {
+                hexaCoreSkillId,
+                level: core.coreLevel,
+                effect: skill.currentEffect,
+                hash: createHash('sha256')
+                  .update(`${hexaCoreSkillId}_${core.coreLevel}_${skill.currentEffect}`)
+                  .digest('hex'),
+              },
+              // 다음 레벨 효과 (있는 경우에만)
+              ...(skill.nextEffect
+                ? [
+                    {
+                      hexaCoreSkillId,
+                      level: core.coreLevel + 1,
+                      effect: skill.nextEffect,
+                      hash: createHash('sha256')
+                        .update(`${hexaCoreSkillId}_${core.coreLevel + 1}_${skill.nextEffect}`)
+                        .digest('hex'),
+                    },
+                  ]
+                : []),
+            ];
           }),
         );
 
