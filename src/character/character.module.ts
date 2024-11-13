@@ -5,6 +5,7 @@ import { CharacterService } from './character.service';
 import { AbilityRepository } from './repository/ability.repository';
 import { CashEquipmentRepository } from './repository/cash-equipment.repository';
 import { CharacterRepository } from './repository/character.repository';
+import { HexaMatrixRepository } from './repository/hexa-matrix.repository';
 import { HyperStatRepository } from './repository/hyper-stat.repository';
 import { ItemEquipmentRepository } from './repository/item-equipment.repository';
 import { ItemOptionRepository } from './repository/item-option.repository';
@@ -24,6 +25,7 @@ import { SetEffectRepository } from './repository/set-effect.repository';
     CashEquipmentRepository,
     SetEffectRepository,
     PetEquipmentRepository,
+    HexaMatrixRepository,
   ],
   exports: [CharacterService],
 })

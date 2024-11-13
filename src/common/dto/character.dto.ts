@@ -2,6 +2,7 @@ import { Expose, Type } from 'class-transformer';
 import { AbilityDto } from './ability.dto';
 import { CashEquipmentPresetDto } from './cash-equipment.dto';
 import { CharacterBasicDto } from './character-basic.dto';
+import { HexaMatrixDto } from './hexa-matrix.dto';
 import { HyperStatPresetDto } from './hyper-stat.dto';
 import { ItemEquipmentPresetDto } from './item-equipment.dto';
 import { PetEquipmentDataDto } from './pet-equipment.dto';
@@ -51,4 +52,8 @@ export class CharacterDto extends CharacterBasicDto {
   @Expose()
   @Type(() => SymbolDto)
   symbol: SymbolDto[];
+
+  @Expose()
+  @Type(() => HexaMatrixDto)
+  hexaMatrix: HexaMatrixDto;
 }
