@@ -1,36 +1,49 @@
 import { Injectable } from '@nestjs/common';
-import { HexaCoreType } from '@prisma/client';
-import { createHash } from 'crypto';
-import { HexaMatrixDto } from 'src/common/dto/hexa-matrix.dto';
+import { HexaMatrixWithHash } from 'src/nxapi/mapper/hexa-matrix.mapper';
 import { PrismaService } from 'src/prisma/prisma.service';
-
-const coreTypeMapToEnum: Record<string, HexaCoreType> = {
-  '마스터리 코어': 'MASTERY_CORE',
-  '스킬 코어': 'SKILL_CORE',
-  '강화 코어': 'ENHANCEMENT_CORE',
-  '공용 코어': 'COMMON_CORE',
-};
 
 @Injectable()
 export class HexaMatrixRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async createOrIgnoreHexaMatrix(hexaMatrix: HexaMatrixDto) {
+  async createOrIgnoreHexaMatrix(hexaMatrix: HexaMatrixWithHash) {
     try {
       await this.prismaService.$transaction(async (prisma) => {
-        // HexaCore 마스터 데이터 생성
-        await prisma.hexaCore.createMany({
-          data: hexaMatrix.cores.map((core) => ({
-            characterClass: hexaMatrix.characterClass,
-            coreName: core.coreName,
-            coreType: coreTypeMapToEnum[core.coreType],
-            description: core.skills[0]?.description ?? null,
-            descriptionHash: core.skills[0]?.description
-              ? createHash('sha256').update(core.skills[0].description).digest('hex')
-              : null,
-          })),
-          skipDuplicates: true,
-        });
+        // 1. HexaCore 마스터 데이터 생성
+        for (const core of hexaMatrix.cores) {
+          const existingCore = await prisma.hexaCore.findUnique({
+            where: {
+              characterClass_coreName: {
+                characterClass: hexaMatrix.characterClass,
+                coreName: core.coreName,
+              },
+            },
+            select: { descriptionHash: true },
+          });
+
+          // 해시가 같으면 업데이트 불필요
+          if (existingCore?.descriptionHash === core.descriptionHash) continue;
+
+          await prisma.hexaCore.upsert({
+            where: {
+              characterClass_coreName: {
+                characterClass: hexaMatrix.characterClass,
+                coreName: core.coreName,
+              },
+            },
+            create: {
+              characterClass: hexaMatrix.characterClass,
+              coreName: core.coreName,
+              coreType: core.coreType,
+              description: core.skills[0]?.description ?? null,
+              descriptionHash: core.descriptionHash,
+            },
+            update: {
+              description: core.skills[0]?.description ?? null,
+              descriptionHash: core.descriptionHash,
+            },
+          });
+        }
 
         // 생성된 HexaCore의 ID 조회
         const hexaCores = await prisma.hexaCore.findMany({
@@ -49,20 +62,42 @@ export class HexaMatrixRepository {
 
         const hexaCoreMap = new Map(hexaCores.map((core) => [`${core.characterClass}_${core.coreName}`, core.id]));
 
-        // HexaCoreSkill 마스터 데이터 생성
-        const skillData = hexaMatrix.cores.flatMap((core) =>
-          core.skills.map((skill) => ({
-            hexaCoreId: hexaCoreMap.get(`${hexaMatrix.characterClass}_${core.coreName}`),
-            skillName: skill.skillName,
-            skillIcon: skill.skillIcon,
-            iconHash: skill.skillIcon ? createHash('sha256').update(skill.skillIcon).digest('hex') : null,
-          })),
-        );
+        // 2. HexaCoreSkill 마스터 데이터 생성
+        for (const core of hexaMatrix.cores) {
+          const hexaCoreId = hexaCoreMap.get(`${hexaMatrix.characterClass}_${core.coreName}`);
 
-        await prisma.hexaCoreSkill.createMany({
-          data: skillData,
-          skipDuplicates: true,
-        });
+          for (const skill of core.skills) {
+            const existingSkill = await prisma.hexaCoreSkill.findUnique({
+              where: {
+                hexaCoreId_skillName: {
+                  hexaCoreId,
+                  skillName: skill.skillName,
+                },
+              },
+              select: { skillIcon: true },
+            });
+
+            // skillIcon 자체가 이미 고유한 값이므로 해당 값으로 비교
+            if (existingSkill?.skillIcon === skill.skillIcon) continue;
+
+            await prisma.hexaCoreSkill.upsert({
+              where: {
+                hexaCoreId_skillName: {
+                  hexaCoreId,
+                  skillName: skill.skillName,
+                },
+              },
+              create: {
+                hexaCoreId,
+                skillName: skill.skillName,
+                skillIcon: skill.skillIcon,
+              },
+              update: {
+                skillIcon: skill.skillIcon,
+              },
+            });
+          }
+        }
 
         // 생성된 HexaCoreSkill의 ID 조회
         const hexaCoreSkills = await prisma.hexaCoreSkill.findMany({
@@ -78,43 +113,80 @@ export class HexaMatrixRepository {
 
         const skillMap = new Map(hexaCoreSkills.map((skill) => [`${skill.hexaCoreId}_${skill.skillName}`, skill.id]));
 
-        // HexaCoreSkillEffect 마스터 데이터 생성
-        const skillEffects = hexaMatrix.cores.flatMap((core) =>
-          core.skills.flatMap((skill) => {
-            const hexaCoreId = hexaCoreMap.get(`${hexaMatrix.characterClass}_${core.coreName}`);
+        // 3. HexaCoreSkillEffect 마스터 데이터 생성
+        for (const core of hexaMatrix.cores) {
+          const hexaCoreId = hexaCoreMap.get(`${hexaMatrix.characterClass}_${core.coreName}`);
+
+          for (const skill of core.skills) {
             const hexaCoreSkillId = skillMap.get(`${hexaCoreId}_${skill.skillName}`);
 
-            return [
-              // 현재 레벨 효과
-              {
-                hexaCoreSkillId,
-                level: core.coreLevel,
-                effect: skill.currentEffect,
-                hash: createHash('sha256')
-                  .update(`${hexaCoreSkillId}_${core.coreLevel}_${skill.currentEffect}`)
-                  .digest('hex'),
+            // 현재 레벨 효과
+            const existingEffect = await prisma.hexaCoreSkillEffect.findUnique({
+              where: {
+                hexaCoreSkillId_level: {
+                  hexaCoreSkillId,
+                  level: core.coreLevel,
+                },
               },
-              // 다음 레벨 효과 (있는 경우에만)
-              ...(skill.nextEffect
-                ? [
-                    {
+              select: { hash: true },
+            });
+
+            if (existingEffect?.hash !== skill.effectHash) {
+              await prisma.hexaCoreSkillEffect.upsert({
+                where: {
+                  hexaCoreSkillId_level: {
+                    hexaCoreSkillId,
+                    level: core.coreLevel,
+                  },
+                },
+                create: {
+                  hexaCoreSkillId,
+                  level: core.coreLevel,
+                  effect: skill.currentEffect,
+                  hash: skill.effectHash,
+                },
+                update: {
+                  effect: skill.currentEffect,
+                  hash: skill.effectHash,
+                },
+              });
+            }
+
+            // 다음 레벨 효과
+            if (skill.nextEffect) {
+              const existingNextEffect = await prisma.hexaCoreSkillEffect.findUnique({
+                where: {
+                  hexaCoreSkillId_level: {
+                    hexaCoreSkillId,
+                    level: core.coreLevel + 1,
+                  },
+                },
+                select: { hash: true },
+              });
+
+              if (existingNextEffect?.hash !== skill.nextEffectHash) {
+                await prisma.hexaCoreSkillEffect.upsert({
+                  where: {
+                    hexaCoreSkillId_level: {
                       hexaCoreSkillId,
                       level: core.coreLevel + 1,
-                      effect: skill.nextEffect,
-                      hash: createHash('sha256')
-                        .update(`${hexaCoreSkillId}_${core.coreLevel + 1}_${skill.nextEffect}`)
-                        .digest('hex'),
                     },
-                  ]
-                : []),
-            ];
-          }),
-        );
-
-        await prisma.hexaCoreSkillEffect.createMany({
-          data: skillEffects,
-          skipDuplicates: true,
-        });
+                  },
+                  create: {
+                    hexaCoreSkillId,
+                    level: core.coreLevel + 1,
+                    effect: skill.nextEffect,
+                    hash: skill.nextEffectHash,
+                  },
+                  update: {
+                    effect: skill.nextEffect,
+                    hash: skill.nextEffectHash,
+                  },
+                });
+              }
+            }
+          }
+        }
       });
     } catch (error) {
       throw new Error(`헥사 매트릭스 생성 중 오류 발생: ${error.message}`);

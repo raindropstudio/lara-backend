@@ -25,7 +25,7 @@ export class HexaCoreDto {
   coreLevel: number;
 
   @Expose()
-  coreType: '스킬 코어' | '강화 코어' | '공용 코어' | '마스터리 코어';
+  coreType: 'SKILL_CORE' | 'ENHANCEMENT_CORE' | 'COMMON_CORE' | 'MASTERY_CORE';
   @Expose()
   @Type(() => HexaCoreSkillDto)
   skills: HexaCoreSkillDto[];

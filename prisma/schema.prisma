@@ -391,10 +391,10 @@ model Union {
 }
 
 enum HexaCoreType {
-  MASTERY_CORE     @map("마스터리 코어")
-  SKILL_CORE       @map("스킬 코어")
-  ENHANCEMENT_CORE @map("강화 코어")
-  COMMON_CORE      @map("공용 코어")
+  MASTERY_CORE
+  SKILL_CORE
+  ENHANCEMENT_CORE
+  COMMON_CORE
 }
 
 // 헥사 코어 마스터 테이블
@@ -417,7 +417,6 @@ model HexaCoreSkill {
   hexaCoreId   Int
   skillName    String
   skillIcon    String?
-  iconHash     String?
   core         HexaCore              @relation(fields: [hexaCoreId], references: [id])
   levelEffects HexaCoreSkillEffect[]
 
