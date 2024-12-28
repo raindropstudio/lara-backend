@@ -8,10 +8,10 @@
   "scripts": {
     "build": "prisma generate && nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "node dist/src/main",
+    "start": "node dist/main",
     "start:dev": "doppler run -- nest start --watch",
     "start:debug": "doppler run -- nest start --debug --watch",
-    "start:prod": "node dist/src/main",
+    "start:prod": "node dist/main",
     "db:build": "prisma generate",
     "db:studio": "doppler run -- prisma studio",
     "db:push": "doppler run -- prisma db push",
