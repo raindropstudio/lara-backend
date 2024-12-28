@@ -5,7 +5,7 @@ WORKDIR /app
 COPY package*.json ./
 COPY prisma ./prisma/
 
-RUN npm ci && npm run db:build
+RUN npm install && npm run db:build
 
 COPY . .
 
