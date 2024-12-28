@@ -5,13 +5,15 @@ WORKDIR /app
 COPY package*.json ./
 COPY prisma ./prisma/
 
-RUN npm install && npm run db:build
+RUN npm ci && npm run db:build
 
 COPY . .
 
 RUN npm run build
 
 FROM node:20-alpine
+
+RUN apk --no-cache add curl
 
 # Install Doppler CLI
 RUN wget -q -t3 'https://packages.doppler.com/public/cli/rsa.8004D9FF50437357.key' -O /etc/apk/keys/cli@doppler-8004D9FF50437357.rsa.pub && \
