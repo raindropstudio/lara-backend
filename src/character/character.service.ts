@@ -5,9 +5,12 @@ import { CharacterBasicDto } from 'src/common/dto/character-basic.dto';
 import { CharacterDto } from 'src/common/dto/character.dto';
 import { HyperStatPresetDto } from 'src/common/dto/hyper-stat.dto';
 import { ItemEquipmentPresetDto } from 'src/common/dto/item-equipment.dto';
+import { CharacterLinkSkillDto } from 'src/common/dto/link-skill.dto';
 import { PetEquipmentDataDto } from 'src/common/dto/pet-equipment.dto';
 import { PropensityDto } from 'src/common/dto/propensity.dto';
 import { SetEffectDto } from 'src/common/dto/set-effect.dto';
+import { CharacterSkillCoreDto } from 'src/common/dto/skill-core.dto';
+import { CharacterSkillDto } from 'src/common/dto/skill.dto';
 import { StatDto } from 'src/common/dto/stat.dto';
 import { SymbolDto } from 'src/common/dto/symbol.dto';
 import { UnionDto } from 'src/common/dto/union.dto';
@@ -20,7 +23,10 @@ import { CharacterRepository } from './repository/character.repository';
 import { HyperStatRepository } from './repository/hyper-stat.repository';
 import { ItemEquipmentRepository } from './repository/item-equipment.repository';
 import { ItemOptionRepository } from './repository/item-option.repository';
+import { LinkSkillRepository } from './repository/link-skill.repository';
 import { SetEffectRepository } from './repository/set-effect.repository';
+import { SkillCoreRepository } from './repository/skill-core.repository';
+import { SkillRepository } from './repository/skill.repository';
 
 @Injectable()
 export class CharacterService {
@@ -33,6 +39,9 @@ export class CharacterService {
     private readonly itemEquipmentRepository: ItemEquipmentRepository,
     private readonly cashEquipmentRepository: CashEquipmentRepository,
     private readonly setEffectRepository: SetEffectRepository,
+    private readonly skillRepository: SkillRepository,
+    private readonly linkSkillRepository: LinkSkillRepository,
+    private readonly skillCoreRepository: SkillCoreRepository,
   ) {}
   private readonly logger = new Logger(CharacterService.name);
 
@@ -53,6 +62,9 @@ export class CharacterService {
         setEffect,
         petEquipment,
         union,
+        skill,
+        linkSkill,
+        skillCore,
       ] = await Promise.all([
         this.fetchCharacterBasic(ocid),
         this.fetchCharacterStat(ocid),
@@ -65,6 +77,9 @@ export class CharacterService {
         this.getCharacterSetEffect(ocid),
         this.getCharacterPetEquipment(ocid),
         this.fetchUnion(ocid),
+        this.getCharacterSkill(ocid),
+        this.getCharacterLinkSkill(ocid),
+        this.getCharacterSkillCore(ocid),
       ]);
 
       const updatedCharacter: CharacterDto = {
@@ -80,6 +95,9 @@ export class CharacterService {
         setEffect,
         petEquipment,
         union,
+        skill,
+        linkSkill,
+        skillCore,
       };
 
       await this.characterRepository.upsertCharacterOverall(updatedCharacter);
@@ -159,6 +177,32 @@ export class CharacterService {
     const characterPetEquipment = await this.nxapiService.fetchCharacterPetEquipment(ocid, date);
 
     return characterPetEquipment;
+  }
+
+  async getCharacterSkill(ocid: string, date?: string): Promise<CharacterSkillDto[]> {
+    const characterVSkill = await this.nxapiService.fetchCharacterSkill(ocid, '5', date);
+    const characterHexaSkill = await this.nxapiService.fetchCharacterSkill(ocid, '6', date);
+
+    await this.skillRepository.createOrIgnoreSkill([...characterVSkill, ...characterHexaSkill]);
+
+    return [...characterVSkill, ...characterHexaSkill];
+  }
+
+  async getCharacterLinkSkill(ocid: string, date?: string): Promise<CharacterLinkSkillDto[]> {
+    const characterLinkSkill = await this.nxapiService.fetchCharacterLinkSkill(ocid, date);
+
+    await this.linkSkillRepository.createOrIgnoreLinkSkill(characterLinkSkill);
+
+    return characterLinkSkill;
+  }
+
+  async getCharacterSkillCore(ocid: string, date?: string): Promise<CharacterSkillCoreDto[]> {
+    const characterVSkillCore = await this.nxapiService.fetchCharacterVmatrix(ocid, date);
+    const characterHexaSkillCore = await this.nxapiService.fetchCharacterHexamatrix(ocid, date);
+
+    await this.skillCoreRepository.createOrIgnoreSkillCore([...characterVSkillCore, ...characterHexaSkillCore]);
+
+    return [...characterVSkillCore, ...characterHexaSkillCore];
   }
 
   async fetchUnion(ocid: string, date?: string): Promise<UnionDto> {

@@ -4,9 +4,12 @@ import { CashEquipmentPresetDto } from './cash-equipment.dto';
 import { CharacterBasicDto } from './character-basic.dto';
 import { HyperStatPresetDto } from './hyper-stat.dto';
 import { ItemEquipmentPresetDto } from './item-equipment.dto';
+import { CharacterLinkSkillDto } from './link-skill.dto';
 import { PetEquipmentDataDto } from './pet-equipment.dto';
 import { PropensityDto } from './propensity.dto';
 import { SetEffectDto } from './set-effect.dto';
+import { CharacterSkillCoreDto } from './skill-core.dto';
+import { CharacterSkillDto } from './skill.dto';
 import { StatDto } from './stat.dto';
 import { SymbolDto } from './symbol.dto';
 import { UnionDto } from './union.dto';
@@ -51,4 +54,16 @@ export class CharacterDto extends CharacterBasicDto {
   @Expose()
   @Type(() => SymbolDto)
   symbol: SymbolDto[];
+
+  @Expose()
+  @Type(() => CharacterSkillDto)
+  skill: CharacterSkillDto[];
+
+  @Expose()
+  @Type(() => CharacterLinkSkillDto)
+  linkSkill: CharacterLinkSkillDto[];
+
+  @Expose()
+  @Type(() => CharacterSkillCoreDto)
+  skillCore: CharacterSkillCoreDto[];
 }

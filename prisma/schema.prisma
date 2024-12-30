@@ -42,9 +42,12 @@ model Character {
   cashEquipmentPreset  CharacterCashEquipment[]
   symbol               Symbol[]
   setEffect            CharacterSetEffect[]
-  PetEquipment         PetEquipment[]
+  petEquipment         PetEquipment[]
   union                Union?                   @relation(fields: [unionId], references: [id])
   unionId              Int?                     @unique
+  skill                CharacterSkill[]
+  skillCore            CharacterSkillCore[]
+  linkSkill            CharacterLinkSkill[]
 }
 
 model Stat {
@@ -387,4 +390,60 @@ model Union {
   unionArtifactLevel Int
   unionArtifactExp   Int
   unionArtifactPoint Int
+}
+
+model CharacterSkill {
+  character   Character @relation(fields: [characterId], references: [id])
+  characterId Int
+  skill       Skill     @relation(fields: [skillId], references: [id])
+  skillId     Int
+
+  @@id([characterId, skillId])
+}
+
+model CharacterLinkSkill {
+  character   Character @relation(fields: [characterId], references: [id])
+  characterId Int
+  skill       Skill     @relation(fields: [skillId], references: [id])
+  skillId     Int
+  presetNo    Int // 링크스킬은 항상 0번이 적용중 1, 2, 3 은 프리셋
+  ownedSkill  Boolean
+
+  @@id([characterId, presetNo, skillId])
+}
+
+model Skill {
+  id                 Int                  @id @default(autoincrement())
+  hash               String               @unique
+  grade              String? // 스킬 차수
+  name               String
+  description        String?              @db.VarChar(500)
+  level              Int
+  icon               String
+  effect             String?              @db.VarChar(500)
+  effectNext         String?              @db.VarChar(500)
+  characters         CharacterSkill[]
+  CharacterLinkSkill CharacterLinkSkill[]
+}
+
+model CharacterSkillCore {
+  character   Character @relation(fields: [characterId], references: [id])
+  characterId Int
+  skillCore   SkillCore @relation(fields: [skillCoreId], references: [id])
+  skillCoreId Int
+  slotId      Int?
+  slotLevel   Int?
+  coreLevel   Int
+
+  @@id([characterId, skillCoreId])
+}
+
+model SkillCore {
+  id         Int                  @id @default(autoincrement())
+  hash       String
+  grade      Int
+  coreName   String
+  coreType   String
+  coreSkill  Json
+  characters CharacterSkillCore[]
 }

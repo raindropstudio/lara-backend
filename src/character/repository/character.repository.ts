@@ -5,8 +5,11 @@ import { convertAbilityToDto, convertAbilityToEntity } from '../converter/abilit
 import { convertCashEquipmentToDto, convertCashEquipmentToEntity } from '../converter/cash-equipment.converter';
 import { convertHyperStatToDto, convertHyperStatToEntity } from '../converter/hyper-stat.converter';
 import { convertItemEquipmentToDto, convertItemEquipmentToEntity } from '../converter/item-equipment.converter';
+import { convertLinkSkillToDto, convertLinkSkillToEntity } from '../converter/link-skill.converter';
 import { convertPetEquipmentToDto, convertPetEquipmentToEntity } from '../converter/pet-equipment.converter';
 import { convertSetEffectToDto } from '../converter/set-effect.converter';
+import { convertSkillCoreToDto } from '../converter/skill-core.converter';
+import { convertSkillToDto } from '../converter/skill.converter';
 
 @Injectable()
 export class CharacterRepository {
@@ -60,8 +63,23 @@ export class CharacterRepository {
             setEffect: true,
           },
         },
-        PetEquipment: true,
+        petEquipment: true,
         union: true,
+        skill: {
+          include: {
+            skill: true,
+          },
+        },
+        linkSkill: {
+          include: {
+            skill: true,
+          },
+        },
+        skillCore: {
+          include: {
+            skillCore: true,
+          },
+        },
       },
     });
 
@@ -74,7 +92,10 @@ export class CharacterRepository {
       itemEquipmentPreset: convertItemEquipmentToDto(characterData.itemEquipmentPreset),
       cashEquipmentPreset: convertCashEquipmentToDto(characterData.cashEquipmentPreset),
       setEffect: convertSetEffectToDto(characterData.setEffect),
-      petEquipment: convertPetEquipmentToDto(characterData.PetEquipment),
+      petEquipment: convertPetEquipmentToDto(characterData.petEquipment),
+      skill: convertSkillToDto(characterData.skill),
+      linkSkill: convertLinkSkillToDto(characterData.linkSkill),
+      skillCore: convertSkillCoreToDto(characterData.skillCore),
     };
   }
 
@@ -90,6 +111,9 @@ export class CharacterRepository {
       setEffect,
       petEquipment,
       union,
+      skill,
+      linkSkill,
+      skillCore,
       ...characterData
     } = character;
 
@@ -99,69 +123,91 @@ export class CharacterRepository {
     const flatItemEquipment = convertItemEquipmentToEntity(itemEquipmentPreset);
     const flatCashEquipment = convertCashEquipmentToEntity(cashEquipmentPreset);
     const cashOption = flatCashEquipment.map((eq) => eq.option).filter((opt) => opt);
+    const flatLinkSkill = convertLinkSkillToEntity(linkSkill);
 
     // 1. 트랜잭션 밖에서 필요한 ID를 고유값을 사용해 한 번에 조회
-    const [hyperStatIds, abilityIds, itemEquipmentIds, cashEquipmentIds, cashEquipOptionIds, setEffectIds] =
-      await Promise.all([
-        // HyperStat IDs 조회
-        this.prismaService.hyperStat.findMany({
-          where: {
-            OR: flatHyperStat.map((hs) => ({
-              statType: hs.statType,
-              statPoint: hs.statPoint,
-            })),
-          },
-          select: { id: true, statType: true, statPoint: true },
-        }),
+    const [
+      hyperStatIds,
+      abilityIds,
+      itemEquipmentIds,
+      cashEquipmentIds,
+      cashEquipOptionIds,
+      setEffectIds,
+      skillIds,
+      skillCoreIds,
+    ] = await Promise.all([
+      // HyperStat IDs 조회
+      this.prismaService.hyperStat.findMany({
+        where: {
+          OR: flatHyperStat.map((hs) => ({
+            statType: hs.statType,
+            statPoint: hs.statPoint,
+          })),
+        },
+        select: { id: true, statType: true, statPoint: true },
+      }),
 
-        // Ability IDs 조회
-        this.prismaService.ability.findMany({
-          where: {
-            abilityValue: { in: flatAbility.map((ab) => ab.abilityValue) },
-          },
-          select: { id: true, abilityValue: true },
-        }),
+      // Ability IDs 조회
+      this.prismaService.ability.findMany({
+        where: {
+          abilityValue: { in: flatAbility.map((ab) => ab.abilityValue) },
+        },
+        select: { id: true, abilityValue: true },
+      }),
 
-        // ItemEquipment IDs 조회
-        this.prismaService.itemEquipment.findMany({
-          where: {
-            hash: { in: flatItemEquipment.map((eq) => eq.hash) },
-          },
-          select: { id: true, hash: true },
-        }),
+      // ItemEquipment IDs 조회
+      this.prismaService.itemEquipment.findMany({
+        where: {
+          hash: { in: flatItemEquipment.map((eq) => eq.hash) },
+        },
+        select: { id: true, hash: true },
+      }),
 
-        // CashEquipment IDs 조회
-        this.prismaService.cashEquipment.findMany({
-          where: {
-            icon: { in: flatCashEquipment.map((eq) => eq.icon) },
-          },
-          select: { id: true, icon: true },
-        }),
+      // CashEquipment IDs 조회
+      this.prismaService.cashEquipment.findMany({
+        where: {
+          icon: { in: flatCashEquipment.map((eq) => eq.icon) },
+        },
+        select: { id: true, icon: true },
+      }),
 
-        // CashEquipment 관련 Option IDs 조회
-        this.prismaService.itemOption.findMany({
-          where: {
-            hash: { in: cashOption.map((opt) => opt.hash) },
-          },
-          select: { id: true, hash: true },
-        }),
+      // CashEquipment 관련 Option IDs 조회
+      this.prismaService.itemOption.findMany({
+        where: {
+          hash: { in: cashOption.map((opt) => opt.hash) },
+        },
+        select: { id: true, hash: true },
+      }),
 
-        // 세트효과
-        this.prismaService.setEffect.findMany({
-          where: {
-            setName: { in: setEffect.map((setEff) => setEff.setName) },
-          },
-          select: { id: true, setName: true },
-        }),
+      // 세트효과
+      this.prismaService.setEffect.findMany({
+        where: {
+          setName: { in: setEffect.map((setEff) => setEff.setName) },
+        },
+        select: { id: true, setName: true },
+      }),
 
-        // PetEquipment IDs 조회
-        this.prismaService.petEquipment.findMany({
-          where: {
-            petNo: { in: petEquipment.map((pet) => pet.petNo) },
+      // Skill IDs 조회
+      this.prismaService.skill.findMany({
+        where: {
+          hash: {
+            in: [
+              ...skill.map((s) => s.hash),
+              ...linkSkill.flatMap((ls) => [ls.ownedSkill.hash, ...ls.skill.map((s) => s.hash)]),
+            ],
           },
-          select: { id: true, petNo: true },
-        }),
-      ]);
+        },
+        select: { id: true, hash: true },
+      }),
+
+      // SkillCore IDs 조회
+      this.prismaService.skillCore.findMany({
+        where: {
+          hash: { in: skillCore.map((sc) => sc.skillCore.hash) },
+        },
+        select: { id: true, hash: true },
+      }),
+    ]);
 
     // 2. ID들을 조회한 결과에 따라 매핑하여 삽입할 데이터 준비
     const hyperStatMap = new Map(hyperStatIds.map((hs) => [`${hs.statType}_${hs.statPoint}`, hs.id]));
@@ -170,11 +216,12 @@ export class CharacterRepository {
     const cashEquipmentMap = new Map(cashEquipmentIds.map((eq) => [eq.icon, eq.id]));
     const cashEquipOptionMap = new Map(cashEquipOptionIds.map((opt) => [opt.hash, opt.id]));
     const setEffectMap = new Map(setEffectIds.map((setEff) => [setEff.setName, setEff.id]));
+    const skillMap = new Map(skillIds.map((s) => [s.hash, s.id]));
+    const skillCoreMap = new Map(skillCoreIds.map((sc) => [sc.hash, sc.id]));
 
     // 3. 트랜잭션 내에서 Character와 연결된 항목들을 처리
     await this.prismaService.$transaction(async (prisma) => {
       // Character upsert
-
       const { id, statId, propensityId, unionId, ...characterBasic } = characterData;
 
       const upsertedCharacter = await prisma.character.upsert({
@@ -184,7 +231,7 @@ export class CharacterRepository {
           stat: statId ? { update: stat } : { create: stat },
           propensity: propensityId ? { update: propensity } : { create: propensity },
           union: unionId ? { update: union } : { create: union },
-          PetEquipment: {
+          petEquipment: {
             deleteMany: {},
             create: petEquipment.map(convertPetEquipmentToEntity),
           },
@@ -194,7 +241,7 @@ export class CharacterRepository {
           stat: { create: stat },
           propensity: { create: propensity },
           union: { create: union },
-          PetEquipment: {
+          petEquipment: {
             create: petEquipment.map(convertPetEquipmentToEntity),
           },
         },
@@ -202,30 +249,23 @@ export class CharacterRepository {
 
       const characterId = upsertedCharacter.id;
 
-      // 기존 연결된 하이퍼스탯, 어빌리티, 장비, 펫장비 삭제
-      await prisma.characterHyperStat.deleteMany({
-        where: { characterId },
-      });
-      await prisma.characterAbility.deleteMany({
-        where: { characterId },
-      });
-      await prisma.characterItemEquipment.deleteMany({
-        where: { characterId },
-      });
-      await prisma.characterCashEquipment.deleteMany({
-        where: { characterId },
-      });
-      await prisma.symbol.deleteMany({
-        where: { characterId },
-      });
-      await prisma.characterSetEffect.deleteMany({
-        where: { characterId },
-      });
+      // 기존 연결된 데이터 삭제
+      await Promise.all([
+        prisma.characterHyperStat.deleteMany({ where: { characterId } }),
+        prisma.characterAbility.deleteMany({ where: { characterId } }),
+        prisma.characterItemEquipment.deleteMany({ where: { characterId } }),
+        prisma.characterCashEquipment.deleteMany({ where: { characterId } }),
+        prisma.symbol.deleteMany({ where: { characterId } }),
+        prisma.characterSetEffect.deleteMany({ where: { characterId } }),
+        prisma.characterSkill.deleteMany({ where: { characterId } }),
+        prisma.characterLinkSkill.deleteMany({ where: { characterId } }),
+        prisma.characterSkillCore.deleteMany({ where: { characterId } }),
+      ]);
 
       // 하이퍼스탯 중간 테이블 연결
       await prisma.characterHyperStat.createMany({
         data: flatHyperStat
-          .filter((hs) => hyperStatMap.has(`${hs.statType}_${hs.statPoint}`)) // 존재하는 ID만 사용
+          .filter((hs) => hyperStatMap.has(`${hs.statType}_${hs.statPoint}`))
           .map((hs) => ({
             characterId: characterId,
             hyperStatId: hyperStatMap.get(`${hs.statType}_${hs.statPoint}`),
@@ -297,6 +337,42 @@ export class CharacterRepository {
           setEffectId: setEffectMap.get(setEff.setName),
           setCount: setEff.setCount,
         })),
+      });
+
+      // 스킬 연결
+      await prisma.characterSkill.createMany({
+        data: skill
+          .filter((s) => skillMap.has(s.hash))
+          .map((s) => ({
+            characterId: characterId,
+            skillId: skillMap.get(s.hash),
+          })),
+        skipDuplicates: true,
+      });
+
+      // 링크스킬 연결
+      await prisma.characterLinkSkill.createMany({
+        data: flatLinkSkill.map((ls) => ({
+          characterId: characterId,
+          skillId: skillMap.get(ls.skillHash),
+          presetNo: ls.presetNo,
+          ownedSkill: ls.ownedSkill,
+        })),
+        skipDuplicates: true,
+      });
+
+      // 스킬코어 연결
+      await prisma.characterSkillCore.createMany({
+        data: skillCore
+          .filter((sc) => skillCoreMap.has(sc.skillCore.hash))
+          .map((sc) => ({
+            characterId: characterId,
+            skillCoreId: skillCoreMap.get(sc.skillCore.hash),
+            slotId: sc.slotId,
+            slotLevel: sc.slotLevel,
+            coreLevel: sc.coreLevel,
+          })),
+        skipDuplicates: true,
       });
     });
   }

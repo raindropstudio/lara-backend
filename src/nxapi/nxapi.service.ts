@@ -6,31 +6,42 @@ import { CashEquipmentPresetDto } from 'src/common/dto/cash-equipment.dto';
 import { CharacterBasicDto } from 'src/common/dto/character-basic.dto';
 import { HyperStatPresetDto } from 'src/common/dto/hyper-stat.dto';
 import { ItemEquipmentPresetDto } from 'src/common/dto/item-equipment.dto';
+import { CharacterLinkSkillDto } from 'src/common/dto/link-skill.dto';
 import { PetEquipmentDataDto } from 'src/common/dto/pet-equipment.dto';
 import { PropensityDto } from 'src/common/dto/propensity.dto';
 import { SetEffectDto } from 'src/common/dto/set-effect.dto';
+import { CharacterSkillCoreDto } from 'src/common/dto/skill-core.dto';
+import { CharacterSkillDto } from 'src/common/dto/skill.dto';
 import { StatDto } from 'src/common/dto/stat.dto';
 import { SymbolDto } from 'src/common/dto/symbol.dto';
 import { UnionDto } from 'src/common/dto/union.dto';
 import { abilityMapper } from './mapper/ability.mapper';
 import { cashEquipmentMapper } from './mapper/cashitem-equipment.mapper';
 import { characterBasicMapper } from './mapper/character-basic.mapper';
+import { hexaMatrixMapper } from './mapper/hexamatrix.mapper';
 import { hyperStatMapper } from './mapper/hyper-stat.mapper';
 import { itemEquipmentMapper } from './mapper/item-equipment.mapper';
+import { linkSkillMapper } from './mapper/link-skill.mapper';
 import { petEquipmentMapper } from './mapper/pet-equipment.mapper';
 import { propensityMapper } from './mapper/propensity.mapper';
 import { setEffectMapper } from './mapper/set-effect.mapper';
+import { skillMapper } from './mapper/skill.mapper';
 import { statMapper } from './mapper/stat.mapper';
 import { symbolMapper } from './mapper/symbol.mapper';
 import { unionMapper } from './mapper/union.mapper';
+import { vMatrixMapper } from './mapper/vmatrix.mapper';
 import { NxapiAbilityData } from './type/nxapi-ability.type';
 import { NxApiCashEquipment } from './type/nxapi-cash-equipment.type';
+import { NxapiHexaMatrixData } from './type/nxapi-hexamatrix.type';
 import { NxapiItemEquipment } from './type/nxapi-item-equipment.type';
+import { NxapiLinkSkillData } from './type/nxapi-link-skill.type';
 import { NxapiPetEquipmentData } from './type/nxapi-pet-equipment.type';
 import { NxapiSetEffect } from './type/nxapi-set-effect.type';
+import { NxapiSkillData } from './type/nxapi-skill.type';
 import { NxapiSymbolData } from './type/nxapi-symbol.type';
 import { NxapiUnionRankingData } from './type/nxapi-union-ranking.type';
 import { NxapiUnion } from './type/nxapi-union.type';
+import { NxapiVMatrixData } from './type/nxapi-vmatrix.type';
 
 type SkillGrade = '0' | '1' | '1.5' | '2' | '2.5' | '3' | '4' | '5' | '6' | 'hyperpassive' | 'hyperactive';
 
@@ -139,28 +150,28 @@ export class NxapiService implements OnModuleInit {
     return petEquipmentMapper(res);
   }
 
-  async fetchCharacterSkill(ocid: string, skillGrade: SkillGrade, date?: string): Promise<object> {
-    const res = await this.nxapi<any>('/character/skill', {
+  async fetchCharacterSkill(ocid: string, skillGrade: SkillGrade, date?: string): Promise<CharacterSkillDto[]> {
+    const res = await this.nxapi<NxapiSkillData>('/character/skill', {
       ocid,
       date,
       character_skill_grade: skillGrade,
     });
-    return res;
+    return skillMapper(skillGrade, res);
   }
 
-  async fetchCharacterLinkSkill(ocid: string, date?: string): Promise<object> {
-    const res = await this.nxapi<any>('/character/link-skill', { ocid, date });
-    return res;
+  async fetchCharacterLinkSkill(ocid: string, date?: string): Promise<CharacterLinkSkillDto[]> {
+    const res = await this.nxapi<NxapiLinkSkillData>('/character/link-skill', { ocid, date });
+    return linkSkillMapper(res);
   }
 
-  async fetchCharacterVmatrix(ocid: string, date?: string): Promise<object> {
-    const res = await this.nxapi<any>('/character/vmatrix', { ocid, date });
-    return res;
+  async fetchCharacterVmatrix(ocid: string, date?: string): Promise<CharacterSkillCoreDto[]> {
+    const res = await this.nxapi<NxapiVMatrixData>('/character/vmatrix', { ocid, date });
+    return vMatrixMapper(res);
   }
 
-  async fetchCharacterHexamatrix(ocid: string, date?: string): Promise<object> {
-    const res = await this.nxapi<any>('/character/hexamatrix', { ocid, date });
-    return res;
+  async fetchCharacterHexamatrix(ocid: string, date?: string): Promise<CharacterSkillCoreDto[]> {
+    const res = await this.nxapi<NxapiHexaMatrixData>('/character/hexamatrix', { ocid, date });
+    return hexaMatrixMapper(res);
   }
 
   async fetchCharacterHexamatrixStat(ocid: string, date?: string): Promise<object> {

@@ -30,15 +30,12 @@ export function convertPetEquipmentToDto(petEquipments: PetEquipment[]): PetEqui
             magicPower: pet.magicPower,
           }
         : null,
-      petAutoSkill: pet.autoSkill1
-        ? {
-            // pet_auto_skill이 존재할 경우에만 매핑
-            skill1: pet.autoSkill1,
-            skill1Icon: pet.autoSkill1Icon,
-            skill2: pet.autoSkill2 ?? null,
-            skill2Icon: pet.autoSkill2Icon ?? null,
-          }
-        : null,
+      petAutoSkill: {
+        skill1: pet.autoSkill1 ?? null,
+        skill1Icon: pet.autoSkill1Icon ?? null,
+        skill2: pet.autoSkill2 ?? null,
+        skill2Icon: pet.autoSkill2Icon ?? null,
+      },
     },
   }));
 }
