@@ -16,6 +16,7 @@ const mapHexaCore = (coreInfo: NxapiHexaCoreInfo): SkillCoreDto => {
 };
 
 export const hexaMatrixMapper = (hexaMatrixData: NxapiHexaMatrixData): CharacterSkillCoreDto[] => {
+  if (!hexaMatrixData.character_hexa_core_equipment) return [];
   return hexaMatrixData.character_hexa_core_equipment.map((coreInfo) => ({
     skillCore: mapHexaCore(coreInfo),
     slotId: null,

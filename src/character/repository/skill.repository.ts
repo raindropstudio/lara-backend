@@ -11,7 +11,7 @@ export class SkillRepository {
 
     for (const skill of skills) {
       const existingSkill = await this.prisma.skill.findFirst({
-        where: { name: skill.name },
+        where: { icon: skill.icon, level: skill.level },
       });
 
       if (existingSkill && existingSkill.hash === skill.hash) continue;
