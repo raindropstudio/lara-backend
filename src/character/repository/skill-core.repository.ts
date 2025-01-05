@@ -11,10 +11,10 @@ export class SkillCoreRepository {
 
     for (const core of skillCores) {
       const existingCore = await this.prisma.skillCore.findFirst({
-        where: { coreName: core.skillCore.coreName },
+        where: { hash: core.skillCore.hash },
       });
 
-      if (existingCore && existingCore.hash === core.skillCore.hash) continue;
+      if (existingCore) continue;
 
       try {
         await this.prisma.skillCore.create({

@@ -440,7 +440,7 @@ model CharacterSkillCore {
 
 model SkillCore {
   id         Int                  @id @default(autoincrement())
-  hash       String
+  hash       String               @unique
   grade      Int
   coreName   String
   coreType   String
