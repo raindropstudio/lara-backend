@@ -48,6 +48,7 @@ model Character {
   skill                CharacterSkill[]
   skillCore            CharacterSkillCore[]
   linkSkill            CharacterLinkSkill[]
+  hexaStat             CharacterHexaStat[]
 }
 
 model Stat {
@@ -417,11 +418,11 @@ model Skill {
   hash               String               @unique
   grade              String? // 스킬 차수
   name               String
-  description        String?              @db.VarChar(500)
+  description        String?              @db.VarChar(1000)
   level              Int
   icon               String
-  effect             String?              @db.VarChar(500)
-  effectNext         String?              @db.VarChar(500)
+  effect             String?              @db.VarChar(1000)
+  effectNext         String?              @db.VarChar(1000)
   characters         CharacterSkill[]
   CharacterLinkSkill CharacterLinkSkill[]
 }
@@ -446,4 +447,29 @@ model SkillCore {
   coreType   String
   coreSkill  Json
   characters CharacterSkillCore[]
+}
+
+model HexaStat {
+  id                Int                 @id @default(autoincrement())
+  hash              String              @unique
+  mainStatName      String
+  mainStatLevel     Int
+  subStat1Name      String
+  subStat1Level     Int
+  subStat2Name      String
+  subStat2Level     Int
+  statGrade         Int
+  CharacterHexaStat CharacterHexaStat[]
+}
+
+model CharacterHexaStat {
+  character   Character @relation(fields: [characterId], references: [id])
+  characterId Int
+  hexaStat    HexaStat  @relation(fields: [hexaStatId], references: [id])
+  hexaStatId  Int
+  hexaStatNo  Int
+  presetNo    Int
+  active      Boolean
+
+  @@id([characterId, hexaStatId, presetNo])
 }

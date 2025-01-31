@@ -4,6 +4,7 @@ import axiosRetry from 'axios-retry';
 import { AbilityDto } from 'src/common/dto/ability.dto';
 import { CashEquipmentPresetDto } from 'src/common/dto/cash-equipment.dto';
 import { CharacterBasicDto } from 'src/common/dto/character-basic.dto';
+import { HexaStatDto } from 'src/common/dto/hexa-stat.dto';
 import { HyperStatPresetDto } from 'src/common/dto/hyper-stat.dto';
 import { ItemEquipmentPresetDto } from 'src/common/dto/item-equipment.dto';
 import { CharacterLinkSkillDto } from 'src/common/dto/link-skill.dto';
@@ -18,7 +19,8 @@ import { UnionDto } from 'src/common/dto/union.dto';
 import { abilityMapper } from './mapper/ability.mapper';
 import { cashEquipmentMapper } from './mapper/cashitem-equipment.mapper';
 import { characterBasicMapper } from './mapper/character-basic.mapper';
-import { hexaMatrixMapper } from './mapper/hexamatrix.mapper';
+import { hexaMatrixMapper } from './mapper/hexa-matrix.mapper';
+import { hexaStatMapper } from './mapper/hexa-stat.mapper';
 import { hyperStatMapper } from './mapper/hyper-stat.mapper';
 import { itemEquipmentMapper } from './mapper/item-equipment.mapper';
 import { linkSkillMapper } from './mapper/link-skill.mapper';
@@ -32,6 +34,7 @@ import { unionMapper } from './mapper/union.mapper';
 import { vMatrixMapper } from './mapper/vmatrix.mapper';
 import { NxapiAbilityData } from './type/nxapi-ability.type';
 import { NxApiCashEquipment } from './type/nxapi-cash-equipment.type';
+import { NxapiHexaMatrixStatData } from './type/nxapi-hexamatrix-stat.type';
 import { NxapiHexaMatrixData } from './type/nxapi-hexamatrix.type';
 import { NxapiItemEquipment } from './type/nxapi-item-equipment.type';
 import { NxapiLinkSkillData } from './type/nxapi-link-skill.type';
@@ -174,9 +177,9 @@ export class NxapiService implements OnModuleInit {
     return hexaMatrixMapper(res);
   }
 
-  async fetchCharacterHexamatrixStat(ocid: string, date?: string): Promise<object> {
-    const res = await this.nxapi<any>('/character/hexamatrix-stat', { ocid, date });
-    return res;
+  async fetchCharacterHexamatrixStat(ocid: string, date?: string): Promise<HexaStatDto[]> {
+    const res = await this.nxapi<NxapiHexaMatrixStatData>('/character/hexamatrix-stat', { ocid, date });
+    return hexaStatMapper(res);
   }
 
   // 유니온

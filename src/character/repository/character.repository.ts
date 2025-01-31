@@ -3,6 +3,7 @@ import { CharacterDto } from 'src/common/dto/character.dto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { convertAbilityToDto, convertAbilityToEntity } from '../converter/ability.converter';
 import { convertCashEquipmentToDto, convertCashEquipmentToEntity } from '../converter/cash-equipment.converter';
+import { convertHexaStatToDto } from '../converter/hexa-stat.converter';
 import { convertHyperStatToDto, convertHyperStatToEntity } from '../converter/hyper-stat.converter';
 import { convertItemEquipmentToDto, convertItemEquipmentToEntity } from '../converter/item-equipment.converter';
 import { convertLinkSkillToDto, convertLinkSkillToEntity } from '../converter/link-skill.converter';
@@ -80,6 +81,11 @@ export class CharacterRepository {
             skillCore: true,
           },
         },
+        hexaStat: {
+          include: {
+            hexaStat: true,
+          },
+        },
       },
     });
 
@@ -96,6 +102,7 @@ export class CharacterRepository {
       skill: convertSkillToDto(characterData.skill),
       linkSkill: convertLinkSkillToDto(characterData.linkSkill),
       skillCore: convertSkillCoreToDto(characterData.skillCore),
+      hexaStat: convertHexaStatToDto(characterData.hexaStat),
     };
   }
 
@@ -114,6 +121,7 @@ export class CharacterRepository {
       skill,
       linkSkill,
       skillCore,
+      hexaStat,
       ...characterData
     } = character;
 
@@ -135,6 +143,7 @@ export class CharacterRepository {
       setEffectIds,
       skillIds,
       skillCoreIds,
+      hexaStatIds,
     ] = await Promise.all([
       // HyperStat IDs 조회
       this.prismaService.hyperStat.findMany({
@@ -207,6 +216,14 @@ export class CharacterRepository {
         },
         select: { id: true, hash: true },
       }),
+
+      // HexaStat IDs 조회
+      this.prismaService.hexaStat.findMany({
+        where: {
+          hash: { in: hexaStat.map((hs) => hs.hash) },
+        },
+        select: { id: true, hash: true },
+      }),
     ]);
 
     // 2. ID들을 조회한 결과에 따라 매핑하여 삽입할 데이터 준비
@@ -218,6 +235,7 @@ export class CharacterRepository {
     const setEffectMap = new Map(setEffectIds.map((setEff) => [setEff.setName, setEff.id]));
     const skillMap = new Map(skillIds.map((s) => [s.hash, s.id]));
     const skillCoreMap = new Map(skillCoreIds.map((sc) => [sc.hash, sc.id]));
+    const hexaStatMap = new Map(hexaStatIds.map((hs) => [hs.hash, hs.id]));
 
     // 3. 트랜잭션 내에서 Character와 연결된 항목들을 처리
     await this.prismaService.$transaction(async (prisma) => {
@@ -260,6 +278,7 @@ export class CharacterRepository {
         prisma.characterSkill.deleteMany({ where: { characterId } }),
         prisma.characterLinkSkill.deleteMany({ where: { characterId } }),
         prisma.characterSkillCore.deleteMany({ where: { characterId } }),
+        prisma.characterHexaStat.deleteMany({ where: { characterId } }),
       ]);
 
       // 하이퍼스탯 중간 테이블 연결
@@ -372,6 +391,18 @@ export class CharacterRepository {
             slotLevel: sc.slotLevel,
             coreLevel: sc.coreLevel,
           })),
+        skipDuplicates: true,
+      });
+
+      // 헥사스탯 연결
+      await prisma.characterHexaStat.createMany({
+        data: hexaStat.map((hs) => ({
+          characterId: characterId,
+          hexaStatId: hexaStatMap.get(hs.hash),
+          hexaStatNo: hs.hexaStatNo,
+          presetNo: hs.presetNo,
+          active: hs.active,
+        })),
         skipDuplicates: true,
       });
     });

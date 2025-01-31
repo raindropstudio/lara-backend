@@ -2,6 +2,7 @@ import { Expose, Type } from 'class-transformer';
 import { AbilityDto } from './ability.dto';
 import { CashEquipmentPresetDto } from './cash-equipment.dto';
 import { CharacterBasicDto } from './character-basic.dto';
+import { HexaStatDto } from './hexa-stat.dto';
 import { HyperStatPresetDto } from './hyper-stat.dto';
 import { ItemEquipmentPresetDto } from './item-equipment.dto';
 import { CharacterLinkSkillDto } from './link-skill.dto';
@@ -66,4 +67,8 @@ export class CharacterDto extends CharacterBasicDto {
   @Expose()
   @Type(() => CharacterSkillCoreDto)
   skillCore: CharacterSkillCoreDto[];
+
+  @Expose()
+  @Type(() => HexaStatDto)
+  hexaStat: HexaStatDto[];
 }

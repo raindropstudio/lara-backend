@@ -5,6 +5,7 @@ import { CharacterService } from './character.service';
 import { AbilityRepository } from './repository/ability.repository';
 import { CashEquipmentRepository } from './repository/cash-equipment.repository';
 import { CharacterRepository } from './repository/character.repository';
+import { HexaStatRepository } from './repository/hexa-stat.repository';
 import { HyperStatRepository } from './repository/hyper-stat.repository';
 import { ItemEquipmentRepository } from './repository/item-equipment.repository';
 import { ItemOptionRepository } from './repository/item-option.repository';
@@ -30,6 +31,7 @@ import { SkillRepository } from './repository/skill.repository';
     SkillRepository,
     LinkSkillRepository,
     SkillCoreRepository,
+    HexaStatRepository,
   ],
   exports: [CharacterService],
 })

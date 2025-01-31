@@ -3,6 +3,7 @@ import { AbilityDto } from 'src/common/dto/ability.dto';
 import { CashEquipmentPresetDto } from 'src/common/dto/cash-equipment.dto';
 import { CharacterBasicDto } from 'src/common/dto/character-basic.dto';
 import { CharacterDto } from 'src/common/dto/character.dto';
+import { HexaStatDto } from 'src/common/dto/hexa-stat.dto';
 import { HyperStatPresetDto } from 'src/common/dto/hyper-stat.dto';
 import { ItemEquipmentPresetDto } from 'src/common/dto/item-equipment.dto';
 import { CharacterLinkSkillDto } from 'src/common/dto/link-skill.dto';
@@ -20,6 +21,7 @@ import { convertCashEquipmentToEntity } from './converter/cash-equipment.convert
 import { AbilityRepository } from './repository/ability.repository';
 import { CashEquipmentRepository } from './repository/cash-equipment.repository';
 import { CharacterRepository } from './repository/character.repository';
+import { HexaStatRepository } from './repository/hexa-stat.repository';
 import { HyperStatRepository } from './repository/hyper-stat.repository';
 import { ItemEquipmentRepository } from './repository/item-equipment.repository';
 import { ItemOptionRepository } from './repository/item-option.repository';
@@ -42,6 +44,7 @@ export class CharacterService {
     private readonly skillRepository: SkillRepository,
     private readonly linkSkillRepository: LinkSkillRepository,
     private readonly skillCoreRepository: SkillCoreRepository,
+    private readonly hexaStatRepository: HexaStatRepository,
   ) {}
   private readonly logger = new Logger(CharacterService.name);
 
@@ -65,6 +68,7 @@ export class CharacterService {
         skill,
         linkSkill,
         skillCore,
+        hexaStat,
       ] = await Promise.all([
         this.fetchCharacterBasic(ocid),
         this.fetchCharacterStat(ocid),
@@ -80,6 +84,7 @@ export class CharacterService {
         this.getCharacterSkill(ocid),
         this.getCharacterLinkSkill(ocid),
         this.getCharacterSkillCore(ocid),
+        this.getCharacterHexaStat(ocid),
       ]);
 
       const updatedCharacter: CharacterDto = {
@@ -98,6 +103,7 @@ export class CharacterService {
         skill,
         linkSkill,
         skillCore,
+        hexaStat,
       };
 
       await this.characterRepository.upsertCharacterOverall(updatedCharacter);
@@ -203,6 +209,14 @@ export class CharacterService {
     await this.skillCoreRepository.createOrIgnoreSkillCore([...characterVSkillCore, ...characterHexaSkillCore]);
 
     return [...characterVSkillCore, ...characterHexaSkillCore];
+  }
+
+  async getCharacterHexaStat(ocid: string, date?: string): Promise<HexaStatDto[]> {
+    const characterHexaStat = await this.nxapiService.fetchCharacterHexamatrixStat(ocid, date);
+
+    await this.hexaStatRepository.createOrIgnoreHexaStat(characterHexaStat);
+
+    return characterHexaStat;
   }
 
   async fetchUnion(ocid: string, date?: string): Promise<UnionDto> {
