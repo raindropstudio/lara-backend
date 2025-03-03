@@ -29,14 +29,19 @@ export const hexaStatMapper = (hexaStatData: NxapiHexaMatrixStatData): HexaStatD
   const currentCore2 = mapHexaStatCore(hexaStatData.character_hexa_stat_core_2[0]);
 
   // 프리셋 코어 정보
-  const presetCores = hexaStatData.preset_hexa_stat_core.map((core) => ({
-    ...mapHexaStatCore(core),
-    hexaStatNo: 1,
-  }));
-  const presetCores2 = hexaStatData.preset_hexa_stat_core_2.map((core) => ({
-    ...mapHexaStatCore(core),
-    hexaStatNo: 2,
-  }));
+  const presetCores = hexaStatData.preset_hexa_stat_core
+    .map((core) => ({
+      ...mapHexaStatCore(core),
+      hexaStatNo: 1,
+    }))
+    .filter((core) => core.mainStatName !== null);
+
+  const presetCores2 = hexaStatData.preset_hexa_stat_core_2
+    .map((core) => ({
+      ...mapHexaStatCore(core),
+      hexaStatNo: 2,
+    }))
+    .filter((core) => core.mainStatName !== null);
 
   // active 상태 설정
   const markActivePreset = (current: HexaStatDto, preset: HexaStatDto[]) => {
@@ -46,5 +51,14 @@ export const hexaStatMapper = (hexaStatData: NxapiHexaMatrixStatData): HexaStatD
     }));
   };
 
-  return [...markActivePreset(currentCore, presetCores), ...markActivePreset(currentCore2, presetCores2)];
+  // 현재 코어도 메인 스탯이 null이 아닌 경우만 처리
+  const result = [];
+  if (currentCore.mainStatName !== null) {
+    result.push(...markActivePreset(currentCore, presetCores));
+  }
+  if (currentCore2.mainStatName !== null) {
+    result.push(...markActivePreset(currentCore2, presetCores2));
+  }
+
+  return result;
 };
