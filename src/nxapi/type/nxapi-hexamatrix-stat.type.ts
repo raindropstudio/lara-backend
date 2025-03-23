@@ -14,6 +14,8 @@ export interface NxapiHexaMatrixStatData {
   character_class: string;
   character_hexa_stat_core: NxapiHexaStatCoreInfo[];
   character_hexa_stat_core_2: NxapiHexaStatCoreInfo[];
+  character_hexa_stat_core_3: NxapiHexaStatCoreInfo[];
   preset_hexa_stat_core: NxapiHexaStatCoreInfo[];
   preset_hexa_stat_core_2: NxapiHexaStatCoreInfo[];
+  preset_hexa_stat_core_3: NxapiHexaStatCoreInfo[];
 }
