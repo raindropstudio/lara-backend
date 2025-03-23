@@ -99,11 +99,14 @@ export const cashEquipmentMapper = (equipment: NxApiCashEquipment): CashEquipmen
 
   const preset = presetKeys
     .filter((key) => equipment[key].length > 0)
-    .map((key, index) => ({
-      presetNo: index,
-      active: index === activePresetNo,
-      cashEquipmentInfo: equipment[key].map(mapCashItemInfo),
-    }));
+    .map((key) => {
+      const presetNo = parseInt(/\d+$/.exec(key)?.[0] || '0');
+      return {
+        presetNo,
+        active: presetNo === activePresetNo,
+        cashEquipmentInfo: equipment[key].map(mapCashItemInfo),
+      };
+    });
 
   return preset;
 };
