@@ -184,7 +184,7 @@ export class NxapiService implements OnModuleInit {
 
   // 유니온
 
-  async fetchUnion(ocid: string, date?: string): Promise<UnionDto> {
+  async fetchUnion(ocid: string, date?: string): Promise<UnionDto | null> {
     const res = await this.nxapi<NxapiUnion>('/user/union', { ocid, date });
     return unionMapper(res);
   }

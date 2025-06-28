@@ -219,7 +219,7 @@ export class CharacterService {
     return characterHexaStat;
   }
 
-  async fetchUnion(ocid: string, date?: string): Promise<UnionDto> {
+  async fetchUnion(ocid: string, date?: string): Promise<UnionDto | null> {
     return await this.nxapiService.fetchUnion(ocid, date);
   }
 }

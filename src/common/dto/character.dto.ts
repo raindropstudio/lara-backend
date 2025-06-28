@@ -42,7 +42,7 @@ export class CharacterDto extends CharacterBasicDto {
 
   @Expose()
   @Type(() => UnionDto)
-  union: UnionDto;
+  union: UnionDto | null;
 
   @Expose()
   @Type(() => SetEffectDto)

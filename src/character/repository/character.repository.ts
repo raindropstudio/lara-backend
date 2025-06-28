@@ -248,7 +248,7 @@ export class CharacterRepository {
           ...characterBasic,
           stat: statId ? { update: stat } : { create: stat },
           propensity: propensityId ? { update: propensity } : { create: propensity },
-          union: unionId ? { update: union } : { create: union },
+          ...(union ? { union: unionId ? { update: union } : { create: union } } : {}),
           petEquipment: {
             deleteMany: {},
             create: petEquipment.map(convertPetEquipmentToEntity),
@@ -258,7 +258,7 @@ export class CharacterRepository {
           ...characterBasic,
           stat: { create: stat },
           propensity: { create: propensity },
-          union: { create: union },
+          ...(union ? { union: { create: union } } : {}),
           petEquipment: {
             create: petEquipment.map(convertPetEquipmentToEntity),
           },
