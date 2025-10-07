@@ -10,11 +10,11 @@ export class SkillRepository {
     if (!skills?.length) return;
 
     for (const skill of skills) {
-      const existingSkill = await this.prisma.skill.findFirst({
-        where: { icon: skill.icon, level: skill.level },
+      const existingSkill = await this.prisma.skill.findUnique({
+        where: { hash: skill.hash },
       });
 
-      if (existingSkill && existingSkill.hash === skill.hash) continue;
+      if (existingSkill) continue;
 
       try {
         await this.prisma.skill.create({
