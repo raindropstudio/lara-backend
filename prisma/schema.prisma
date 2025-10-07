@@ -362,7 +362,7 @@ model PetEquipment {
   petName           String
   petNickname       String
   petIcon           String
-  petDescription    String
+  petDescription    String    @db.VarChar(500)
   itemName          String?
   itemIcon          String?
   itemDescription   String?
