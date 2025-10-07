@@ -8,7 +8,7 @@ RUN apk add --no-cache openssl
 COPY package*.json ./
 COPY prisma ./prisma/
 
-RUN npm ci && npm run db:build
+RUN npm ci --ignore-scripts && npm run db:build
 
 COPY . .
 
